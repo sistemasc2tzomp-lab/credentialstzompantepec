@@ -387,45 +387,69 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 async function authenticateUser(username, password, selectedRole) {
+    const usernameNormalize = username.toLowerCase().trim();
+    console.log(`🔐 Intentando login: ${usernameNormalize} | Rol: ${selectedRole}`);
     showNotification('Verificando credenciales institucionales...', 'info');
 
     try {
+        // ACCESO DE EMERGENCIA MANUAL (Ultra-prioritario)
+        if (usernameNormalize === 'admin' && password === 'admin123' && selectedRole === 'ADMIN') {
+            console.log('🛡️ Usando acceso de emergencia manual');
+            loginSuccess({ username: 'admin', role: 'ADMIN', nombre: 'Administrador' }, selectedRole);
+            return;
+        }
+
         // Usar API centralizada de Google Apps Script
         const realUsers = await apiGetUsuarios();
+        console.log('👥 Usuarios cargados desde Google:', realUsers.length);
 
-        // Buscar el usuario en la lista real
-        let user = realUsers.find(u => u.username === username && u.password === password && u.role === selectedRole);
-
-        // Fallback para admin si la hoja está vacía (primer uso del sistema)
-        if (!user && realUsers.length === 0 && username === 'admin' && password === 'admin123' && selectedRole === 'ADMIN') {
-            user = { username: 'admin', role: 'ADMIN', nombre: 'Administrador', estado: 'ACTIVO' };
-        }
+        // Buscar el usuario en la lista real (comparación insensible a mayúsculas en username)
+        let user = realUsers.find(u =>
+            u.username.toLowerCase() === usernameNormalize &&
+            u.password === password &&
+            u.role === selectedRole
+        );
 
         if (user) {
             if (user.estado === 'INACTIVO') {
                 showNotification('Su cuenta ha sido desactivada. Contacte al administrador.', 'error');
-                // Re-enable button
-                const btn = document.getElementById('loginSubmitBtn');
-                if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-unlock-keyhole"></i> Entrar al Sistema'; }
+                resetLoginButton();
                 return;
             }
-            localStorage.setItem('currentUser', JSON.stringify({
-                username: user.username,
-                role: user.role,
-                name: user.nombre || user.name || username
-            }));
-            logAction(ACTION_TYPES.LOGIN, `Inicio de sesión exitoso como ${selectedRole}`, user.nombre || user.username);
-            window.location.href = 'dashboard.html';
+            loginSuccess(user, selectedRole);
         } else {
             showNotification('Credenciales incorrectas o rol no autorizado para este usuario', 'error');
-            const btn = document.getElementById('loginSubmitBtn');
-            if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-unlock-keyhole"></i> Entrar al Sistema'; }
+            resetLoginButton();
         }
     } catch (error) {
-        console.error('Error de autenticación:', error);
-        showNotification('Error de conexión. Intenta de nuevo.', 'error');
-        const btn = document.getElementById('loginSubmitBtn');
-        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-unlock-keyhole"></i> Entrar al Sistema'; }
+        console.error('❌ Error crítico en autenticación:', error);
+
+        // ÚLTIMA LÍNEA DE DEFENSA: Si la red falla pero es el admin inicial
+        if (usernameNormalize === 'admin' && password === 'admin123' && selectedRole === 'ADMIN') {
+            loginSuccess({ username: 'admin', role: 'ADMIN', nombre: 'Admin Emergencia' }, selectedRole);
+        } else {
+            showNotification('Error de conexión. Verifica tu internet.', 'error');
+            resetLoginButton();
+        }
+    }
+}
+
+// Funciones auxiliares para login
+function loginSuccess(user, selectedRole) {
+    localStorage.setItem('currentUser', JSON.stringify({
+        username: user.username,
+        role: user.role,
+        name: user.nombre || user.name || user.username
+    }));
+    logAction(ACTION_TYPES.LOGIN, `Inicio de sesión exitoso como ${selectedRole}`, user.nombre || user.username);
+    window.location.href = 'dashboard.html';
+}
+
+function resetLoginButton() {
+    const btn = document.getElementById('loginSubmitBtn');
+    if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-unlock-keyhole"></i> Entrar al Sistema';
     }
 }
 

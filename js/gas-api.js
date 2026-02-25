@@ -10,7 +10,7 @@
 //    Formato: https://script.google.com/macros/s/TU_ID/exec
 // ============================================================
 
-const GAS_WEBAPP_URL = 'REEMPLAZAR_CON_URL_DE_WEB_APP';
+const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbz-qHToQO3uHptxEMV6v2yxM2gewsSDWkfvd-lUac3o2OQ_xn5ZCOtmdBntgxB2-ebe/exec';
 
 // ID de Google Sheet (para lectura pública con API Key)
 const SPREADSHEET_ID_CONFIG = '12_nohX3MHsU8WrvhDKLYbQYr0uoMFvlx30ICjjJsT2M';

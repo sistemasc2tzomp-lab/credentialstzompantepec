@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Cambiado título según solicitud -->
+    <title>Seguridad Pública Tzompantepec - Reportes</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <!-- Cambiado según solicitud -->
+            <div class="logo">
+                <i class="fas fa-id-card"></i>
+                <span>Seguridad Pública Tzompantepec</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Inicio</a>
+                <a href="gestion-personal.html">Gestión</a>
+                <a href="#reportes">Reportes</a>
+                <a href="login.html" class="btn-primary">Acceder al Sistema</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="reportes-container">
+        <h1>Reportes</h1>
+        <p>Módulo de generación de reportes del sistema</p>
+        
+        <!-- Selector de personal para reportes individuales -->
+        <div class="selector-personal">
+            <label for="selectPersonal">Seleccionar Personal:</label>
+            <select id="selectPersonal" class="form-control">
+                <option value="">-- Seleccione un elemento --</option>
+                <option value="1">Juan Pérez - Policía</option>
+                <option value="2">María García - Oficial</option>
+                <option value="3">Carlos López - Supervisor</option>
+                <option value="4">Ana Martínez - Administrativo</option>
+            </select>
+        </div>
+
+        <!-- Aquí iría el contenido específico de reportes -->
+        <div class="content-placeholder">
+            <i class="fas fa-chart-bar"></i>
+            <h2>Sistema de Reportes</h2>
+            <p>Seleccione una opción de exportación</p>
+        </div>
+
+        <!-- En la sección de acciones -->
+        <div class="report-actions">
+            <button onclick="exportarReporte('excel')" class="btn-excel">
+                <i class="fas fa-file-excel"></i> Exportar a Excel
+            </button>
+            <button onclick="exportarReporte('pdf')" class="btn-pdf">
+                <i class="fas fa-file-pdf"></i> Exportar a PDF
+            </button>
+            <button onclick="exportarReporte('pdf-individual')" class="btn-pdf-individual">
+                <i class="fas fa-file-pdf"></i> Exportar Individual a PDF
+            </button>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2025 Seguridad Pública Tzompantepec - Sistema de Gestión de Personal</p>
+        </div>
+    </footer>
+
+    <script>
+    function exportarReporte(tipo) {
+        if(tipo === 'excel') {
+            exportarExcel();
+        } else if(tipo === 'pdf') {
+            window.location.href = 'exportar_pdf.php?tipo=general';
+        } else if(tipo === 'pdf-individual') {
+            const id = document.getElementById('selectPersonal').value;
+            if(id) {
+                window.location.href = 'exportar_pdf.php?tipo=individual&id=' + id;
+            } else {
+                alert('Por favor seleccione un elemento');
+            }
+        }
+    }
+
+    function exportarExcel() {
+        // Función para exportar a Excel
+        window.location.href = 'exportar_excel.php';
+    }
+    </script>
+</body>
+</html>

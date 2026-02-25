@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso al Sistema | Seguridad Pública Tzompantepec</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --police-navy: #0a192f;
+            --police-blue: #1a3a5f;
+            --police-gold: #c5a059;
+            --police-accent: #ffd700;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body,
+        html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .login-body {
+            background: linear-gradient(135deg, var(--police-navy) 0%, #0d2b4e 50%, var(--police-blue) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated background particles */
+        .login-body::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+            opacity: 0.08;
+        }
+
+        .bg-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            animation: pulse 6s ease-in-out infinite alternate;
+        }
+
+        .bg-orb-1 {
+            width: 400px;
+            height: 400px;
+            background: rgba(197, 160, 89, 0.15);
+            top: -100px;
+            left: -100px;
+        }
+
+        .bg-orb-2 {
+            width: 300px;
+            height: 300px;
+            background: rgba(26, 58, 95, 0.4);
+            bottom: -100px;
+            right: -100px;
+            animation-delay: 2s;
+        }
+
+        .bg-orb-3 {
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 215, 0, 0.08);
+            top: 50%;
+            left: 60%;
+            animation-delay: 4s;
+        }
+
+        @keyframes pulse {
+            from {
+                transform: scale(1);
+                opacity: 0.7;
+            }
+
+            to {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
+
+        .login-container {
+            z-index: 10;
+            width: 100%;
+            max-width: 440px;
+            padding: 20px;
+        }
+
+        .login-box {
+            border-top: 5px solid var(--police-gold);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.97);
+            padding: 40px 36px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(197, 160, 89, 0.2);
+            animation: slideDown 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-40px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .login-header .shield-icon {
+            font-size: 2.5rem;
+            color: var(--police-navy);
+            background: linear-gradient(135deg, var(--police-gold), var(--police-accent));
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin: 0 auto 1.2rem;
+            box-shadow: 0 8px 25px rgba(197, 160, 89, 0.4);
+        }
+
+        .login-header h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            color: var(--police-navy);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-size: 1.3rem;
+            margin: 0 0 6px;
+        }
+
+        .login-header p {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        /* Role selector */
+        .role-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            background: #f1f5f9;
+            padding: 5px;
+            border-radius: 12px;
+        }
+
+        .role-btn {
+            flex: 1;
+            padding: 9px 6px;
+            border: 2px solid transparent;
+            background: none;
+            border-radius: 9px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #64748b;
+            transition: all 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .role-btn i {
+            font-size: 1.1rem;
+        }
+
+        .role-btn.active {
+            background: white;
+            border-color: var(--police-gold);
+            color: var(--police-navy);
+            box-shadow: 0 2px 8px rgba(197, 160, 89, 0.3);
+        }
+
+        .role-btn:hover:not(.active) {
+            background: white;
+            color: var(--police-navy);
+        }
+
+        /* Input group */
+        .input-group {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 0.95rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 14px 14px 42px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.25s;
+            background: #f8fafc;
+            color: #1e293b;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--police-gold);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.15);
+        }
+
+        .input-group input::placeholder {
+            color: #c4c9d4;
+        }
+
+        /* Login button */
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--police-navy) 0%, var(--police-blue) 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            border-bottom: 3px solid var(--police-gold);
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(10, 25, 47, 0.3);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Forgot password link */
+        .forgot-link {
+            display: block;
+            text-align: center;
+            margin-top: 14px;
+            color: var(--police-blue);
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .forgot-link:hover {
+            color: var(--police-gold);
+        }
+
+        /* Login footer */
+        .login-footer {
+            text-align: center;
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .login-footer p {
+            margin: 4px 0;
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+
+        .login-footer p:first-child {
+            font-weight: 700;
+            color: var(--police-navy);
+            font-size: 0.85rem;
+        }
+
+        /* Password toggle */
+        .input-group .toggle-pass {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            padding: 0;
+        }
+
+        /* Forgot password modal */
+        .fp-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(4px);
+        }
+
+        .fp-overlay.show {
+            display: flex;
+        }
+
+        .fp-modal {
+            background: white;
+            border-radius: 16px;
+            padding: 36px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            border-top: 4px solid var(--police-gold);
+            animation: slideDown 0.4s ease;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .fp-modal i.fa-key {
+            font-size: 2.5rem;
+            color: var(--police-gold);
+            margin-bottom: 16px;
+        }
+
+        .fp-modal h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            color: var(--police-navy);
+            margin: 0 0 12px;
+        }
+
+        .fp-modal p {
+            color: #64748b;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin: 0 0 20px;
+        }
+
+        .fp-contact-box {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 16px;
+            border-left: 4px solid var(--police-gold);
+            text-align: left;
+        }
+
+        .fp-contact-box p {
+            margin: 6px 0;
+            font-size: 0.85rem;
+            color: #475569;
+        }
+
+        .fp-contact-box strong {
+            color: var(--police-navy);
+        }
+
+        .fp-close-btn {
+            margin-top: 20px;
+            padding: 10px 28px;
+            background: var(--police-navy);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            transition: background 0.2s;
+        }
+
+        .fp-close-btn:hover {
+            background: var(--police-blue);
+        }
+
+        /* Notification on login page */
+        .login-notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            padding: 12px 22px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            z-index: 10000;
+            opacity: 0;
+            transition: all 0.4s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            min-width: 280px;
+            justify-content: center;
+        }
+
+        .login-notification.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .login-notification.info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+
+        .login-notification.success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .login-notification.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+    </style>
+</head>
+
+<body class="login-body">
+    <!-- Background orbs -->
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
+
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <div class="shield-icon">
+                    <i class="fas fa-shield-halved"></i>
+                </div>
+                <h2>Acceso Oficial</h2>
+                <p>Sistema C2 — Seguridad Pública Tzompantepec</p>
+            </div>
+
+            <!-- Selector de Rol -->
+            <div class="role-selector">
+                <button class="role-btn active" data-role="ADMIN" id="roleAdmin">
+                    <i class="fas fa-user-shield"></i>
+                    Administrador
+                </button>
+                <button class="role-btn" data-role="OPERADOR" id="roleOperador">
+                    <i class="fas fa-user-edit"></i>
+                    Operador
+                </button>
+                <button class="role-btn" data-role="AUDITOR" id="roleAuditor">
+                    <i class="fas fa-eye"></i>
+                    Auditor
+                </button>
+            </div>
+
+            <!-- Formulario de Acceso -->
+            <form id="loginForm" class="login-form" autocomplete="off">
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="username" placeholder="ID de usuario institucional" required
+                        autocomplete="username">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" placeholder="Contraseña de acceso" required
+                        autocomplete="current-password">
+                    <button type="button" class="toggle-pass" onclick="togglePasswordVisibility()" id="togglePassBtn">
+                        <i class="fas fa-eye" id="passIcon"></i>
+                    </button>
+                </div>
+                <button type="submit" class="login-btn" id="loginSubmitBtn">
+                    <i class="fas fa-unlock-keyhole"></i>
+                    Entrar al Sistema
+                </button>
+                <a href="#" class="forgot-link" id="forgotPasswordLink">
+                    <i class="fas fa-question-circle"></i> ¿Olvidaste tu contraseña?
+                </a>
+            </form>
+
+            <div class="login-footer">
+                <p>⚠ Acceso Restringido</p>
+                <p>Solo personal autorizado por Seguridad Pública Tzompantepec</p>
+                <p style="margin-top:8px; font-size:0.75rem; opacity:0.6;">v2.1.0 © 2026 Gobierno Municipal</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Olvidé mi contraseña -->
+    <div class="fp-overlay" id="forgotModal">
+        <div class="fp-modal">
+            <i class="fas fa-key"></i>
+            <h3>Recuperación de Contraseña</h3>
+            <p>Para restablecer tu contraseña institucional, comunícate directamente con el área de soporte o con tu
+                superior inmediato.</p>
+            <div class="fp-contact-box">
+                <p><strong><i class="fas fa-building"></i> Dirección de Seguridad Pública</strong></p>
+                <p><i class="fas fa-map-marker-alt"></i> H. Ayuntamiento de Tzompantepec, Tlax.</p>
+                <p><i class="fas fa-user-cog"></i> Administrador del Sistema C2</p>
+                <p><i class="fas fa-clock"></i> Lun – Vie, 8:00 AM – 3:00 PM</p>
+            </div>
+            <button class="fp-close-btn" onclick="closeForgotModal()">
+                <i class="fas fa-times"></i> Cerrar
+            </button>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        // Toggle password visibility
+        function togglePasswordVisibility() {
+            const input = document.getElementById('password');
+            const icon = document.getElementById('passIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        }
+
+        // Forgot password modal
+        function openForgotModal() {
+            document.getElementById('forgotModal').classList.add('show');
+        }
+
+        function closeForgotModal() {
+            document.getElementById('forgotModal').classList.remove('show');
+        }
+
+        // Override the alert-based forgot password with modal
+        document.getElementById('forgotPasswordLink').addEventListener('click', function (e) {
+            e.preventDefault();
+            openForgotModal();
+        });
+
+        // Close modal clicking outside
+        document.getElementById('forgotModal').addEventListener('click', function (e) {
+            if (e.target === this) closeForgotModal();
+        });
+
+        // Notification on login page (since auth.js showNotification uses document.body)
+        // Login page specific notification override
+        window._loginNotify = function (msg, type) {
+            let notif = document.getElementById('loginNotif');
+            if (!notif) {
+                notif = document.createElement('div');
+                notif.id = 'loginNotif';
+                notif.className = 'login-notification';
+                document.body.appendChild(notif);
+            }
+            const icons = { info: 'fa-info-circle', success: 'fa-check-circle', error: 'fa-exclamation-circle' };
+            notif.className = `login-notification ${type}`;
+            notif.innerHTML = `<i class="fas ${icons[type] || icons.info}"></i> ${msg}`;
+            setTimeout(() => notif.classList.add('show'), 10);
+            setTimeout(() => notif.classList.remove('show'), 3500);
+        };
+
+        // Intercept login submit to show spinner
+        document.getElementById('loginForm').addEventListener('submit', function () {
+            const btn = document.getElementById('loginSubmitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
+            // Re-enable after 5s just in case
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-unlock-keyhole"></i> Entrar al Sistema';
+            }, 5000);
+        });
+    </script>
+</body>
+
+</html>

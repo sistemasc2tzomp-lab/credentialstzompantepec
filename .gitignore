@@ -1,0 +1,24 @@
+# Credenciales sensibles - NUNCA subir al repositorio
+credentials.json
+service-account.json
+*.pem
+*.key
+*.env
+.env
+
+# Dependencias PHP (demasiado pesadas para Git)
+vendor/
+composer.lock
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+error.log
+
+# Temporales
+*.tmp
+*.bak

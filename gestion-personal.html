@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Cambiado título según solicitud -->
+    <title>Seguridad Pública Tzompantepec - Gestión de Personal</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <!-- Cambiado según solicitud -->
+            <div class="logo">
+                <i class="fas fa-id-card"></i>
+                <span>Seguridad Pública Tzompantepec</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Inicio</a>
+                <a href="#personal">Personal</a>
+                <a href="#registro">Registro</a>
+                <a href="reportes.html" class="btn-primary">Reportes</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="gestion-personal-container">
+        <h1>Gestión de Personal</h1>
+        <p>Módulo de administración de personal de seguridad</p>
+        
+        <!-- Formulario de registro de personal -->
+        <div class="formulario-personal">
+            <h2><i class="fas fa-user-plus"></i> Registrar Nuevo Personal</h2>
+            
+            <form id="formRegistroPersonal" class="form-personal">
+                <div class="form-grid">
+                    <!-- Datos personales -->
+                    <div class="form-group">
+                        <label for="nombre"><i class="fas fa-user"></i> Nombre completo *</label>
+                        <input type="text" id="nombre" name="nombre" required 
+                               placeholder="Nombre(s) y apellidos">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fechaNacimiento"><i class="fas fa-calendar"></i> Fecha de Nacimiento *</label>
+                        <input type="date" id="fechaNacimiento" name="fechaNacimiento" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="curp"><i class="fas fa-id-card"></i> CURP *</label>
+                        <input type="text" id="curp" name="curp" required 
+                               placeholder="CURP (18 caracteres)"
+                               pattern="[A-Z]{4}[0-9]{6}[H,M][A-Z]{5}[A-Z0-9]{2}" 
+                               title="Formato de CURP válido">
+                        <small>Formato CURP oficial</small>
+                    </div>
+
+                    <!-- En el formulario de agregar personal, después del campo CURP -->
+                    <div class="form-group">
+                        <label for="cuip"><i class="fas fa-id-card"></i> CUIP *</label>
+                        <input type="text" id="cuip" name="cuip" required 
+                               placeholder="Clave Única de Identificación Personal"
+                               pattern="[A-Za-z0-9]{10,20}" 
+                               title="10-20 caracteres alfanuméricos">
+                        <small>Máximo 20 caracteres, solo letras y números</small>
+                    </div>
+
+                    <!-- El campo fechaNacimiento queda igual pero ahora irá después de CUIP -->
+                    <div class="form-group">
+                        <label for="rfc"><i class="fas fa-file-signature"></i> RFC</label>
+                        <input type="text" id="rfc" name="rfc" 
+                               placeholder="RFC (opcional)"
+                               pattern="[A-Z]{4}[0-9]{6}[A-Z0-9]{3}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email"><i class="fas fa-envelope"></i> Correo electrónico</label>
+                        <input type="email" id="email" name="email" 
+                               placeholder="correo@ejemplo.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telefono"><i class="fas fa-phone"></i> Teléfono</label>
+                        <input type="tel" id="telefono" name="telefono" 
+                               placeholder="Número de contacto">
+                    </div>
+
+                    <!-- Datos laborales -->
+                    <div class="form-group">
+                        <label for="cargo"><i class="fas fa-briefcase"></i> Cargo *</label>
+                        <select id="cargo" name="cargo" required>
+                            <option value="">Seleccione un cargo</option>
+                            <option value="policia">Policía</option>
+                            <option value="oficial">Oficial</option>
+                            <option value="supervisor">Supervisor</option>
+                            <option value="comandante">Comandante</option>
+                            <option value="administrativo">Administrativo</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rango"><i class="fas fa-star"></i> Rango</label>
+                        <input type="text" id="rango" name="rango" 
+                               placeholder="Rango o jerarquía">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fechaIngreso"><i class="fas fa-calendar-check"></i> Fecha de Ingreso *</label>
+                        <input type="date" id="fechaIngreso" name="fechaIngreso" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="adscripcion"><i class="fas fa-building"></i> Adscripción</label>
+                        <input type="text" id="adscripcion" name="adscripcion" 
+                               placeholder="Área o departamento">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="numPlaca"><i class="fas fa-badge"></i> Número de Placa</label>
+                        <input type="text" id="numPlaca" name="numPlaca" 
+                               placeholder="Placa de identificación">
+                    </div>
+
+                    <!-- Al final del formulario, antes del botón enviar, agregar: -->
+                    <div class="form-group full-width">
+                        <label for="armado"><i class="fas fa-gun"></i> Armamento Asignado</label>
+                        <textarea id="armado" name="armado" rows="3" 
+                                  placeholder="Especificar arma(s) asignada(s): marca, modelo, matrícula"></textarea>
+                        <small>Detalle del armamento asignado al elemento</small>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="observaciones"><i class="fas fa-comment"></i> Observaciones</label>
+                        <textarea id="observaciones" name="observaciones" rows="3" 
+                                  placeholder="Información adicional relevante"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> Guardar Personal
+                    </button>
+                    <button type="reset" class="btn-secondary">
+                        <i class="fas fa-eraser"></i> Limpiar
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Tabla de personal registrado -->
+        <div class="personal-table-section">
+            <h2><i class="fas fa-list"></i> Personal Registrado</h2>
+            
+            <div class="search-bar">
+                <input type="text" id="buscarPersonal" placeholder="Buscar por nombre, CURP, CUIP o placa...">
+                <button class="btn-primary"><i class="fas fa-search"></i> Buscar</button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="data-table enhanced">
+                    <thead>
+                        <tr>
+                            <th>Foto</th>
+                            <th>Nombre</th>
+                            <th>CURP/CUIP</th>
+                            <th>Cargo</th>
+                            <th>Placa</th>
+                            <th>Armamento</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="estado-activo">
+                            <td>
+                                <div class="avatar-mini">
+                                    <i class="fas fa-user-circle"></i>
+                                </div>
+                            </td>
+                            <td>
+                                <strong>Juan Pérez López</strong><br>
+                                <small>juan.perez@ejemplo.com</small>
+                            </td>
+                            <td>
+                                <span class="badge-id">CURP: PEPJ890101HDF</span><br>
+                                <span class="badge-cuip">CUIP: SPTZ12345678</span>
+                            </td>
+                            <td>Policía</td>
+                            <td><span class="badge-id">SP-001</span></td>
+                            <td>
+                                <i class="fas fa-gun"></i> Pistola 9mm<br>
+                                <small>Mat. P-12345</small>
+                            </td>
+                            <td><span class="status-badge vigente">Activo</span></td>
+                            <td class="actions-cell">
+                                <button class="icon-btn" title="Editar"><i class="fas fa-edit"></i></button>
+                                <button class="icon-btn" title="Ver credencial"><i class="fas fa-id-card"></i></button>
+                                <div class="dropdown">
+                                    <button class="icon-btn" onclick="toggleDropdown(this)" title="Más opciones">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <div class="dropdown-content">
+                                        <a><i class="fas fa-print"></i> Imprimir</a>
+                                        <a><i class="fas fa-file-pdf"></i> Generar PDF</a>
+                                        <a class="text-danger"><i class="fas fa-trash"></i> Dar de baja</a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="estado-activo">
+                            <td>
+                                <div class="avatar-mini">
+                                    <i class="fas fa-user-circle"></i>
+                                </div>
+                            </td>
+                            <td>
+                                <strong>María García Martínez</strong><br>
+                                <small>maria.garcia@ejemplo.com</small>
+                            </td>
+                            <td>
+                                <span class="badge-id">CURP: GAMM850101MDF</span><br>
+                                <span class="badge-cuip">CUIP: SPTZ87654321</span>
+                            </td>
+                            <td>Oficial</td>
+                            <td><span class="badge-id">SP-045</span></td>
+                            <td>
+                                <i class="fas fa-gun"></i> Escopeta cal.12<br>
+                                <small>Mat. E-56789</small>
+                            </td>
+                            <td><span class="status-badge vigente">Activo</span></td>
+                            <td class="actions-cell">
+                                <button class="icon-btn" title="Editar"><i class="fas fa-edit"></i></button>
+                                <button class="icon-btn" title="Ver credencial"><i class="fas fa-id-card"></i></button>
+                                <div class="dropdown">
+                                    <button class="icon-btn" onclick="toggleDropdown(this)" title="Más opciones">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <div class="dropdown-content">
+                                        <a><i class="fas fa-print"></i> Imprimir</a>
+                                        <a><i class="fas fa-file-pdf"></i> Generar PDF</a>
+                                        <a class="text-danger"><i class="fas fa-trash"></i> Dar de baja</a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination">
+                <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+                <span class="page-info">Página 1 de 5</span>
+                <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2025 Seguridad Pública Tzompantepec - Sistema de Gestión de Personal</p>
+        </div>
+    </footer>
+
+    <style>
+        /* Estilos adicionales para el formulario */
+        .gestion-personal-container {
+            padding: 100px 2rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .formulario-personal {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .formulario-personal h2 {
+            margin-bottom: 2rem;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-personal {
+            max-width: 100%;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group label i {
+            color: #2563eb;
+            width: 20px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 10px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+        }
+
+        .form-group small {
+            color: #64748b;
+            font-size: 0.8rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary {
+            background: #64748b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+        }
+
+        .personal-table-section {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .personal-table-section h2 {
+            margin-bottom: 2rem;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .gestion-personal-container {
+                padding: 80px 1rem 1rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .form-actions button {
+                width: 100%;
+            }
+        }
+    </style>
+
+    <script>
+        function toggleDropdown(button) {
+            const dropdown = button.nextElementSibling;
+            dropdown.classList.toggle('show');
+            
+            // Cerrar otros dropdowns abiertos
+            document.addEventListener('click', function(event) {
+                if (!button.contains(event.target) && !dropdown.contains(event.target)) {
+                    dropdown.classList.remove('show');
+                }
+            });
+        }
+
+        // Manejar envío del formulario
+        document.getElementById('formRegistroPersonal')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Aquí iría la lógica para guardar los datos
+            const formData = new FormData(this);
+            console.log('Datos del formulario:', Object.fromEntries(formData));
+            
+            // Mostrar notificación de éxito (simulada)
+            alert('Personal registrado exitosamente');
+            
+            // Limpiar formulario si es necesario
+            // this.reset();
+        });
+    </script>
+</body>
+</html>

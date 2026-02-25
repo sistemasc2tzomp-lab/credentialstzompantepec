@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Credencialización | Seguridad Pública Tzompantepec</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --police-navy: #0a192f;
+            --police-blue: #1a3a5f;
+            --police-gold: #c5a059;
+            --police-accent: #ffd700;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+        }
+
+        .navbar {
+            background: var(--police-navy);
+            color: white;
+            border-bottom: 3px solid var(--police-gold);
+        }
+
+        .logo span {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: white;
+        }
+
+        .logo i {
+            color: var(--police-accent);
+        }
+
+        .nav-links a {
+            color: #cbd5e1;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--police-navy) 0%, var(--police-blue) 100%);
+            color: white;
+            padding: 10rem 2rem 6rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        .hero-content h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 3.5rem;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero-content p {
+            color: #94a3b8;
+            font-size: 1.3rem;
+        }
+
+        .btn-hero {
+            background: var(--police-gold);
+            color: var(--police-navy);
+            border: 2px solid var(--police-accent);
+        }
+
+        .btn-hero:hover {
+            background: var(--police-accent);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .feature-card i {
+            color: var(--police-blue);
+        }
+
+        .feature-card {
+            border-bottom: 4px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            border-bottom-color: var(--police-gold);
+            background: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        footer {
+            background: var(--police-navy);
+            color: #94a3b8;
+            padding: 3rem 1rem;
+            border-top: 3px solid var(--police-gold);
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-shield-halved"></i>
+                <span>SEGURIDAD PÚBLICA TZOMPANTEPEC</span>
+            </div>
+            <div class="nav-links">
+                <a href="#inicio">Inicio</a>
+                <a href="#caracteristicas">Características</a>
+                <a href="login.html" class="btn-primary"
+                    style="background: var(--police-gold); color: var(--police-navy) !important;">Acceder al Sistema</a>
+            </div>
+        </div>
+    </nav>
+
+    <header id="inicio" class="hero">
+        <div class="hero-content">
+            <h1>Sistema Oficial de Credencialización</h1>
+            <p>Plataforma integral para la gestión, emisión y control de identidades institucionales para el cuerpo de
+                seguridad pública.</p>
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <a href="login.html" class="btn-hero">Panel de Control <i class="fas fa-lock"></i></a>
+                <a href="#caracteristicas" class="btn-hero"
+                    style="background: transparent; border: 2px solid white; color: white;">Ver Funciones</a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <!-- Representación visual de seguridad -->
+            <div
+                style="font-size: 12rem; color: var(--police-gold); filter: drop-shadow(0 0 30px rgba(197, 160, 89, 0.3));">
+                <i class="fas fa-id-card-clip"></i>
+            </div>
+        </div>
+    </header>
+
+    <section id="sistemas" class="features" style="background: #e2e8f0;">
+        <div style="text-align: center; margin-bottom: 4rem;">
+            <h2 style="font-family: 'Montserrat', sans-serif; font-weight: 700;">Sistemas Vinculados</h2>
+            <p style="color: #64748b; font-size: 1.1rem;">Integración con otras plataformas institucionales.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card" style="border-top: 4px solid var(--police-gold);">
+                <i class="fas fa-boxes-stacked"></i>
+                <h3>Inventario SIBIM</h3>
+                <p>Visualización del sistema de inventarios de bienes inmuebles municipales.</p>
+                <a href="https://jhory1808.github.io/sibim-tzompantepec/" target="_blank" class="btn-primary"
+                    style="display: inline-block; margin-top: 1rem; background: var(--police-navy); color: white; padding: 0.5rem 1.5rem; text-decoration: none; border-radius: 5px; font-size: 0.8rem;">
+                    Ver Inventarios <i class="fas fa-external-link-alt"></i>
+                </a>
+            </div>
+            <div class="feature-card" style="border-top: 4px solid var(--police-gold);">
+                <i class="fas fa-receipt"></i>
+                <h3>Repositorio de Multas</h3>
+                <p>Gestión y consulta de multas de tránsito y cobros municipales.</p>
+                <a href="login.html" class="btn-primary"
+                    style="display: inline-block; margin-top: 1rem; background: var(--police-gold); color: var(--police-navy); padding: 0.5rem 1.5rem; text-decoration: none; border-radius: 5px; font-size: 0.8rem; font-weight: bold;">
+                    Acceder a Multas <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+    <div style="text-align: center; margin-bottom: 4rem;">
+        <h2 style="font-family: 'Montserrat', sans-serif; font-weight: 700;">Gestión Profesional</h2>
+        <p style="color: #64748b; font-size: 1.1rem;">Estandarización y seguridad en cada identificación emitida.</p>
+    </div>
+    <div class="features-grid">
+        <div class="feature-card">
+            <i class="fas fa-shield-check"></i>
+            <h3>Emisión Segura</h3>
+            <p>Generación de credenciales con estándares oficiales de seguridad pública.</p>
+        </div>
+        <div class="feature-card">
+            <i class="fas fa-qrcode"></i>
+            <h3>Validación QR</h3>
+            <p>Verificación instantánea de datos y estatus del personal en tiempo real.</p>
+        </div>
+        <div class="feature-card">
+            <i class="fas fa-user-shield"></i>
+            <h3>Control de Roles</h3>
+            <p>Acceso restringido y jerarquizado según el nivel de autorización.</p>
+        </div>
+        <div class="feature-card">
+            <i class="fas fa-file-invoice"></i>
+            <h3>Reportes y Auditoría</h3>
+            <p>Registro histórico completo de movimientos y credenciales emitidas.</p>
+        </div>
+    </div>
+    </section>
+
+    <footer>
+        <div class="footer-content" style="text-align: center;">
+            <div style="margin-bottom: 1rem; font-size: 1.5rem; color: white;">
+                <i class="fas fa-shield-halved"></i>
+            </div>
+            <p style="font-weight: 600; color: white; margin-bottom: 0.5rem;">C2 TZOMPANTEPEC</p>
+            <p>&copy; 2026 Seguridad Pública Tzompantepec - Gobierno Municipal</p>
+            <p style="font-size: 0.8rem; margin-top: 1rem; opacity: 0.6;">Sistema de Control de Identidad Institucional
+            </p>
+        </div>
+    </footer>
+</body>
+
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso al Sistema | Seguridad Pública Tzompantepec</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --police-navy: #0a192f;
+            --police-blue: #1a3a5f;
+            --police-gold: #c5a059;
+            --police-accent: #ffd700;
+        }
+
+        .login-body {
+            background: linear-gradient(135deg, var(--police-navy) 0%, var(--police-blue) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-body::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+            opacity: 0.1;
+        }
+
+        .login-box {
+            border-top: 5px solid var(--police-gold);
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .login-header i {
+            color: var(--police-navy);
+            background: var(--police-gold);
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .login-header h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            color: var(--police-navy);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .role-btn.active {
+            border-color: var(--police-gold);
+            background: #fdf6e7;
+            color: var(--police-navy);
+        }
+
+        .login-btn {
+            background: var(--police-navy);
+            border-bottom: 3px solid var(--police-gold);
+        }
+
+        .login-btn:hover {
+            background: var(--police-blue);
+            transform: translateY(-2px);
+        }
+
+        .input-group input:focus {
+            border-color: var(--police-gold);
+        }
+    </style>
+</head>
+
+<body class="login-body">
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <i class="fas fa-shield-halved"></i>
+                <h2>Acceso Oficial</h2>
+                <p>Identificación Institucional C2</p>
+            </div>
+
+            <div class="role-selector">
+                <button class="role-btn active" data-role="admin">
+                    <i class="fas fa-user-shield"></i>
+                    Comandante
+                </button>
+                <button class="role-btn" data-role="user">
+                    <i class="fas fa-user"></i>
+                    Oficial
+                </button>
+            </div>
+
+            <form id="loginForm" class="login-form">
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="username" placeholder="Usuario Institucional" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" placeholder="Clave de Acceso" required>
+                </div>
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-unlock-keyhole"></i>
+                    Entrar al Sistema
+                </button>
+                <div style="text-align: center; margin-top: 1rem;">
+                    <a href="#" id="forgotPasswordLink"
+                        style="color: var(--police-blue); font-size: 0.9rem; text-decoration: none;">¿Olvidaste tu
+                        contraseña?</a>
+                </div>
+            </form>
+
+            <div class="login-footer">
+                <p style="font-weight: 600; color: var(--police-navy);">Acceso Restringido</p>
+                <p>Solo personal autorizado por Seguridad Pública Tzompantepec</p>
+            </div>
+        </div>
+    </div>
+    <script src="js/auth.js"></script>
+</body>
+
+</html>

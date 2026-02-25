@@ -1,46 +1,38 @@
-// CONFIGURACIÓN
-const SPREADSHEET_ID = '12_nohX3MHsU8WrvhDKLYbQYr0uoMFvlx30ICjjJsT2M';
-const API_KEY = 'AIzaSyDUyDBe12Lg4hZwiyRa-I4UbqsEMq4bTqQ';
-const RANGE = 'Personal!A:H'; // Ahora incluye más columnas
+// CONFIGURACIÓN (Ahora centralizada en gas-api.js)
 
 // Estructura completa para el personal
-const EMPLOYEE_STATUS = {
+const EMPLOYEE_STATUS_SHEETS = {
     ACTIVO: 'Activo',
     BAJA: 'Baja',
     VACACIONES: 'Vacaciones',
     COMISION: 'De Comisión'
 };
 
-// Cargar datos reales de Google Sheets
+// Cargar datos reales desde la API centralizada (Google Apps Script)
 async function loadGoogleSheetsData() {
     try {
-        console.log('Conectando con Google Sheets...');
-        
-        const response = await fetch(
-            `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`
-        );
-        
-        if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        if (!data.values || data.values.length <= 1) {
-            console.log('No hay datos suficientes');
+        console.log('🔄 Sincronizando repositorio de personal desde Google Apps Script...');
+
+        // Llamar a la API centralizada definida en gas-api.js
+        const realData = await apiGetPersonal();
+
+        if (!realData || realData.length === 0) {
+            console.log('⚠️ No hay datos en Google Sheets o el Web App no está configurado. Usando datos DEMO.');
             return getEnhancedMockData();
         }
-        
-        return processEnhancedSheetData(data.values);
+
+        console.log('✅ Datos sincronizados correctamente:', realData.length, 'registros.');
+        return realData;
+
     } catch (error) {
-        console.error('Error conectando con Google Sheets:', error);
+        console.error('❌ Error sincronizando con Google Apps Script:', error);
         return getEnhancedMockData();
     }
 }
 
 function processEnhancedSheetData(values) {
     const rows = values.slice(1); // Saltar encabezados
-    
+
     return rows.map((row, index) => ({
         id: `EMP${String(index + 1).padStart(3, '0')}`,
         nombre: row[0] || 'Sin nombre',
@@ -80,7 +72,7 @@ function getRandomStatus() {
 // Función auxiliar para generar credenciales simuladas
 function generateMockCredentials(cuip, vigenciaPrincipal) {
     const credentials = [];
-    
+
     // Credencial actual
     credentials.push({
         id: `CRED${Math.floor(Math.random() * 1000)}`,
@@ -88,7 +80,7 @@ function generateMockCredentials(cuip, vigenciaPrincipal) {
         vigencia: vigenciaPrincipal,
         activa: true
     });
-    
+
     // Posible credencial anterior (30% de probabilidad)
     if (Math.random() > 0.7) {
         const year = new Date().getFullYear() - 1;
@@ -99,7 +91,7 @@ function generateMockCredentials(cuip, vigenciaPrincipal) {
             activa: false
         });
     }
-    
+
     return credentials;
 }
 
@@ -201,22 +193,22 @@ async function updatePersonnelTable() {
     console.log('Actualizando tabla de personal...');
     const data = await loadGoogleSheetsData();
     const tableBody = document.getElementById('tableBody');
-    
+
     if (!tableBody) {
         console.log('No se encontró tableBody');
         return;
     }
-    
+
     if (data.length === 0) {
         tableBody.innerHTML = '<tr><td colspan="5">No hay datos disponibles</td></tr>';
         return;
     }
-    
+
     tableBody.innerHTML = data.map((person, index) => {
         // Escapar comillas para evitar errores
         const nombre = person.nombre.replace(/'/g, "\\'");
         const cargo = person.cargo.replace(/'/g, "\\'");
-        
+
         return `
         <tr>
             <td>${person.nombre}</td>
@@ -230,35 +222,35 @@ async function updatePersonnelTable() {
             </td>
         </tr>
     `}).join('');
-    
+
     // Actualizar contadores
     const totalPersonal = document.getElementById('totalPersonal');
     const credencialesActivas = document.getElementById('credencialesActivas');
-    
+
     if (totalPersonal) totalPersonal.textContent = data.length;
     if (credencialesActivas) {
-        const activas = data.reduce((sum, person) => 
+        const activas = data.reduce((sum, person) =>
             sum + (person.credenciales?.filter(c => c.activa).length || 0), 0);
         credencialesActivas.textContent = activas;
     }
-    
+
     // Registrar la actualización
     if (typeof logAction !== 'undefined' && window.ACTION_TYPES) {
         logAction(ACTION_TYPES.VIEW, `Actualizó tabla de personal (${data.length} registros)`);
     }
-    
+
     console.log('Tabla actualizada con', data.length, 'registros');
 }
 
 function searchPersonnel() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     const rows = document.querySelectorAll('#tableBody tr');
-    
+
     rows.forEach(row => {
         const text = row.textContent.toLowerCase();
         row.style.display = text.includes(searchTerm) ? '' : 'none';
     });
-    
+
     // Registrar la búsqueda
     if (searchTerm && typeof logAction !== 'undefined' && window.ACTION_TYPES) {
         logAction(ACTION_TYPES.SEARCH, `Búsqueda en repositorio: "${searchTerm}"`);
@@ -282,7 +274,7 @@ window.searchPersonnel = searchPersonnel;
 window.EMPLOYEE_STATUS = EMPLOYEE_STATUS;
 
 // Event listener para cuando se carga la sección
-document.addEventListener('sectionLoaded', function(e) {
+document.addEventListener('sectionLoaded', function (e) {
     console.log('Sección cargada:', e.detail);
     if (e.detail === 'repositorio') {
         setTimeout(updatePersonnelTable, 500);
@@ -290,7 +282,7 @@ document.addEventListener('sectionLoaded', function(e) {
 });
 
 // Verificar que las funciones de logging estén disponibles
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     console.log('google-sheets.js cargado correctamente');
     console.log('Funciones de logging disponibles:', {
         logAction: typeof logAction,

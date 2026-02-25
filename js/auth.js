@@ -390,43 +390,42 @@ async function authenticateUser(username, password, selectedRole) {
     showNotification('Verificando credenciales institucionales...', 'info');
 
     try {
-        const response = await fetch('get_usuarios.php');
-        const realUsers = await response.json();
+        // Usar API centralizada de Google Apps Script
+        const realUsers = await apiGetUsuarios();
 
         // Buscar el usuario en la lista real
         let user = realUsers.find(u => u.username === username && u.password === password && u.role === selectedRole);
 
-        // Fallback para admin si la hoja está vacía y es la primera vez
+        // Fallback para admin si la hoja está vacía (primer uso del sistema)
         if (!user && realUsers.length === 0 && username === 'admin' && password === 'admin123' && selectedRole === 'ADMIN') {
-            user = users.admin;
+            user = { username: 'admin', role: 'ADMIN', nombre: 'Administrador', estado: 'ACTIVO' };
         }
 
         if (user) {
             if (user.estado === 'INACTIVO') {
                 showNotification('Su cuenta ha sido desactivada. Contacte al administrador.', 'error');
+                // Re-enable button
+                const btn = document.getElementById('loginSubmitBtn');
+                if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-unlock-keyhole"></i> Entrar al Sistema'; }
                 return;
             }
-
             localStorage.setItem('currentUser', JSON.stringify({
                 username: user.username,
                 role: user.role,
-                name: user.nombre || user.name
+                name: user.nombre || user.name || username
             }));
-            logAction(ACTION_TYPES.LOGIN, `Inicio de sesión exitoso como ${selectedRole}`, user.nombre || user.name);
+            logAction(ACTION_TYPES.LOGIN, `Inicio de sesión exitoso como ${selectedRole}`, user.nombre || user.username);
             window.location.href = 'dashboard.html';
         } else {
             showNotification('Credenciales incorrectas o rol no autorizado para este usuario', 'error');
+            const btn = document.getElementById('loginSubmitBtn');
+            if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-unlock-keyhole"></i> Entrar al Sistema'; }
         }
     } catch (error) {
         console.error('Error de autenticación:', error);
-        // Fallback a locales para emergencia
-        const user = users[username];
-        if (user && user.password === password && user.role === selectedRole) {
-            localStorage.setItem('currentUser', JSON.stringify(user));
-            window.location.href = 'dashboard.html';
-        } else {
-            showNotification('Error de conexión con el servidor de autenticación', 'error');
-        }
+        showNotification('Error de conexión. Intenta de nuevo.', 'error');
+        const btn = document.getElementById('loginSubmitBtn');
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-unlock-keyhole"></i> Entrar al Sistema'; }
     }
 }
 
@@ -2059,22 +2058,19 @@ function initPersonalSection() {
             const formData = new FormData(this);
 
             try {
-                const response = await fetch('guardar_personal.php', {
-                    method: 'POST',
-                    body: formData
-                });
-                const result = await response.json();
+                // Usar API centralizada en lugar de PHP
+                const result = await apiGuardarPersonal(formData);
 
                 if (result.success) {
-                    showNotification('Personal guardado correctamente', 'success');
+                    showNotification('Personal guardado correctamente en Google Sheets', 'success');
                     this.reset();
                     clearSignature();
                     loadPersonnelTable();
                 } else {
-                    showNotification(result.message, 'error');
+                    showNotification(result.message || 'Error al guardar', 'error');
                 }
             } catch (error) {
-                showNotification('Error al conectar con el servidor', 'error');
+                showNotification('Error al conectar con Google Apps Script', 'error');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-save"></i> Guardar Personal';
@@ -2220,15 +2216,20 @@ async function initUsuariosSection() {
             showNotification('Creando perfil de seguridad institucional...', 'info');
 
             try {
+                // Extraer datos del formulario
                 const formData = new FormData(form);
-                const response = await fetch('guardar_usuario.php', {
-                    method: 'POST',
-                    body: formData
-                });
-                const result = await response.json();
+                const datos = {
+                    nombre: formData.get('userName'),
+                    username: formData.get('userEmail'),
+                    password: formData.get('userPass'),
+                    role: formData.get('userRole')
+                };
+
+                // Usar API centralizada de Google Apps Script
+                const result = await apiGuardarUsuario(datos);
 
                 if (result.success) {
-                    showNotification('Usuario autorizado correctamente en Google Sheets', 'success');
+                    showNotification('✅ Usuario creado correctamente en Google Sheets', 'success');
                     closeUserModal();
                     loadUsersRepo();
                 } else {
@@ -2251,8 +2252,8 @@ async function loadUsersRepo() {
     container.innerHTML = '<div class="loading">Sincronizando con base de datos real...</div>';
 
     try {
-        const response = await fetch('get_usuarios.php');
-        const users = await response.json();
+        // Usar API centralizada de Google Apps Script
+        const users = await apiGetUsuarios();
 
         if (users.length === 0) {
             container.innerHTML = '<div class="text-center">No hay usuarios reales registrados. <br><small>Usa el botón "Nuevo Usuario" para empezar.</small></div>';
@@ -3751,12 +3752,8 @@ async function changeEmployeeStatus(employeeId, newStatus) {
     showNotification(`Actualizando estado a ${newStatus}...`, 'info');
 
     try {
-        const response = await fetch('actualizar_estado.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ cuip: employee.cuip, estado: newStatus })
-        });
-        const result = await response.json();
+        // Usar API centralizada en lugar de PHP
+        const result = await apiActualizarEstado(employee.cuip, newStatus);
 
         if (result.success) {
             employee.estado = newStatus;

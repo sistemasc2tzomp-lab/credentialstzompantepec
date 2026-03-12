@@ -53,173 +53,219 @@ function updateEnhancedCredential(data) {
         if (el) el.textContent = value;
     }
 
-    // Actualizar foto si existe
+    // Actualizar foto con lógica de fallback robusta
     const photoArea = document.getElementById('previewPhoto');
-    if (photoArea && data.foto) {
-        photoArea.innerHTML = `<img src="${data.foto}" style="width: 100%; height: 100%; object-fit: cover;">`;
+    if (photoArea) {
+        let photoSrc = data.foto;
+        const cuipLimpio = data.cuip ? data.cuip.trim() : '';
+
+        // Si no hay foto o es el placeholder 'foto', intentar fallback local
+        if (!photoSrc || photoSrc === '' || photoSrc === 'foto') {
+            if (cuipLimpio) {
+                photoSrc = `assets/FOTOGRAFIAS PERSONAL/${cuipLimpio}.png`;
+            }
+        }
+
+        photoArea.innerHTML = `
+            <img src="${photoSrc || ''}" 
+                 onerror="this.src=(this.src.includes('assets/') ? 'https://ui-avatars.com/api/?name=${encodeURIComponent(data.nombre)}&background=0a192f&color=fff' : 'assets/FOTOGRAFIAS PERSONAL/${cuipLimpio || 'NONE'}.png')"
+                 style="width: 100%; height: 100%; object-fit: cover;">
+        `;
     }
 
-    // Generar QR Real
-    const qrContainer = document.getElementById('previewQR');
-    if (qrContainer) {
-        qrContainer.innerHTML = '';
-        const qrCanvas = document.createElement('canvas');
-        QRCode.toCanvas(qrCanvas, JSON.stringify({
-            n: data.nombre,
-            c: data.cuip,
-            v: data.vigencia
-        }), { width: 60, margin: 1 }, function (error) {
-            if (error) console.error(error);
-            qrContainer.appendChild(qrCanvas);
-        });
-    }
+    // Generar QR Real con datos de validación oficial
+    const qrContainers = [document.getElementById('previewQR'), document.getElementById('backQR')];
+    
+    // Identificador único para validación (CUIP o Nombre como backup)
+    const uniqueId = data.cuip && data.cuip !== '---' ? data.cuip : (data.nombre || 'INVALID');
+    const baseUrl = 'https://sistemasc2tzomp-lab.github.io/credentialstzompantepec/validar.html';
+    const validationUrl = `${baseUrl}?id=${encodeURIComponent(uniqueId)}`;
+
+    qrContainers.forEach(container => {
+        if (container) {
+            container.innerHTML = '';
+            const qrCanvas = document.createElement('canvas');
+            // Tamaños optimizados para el diseño
+            const size = container.id === 'backQR' ? 75 : 85; 
+
+            if (typeof QRCode !== 'undefined' && typeof QRCode.toCanvas === 'function') {
+                QRCode.toCanvas(qrCanvas, validationUrl, {
+                    width: size,
+                    margin: 1,
+                    errorCorrectionLevel: 'H',
+                    color: {
+                        dark: '#000000',
+                        light: '#ffffff'
+                    }
+                }, function (error) {
+                    if (error) console.error('QR Error:', error);
+                    else container.appendChild(qrCanvas);
+                });
+            } else {
+                const img = document.createElement('img');
+                img.src = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(validationUrl)}&ecc=H`;
+                img.style.cssText = `width:${size}px;height:${size}px;`;
+                container.appendChild(img);
+            }
+        }
+    });
 }
-
 function printEnhancedCredential() {
     if (!currentPersonData) {
-        alert('Selecciona un empleado primero del Repositorio');
+        alert('Selecciona un oficial primero desde el Repositorio de Personal.');
         return;
     }
 
     const data = currentPersonData;
     const hoy = new Date();
     const meses = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
-    const fechaExp = `${hoy.getDate().toString().padStart(2, '0')}-${meses[hoy.getMonth()]}-${hoy.getFullYear()}`;
+    const fechaExp = `${hoy.getDate().toString().padStart(2, '0')}-${meses[hoy.getMonth()]}-${hoy.getFullYear().toString().substring(2)}`;
 
-    // Registrar la impresión
     if (typeof logAction !== 'undefined' && window.ACTION_TYPES) {
-        logAction(ACTION_TYPES.PRINT, `Imprimió credencial de ${data.nombre}`);
+        logAction(ACTION_TYPES.PRINT, `Generó impresión de credencial: ${data.nombre}`);
     }
 
-    // Generar QR para la impresión
     const tempCanvas = document.createElement('canvas');
-    QRCode.toCanvas(tempCanvas, JSON.stringify({
-        n: data.nombre,
-        c: data.cuip,
-        v: data.vigencia || '2025-12-31'
-    }), { width: 150, margin: 1 });
+    
+    // Identificador único para validación (CUIP o Nombre como backup)
+    const uniqueId = data.cuip && data.cuip !== '---' ? data.cuip : (data.nombre || 'INVALID');
+    const validationUrl = `https://sistemasc2tzomp-lab.github.io/credentialstzompantepec/validar.html?id=${encodeURIComponent(uniqueId)}`;
+ 
+    // Generar el QR para la impresión (un poco más grande para mejor escaneo)
+    QRCode.toCanvas(tempCanvas, validationUrl, { width: 400, margin: 1, errorCorrectionLevel: 'H' });
     const qrDataUrl = tempCanvas.toDataURL();
 
     const printContent = `
         <!DOCTYPE html>
-        <html>
+        <html lang="es">
         <head>
-            <title>Credencial - ${data.nombre}</title>
-            <link rel="stylesheet" href="css/style.css">
+            <meta charset="UTF-8">
+            <title>Impresión Oficial - ${data.nombre}</title>
+            <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Inter:wght@700;800&display=swap" rel="stylesheet">
             <style>
-                body { background: white; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 30px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-                .credential-tzomp { 
-                    width: 325px; 
-                    height: 204px; 
-                    border: 1px solid #ddd; 
-                    border-radius: 12px; 
-                    overflow: hidden; 
-                    position: relative; 
-                    background: white;
+                body { margin: 0; padding: 40px; font-family: 'Inter', sans-serif; background: #fff; display: flex; flex-direction: column; align-items: center; }
+                .no-print-header { 
+                    background: #0a192f; color: white; padding: 20px; width: 100%; max-width: 800px; 
+                    text-align: center; border-radius: 12px; margin-bottom: 40px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                }
+                .print-btn { 
+                    background: #c5a059; color: #000; border: none; padding: 12px 30px; border-radius: 8px; 
+                    font-weight: 800; cursor: pointer; font-family: 'Montserrat', sans-serif; margin-top: 15px;
+                }
+                
+                .card-print {
+                    width: 324px; /* Aprox 8.6cm en 96dpi */
+                    height: 504px; /* Aprox 13.3cm */
+                    border-radius: 15px;
+                    position: relative;
+                    overflow: hidden;
+                    background-size: cover;
+                    background-position: center;
+                    box-shadow: 0 0 1px rgba(0,0,0,0.5);
                     page-break-inside: avoid;
-                    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+                    margin-bottom: 30px;
                 }
-                .banner { background: #0a192f; color: white; text-align: center; padding: 5px; font-weight: bold; font-size: 0.8rem; letter-spacing: 1px; }
-                .main-content { display: flex; padding: 10px; gap: 10px; height: 130px; }
-                .photo-area { width: 90px; height: 110px; border: 2px solid #0a192f; border-radius: 8px; overflow: hidden; background: #f8fafc; }
-                .info-area { flex: 1; display: flex; flex-direction: column; justify-content: center; }
-                .info-field { margin-bottom: 2px; line-height: 1.1; }
-                .info-label { font-weight: bold; font-size: 0.65rem; color: #64748b; text-transform: uppercase; display: block; }
-                .info-value { font-size: 0.75rem; color: #1e293b; font-weight: 600; }
                 
-                .back-layout { padding: 10px; display: flex; flex-direction: column; align-items: center; height: 110px; }
-                .auth-section { text-align: center; margin-top: 5px; flex: 1; }
-                .signature-line { width: 120px; border-top: 1px solid #000; margin: 30px auto 5px; }
-                
-                .bottom-banner { 
-                    background: #f8fafc; 
-                    border-top: 1px solid #e2e8f0; 
-                    padding: 5px 10px; 
-                    display: flex; 
-                    justify-content: space-between; 
-                    align-items: center; 
-                    font-size: 0.5rem; 
-                    color: #64748b;
+                .front-bg { background-image: url('${window.location.origin}/assets/credential_front_bg.jpg'); }
+                .back-bg { background-image: url('${window.location.origin}/assets/credential_back_bg.jpg'); }
+
+                .photo-oficial {
                     position: absolute;
-                    bottom: 0;
-                    width: 100%;
-                    box-sizing: border-box;
+                    top: 178px;
+                    left: 23px;
+                    width: 106px;
+                    height: 135px;
+                    border-radius: 6px;
+                    overflow: hidden;
+                    background: transparent;
                 }
-                .qr-area { width: 45px; height: 45px; }
-                
-                @media print { 
-                    .no-print { display: none; }
-                    body { padding: 0; }
-                    .credential-tzomp { box-shadow: none; border: 1px solid #eee; }
+                /* Posiciones de texto para impresión 324px ajustadas al fondo limpio */
+                .val-print-abs {
+                    position: absolute;
+                    background: transparent; /* Ya no cubrimos, alineamos al lado de la etiqueta */
+                    color: #000;
+                    font-weight: 800;
+                    white-space: nowrap;
+                    z-index: 10;
+                }
+                .p-name { top: 204px; left: 184px; font-size: 0.85rem; color: #1e40af; }
+                .p-cargo{ top: 237px; left: 184px; font-size: 0.68rem; }
+                .p-cuip { top: 270px; left: 184px; font-size: 0.68rem; font-family: monospace; }
+                .p-curp { top: 303px; left: 184px; font-size: 0.68rem; font-family: monospace; }
+                .p-vig  { top: 336px; left: 184px; font-size: 0.68rem; }
+                .p-exp  { top: 369px; left: 184px; font-size: 0.68rem; }
+
+                .qr-box-print {
+                    position: absolute;
+                    bottom: 12px;
+                    right: 15px;
+                    width: 65px;
+                    height: 65px;
+                    background: white;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 4px;
+                    padding: 2px;
+                    border: 1px solid #ddd;
+                }
+                .qr-box-print img { width: 100%; height: 100%; }
+
+                .qr-back-print {
+                    position: absolute;
+                    bottom: 12px;
+                    right: 18px;
+                    width: 68px;
+                    height: 68px;
+                    background: white;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 6px;
+                    padding: 3px;
+                }
+                .qr-back-print img { width: 100%; height: 100%; }
+
+                @media print {
+                    @page { margin: 0; }
+                    body { padding: 0.5cm; }
+                    .no-print-header { display: none; }
+                    .card-print { margin-bottom: 0.5cm; box-shadow: none; border: none; }
                 }
             </style>
         </head>
         <body>
-            <div class="no-print" style="margin-bottom: 20px;">
-                <button onclick="window.print()" style="padding: 12px 24px; background: #0a192f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                    <i class="fas fa-print"></i> CONFIRMAR IMPRESIÓN
-                </button>
+            <div class="no-print-header">
+                <div style="font-family: 'Montserrat', sans-serif; font-size: 1.2rem; font-weight: 800; letter-spacing: 1px;">PREPARACIÓN DE CREDENCIAL OFICIAL</div>
+                <p style="font-size: 0.9rem; opacity: 0.8; margin: 8px 0;">Verifique que la escala de impresión esté al 100% y el papel sea el correcto.</p>
+                <button class="print-btn" onclick="window.print()"><i class="fas fa-print"></i> MANDAR A IMPRESORA</button>
             </div>
-            
-            <!-- FRENTE -->
-            <div class="credential-tzomp">
-                <div class="top-logos" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 15px;">
-                    <img src="assets/escudo_tzomp.png" style="width: 50px; height: auto;">
-                    <img src="assets/c2_logo.png" style="width: 60px; height: auto;">
-                    <img src="assets/spt_logo.png" style="width: 50px; height: auto;">
+
+            <div class="card-print front-bg">
+                <div class="photo-oficial">
+                    <img src="${data.foto || window.location.origin + '/assets/FOTOGRAFIAS PERSONAL/' + (data.cuip || 'NONE').trim() + '.png'}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(data.nombre)}&background=0a192f&color=fff'">
                 </div>
-                <div class="banner">
-                    <div>SEGURIDAD PÚBLICA</div>
-                    <div style="font-size: 0.7rem;">TZOMPANTEPEC</div>
-                </div>
-                <div class="main-content">
-                    <div class="photo-area">
-                        ${data.foto ? `<img src="${data.foto}" style="width:100%;height:100%;object-fit:cover;">` : '<div style="font-size:4rem;color:#ccc;text-align:center;line-height:110px;">👤</div>'}
-                    </div>
-                    <div class="info-area">
-                        <div class="info-field"><span class="info-label">Nombre:</span> <span class="info-value">${data.nombre}</span></div>
-                        <div class="info-field"><span class="info-label">Cargo:</span> <span class="info-value">${data.cargo}</span></div>
-                        <div class="info-field"><span class="info-label">CUIP:</span> <span class="info-value" style="font-family: monospace;">${data.cuip}</span></div>
-                        <div class="info-field"><span class="info-label">CURP:</span> <span class="info-value" style="font-family: monospace;">${data.curp}</span></div>
-                        <div class="info-field" style="display:flex; gap: 10px; margin-top: 5px;">
-                            <div><span class="info-label">Vigencia:</span> <span class="info-value">${data.vigencia || '1 AÑO'}</span></div>
-                            <div><span class="info-label">Fecha Exp.:</span> <span class="info-value">${fechaExp}</span></div>
-                        </div>
-                    </div>
+                
+                <!-- Campos con posición absoluta recalculada para cubrir los labels del fondo -->
+                <span class="val-print-abs p-name">${data.nombre}</span>
+                <span class="val-print-abs p-cargo">${data.cargo}</span>
+                <span class="val-print-abs p-cuip">${data.cuip || 'ADMINISTRATIVO'}</span>
+                <span class="val-print-abs p-curp">${data.curp}</span>
+                <span class="val-print-abs p-vig">${data.vigencia || '1 AÑO'}</span>
+                <span class="val-print-abs p-exp">${data.fechaExpedicion || fechaExp}</span>
+
+                <div class="qr-box-print">
+                    <img src="${qrDataUrl}">
                 </div>
             </div>
 
-            <!-- REVERSO -->
-            <div class="credential-tzomp">
-                <div class="top-logos" style="display: flex; justify-content: space-around; align-items: center; padding: 10px;">
-                    <img src="assets/escudo_tzomp.png" style="height: 35px; width: auto;">
-                    <img src="assets/c2_logo.png" style="height: 35px; width: auto;">
-                    <img src="assets/spt_logo.png" style="height: 35px; width: auto;">
-                </div>
-                <div class="banner">
-                    <div>SEGURIDAD PÚBLICA</div>
-                    <div style="font-size: 0.7rem;">TZOMPANTEPEC</div>
-                </div>
-                <div class="back-layout">
-                    <div class="auth-section">
-                        <div class="signature-line"></div>
-                        <div style="font-size: 0.5rem; font-weight: bold;">C.P. MARCELINO RAMOS MONTIEL</div>
-                        <div style="font-size: 0.4rem; color: #64748b;">PRESIDENTE MUNICIPAL</div>
-                    </div>
-                    <div class="fingerprint-section" style="margin-top: 10px;">
-                        <div style="width:50px;height:65px;border:1px dashed #cbd5e1;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:0.5rem;">HUELLA</div>
-                    </div>
-                </div>
-                <div class="bottom-banner">
-                    <div style="display: flex; flex-direction: column;">
-                        <span>PROPIEDAD DE GOBIERNO DE TZOMPANTEPEC</span>
-                        <span style="font-size: 0.4rem; margin-top: 2px;">DOCUMENTO OFICIAL E INTRANSFERIBLE</span>
-                    </div>
-                    <img src="${qrDataUrl}" class="qr-area" alt="QR Code">
+            <div class="card-print back-bg">
+                <div class="qr-back-print">
+                    <img src="${qrDataUrl}">
                 </div>
             </div>
 
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
         </body>
         </html>
     `;
@@ -227,6 +273,45 @@ function printEnhancedCredential() {
     const printWindow = window.open('', '_blank');
     printWindow.document.write(printContent);
     printWindow.document.close();
+}
+
+async function downloadCredential() {
+    if (!currentPersonData) {
+        alert('Selecciona un empleado primero del Repositorio');
+        return;
+    }
+
+    showNotification('Generando archivos de credencial...', 'info');
+
+    try {
+        const front = document.getElementById('tzompFront');
+        const back = document.getElementById('tzompBack');
+
+        if (!front || !back) {
+            alert('Error: No se encontró el contenedor de la credencial');
+            return;
+        }
+
+        // Descargar Frente
+        const canvasFront = await html2canvas(front, { scale: 3, useCORS: true, backgroundColor: null });
+        const linkFront = document.createElement('a');
+        linkFront.download = `CREDENTIAL_FRONT_${currentPersonData.cuip}.png`;
+        linkFront.href = canvasFront.toDataURL('image/png');
+        linkFront.click();
+
+        // Descargar Reverso
+        const canvasBack = await html2canvas(back, { scale: 3, useCORS: true, backgroundColor: null });
+        const linkBack = document.createElement('a');
+        linkBack.download = `CREDENTIAL_BACK_${currentPersonData.cuip}.png`;
+        linkBack.href = canvasBack.toDataURL('image/png');
+        linkBack.click();
+
+        showNotification('Credenciales descargadas correctamente', 'success');
+        if (typeof logAction !== 'undefined') logAction(ACTION_TYPES.DOWNLOAD, `Descargó credencial de ${currentPersonData.nombre}`);
+    } catch (e) {
+        console.error(e);
+        showNotification('Error al generar la descarga', 'error');
+    }
 }
 
 // Hacer funciones globales
@@ -243,7 +328,7 @@ window.updateCredentialPreview = function (nombre, cargo, cuip, curp) {
 
 window.generateQRCode = function (data) {
     if (currentPersonData) {
-        generateEnhancedQRDisplay(currentPersonData);
+        updateEnhancedCredential(currentPersonData);
     }
 };
 

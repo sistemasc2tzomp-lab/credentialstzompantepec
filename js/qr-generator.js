@@ -12,14 +12,14 @@ function generateEnhancedQR(data) {
         empresa: 'SecureID System',
         id: Date.now()
     };
-    
+
     // Convertir a JSON y codificar
     const jsonString = JSON.stringify(qrData);
     const encodedData = btoa(jsonString); // Base64
-    
-    // Generar URL para verificación
-    const verificationURL = `https://tu-sitio.com/verificar?data=${encodedData}`;
-    
+
+    // Generar URL para verificación (Ajustado para validar.html)
+    const verificationURL = `https://sistemasc2tzomp-lab.github.io/credentialstzompantepec/validar.html?id=${encodeURIComponent(data.cuip || data.nombre)}`;
+
     return {
         raw: jsonString,
         encoded: encodedData,
@@ -32,9 +32,9 @@ function generateEnhancedQR(data) {
 function displayQRCode(data) {
     const qrContainer = document.querySelector('.qr-placeholder');
     if (!qrContainer) return;
-    
+
     const qrInfo = generateEnhancedQR(data);
-    
+
     // Aquí integrarías una librería real de QR como:
     // - qrcode.js
     // Por ahora mostramos la información

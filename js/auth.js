@@ -89,6 +89,17 @@ const reportConfig = {
 // Almacén de logs en memoria
 let systemLogs = [];
 
+// Cache global para los datos del inventario y estado
+var _invData = [];
+var _currentInvTab = 'personal';
+var currentPersonnelData = [];
+var filteredPersonnelData = [];
+var localPersonnel = [];
+var currentPage = 1;
+var itemsPerPage = 10;
+var currentView = 'table';
+
+
 // Función para registrar acciones
 function logAction(accion, detalles, usuario = null) {
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
@@ -2799,17 +2810,7 @@ function initC3Section() {
     console.log('Terminal C3 Sincronizada');
 }
 
-function initQRRepoSection() {
-    if (typeof refreshQRTable === 'function') refreshQRTable();
-}
-
-function initMultasSection() {
-    console.log('Repositorio de Multas Activo');
-}
-
-function initInventarioSection() {
-    if (typeof refreshInventory === 'function') refreshInventory();
-}
+// Las funciones se definen más abajo en sus respectivos módulos
 
 // Exportar funciones globales faltantes
 window.refreshPersonnelData = loadPersonnelData;
@@ -2907,12 +2908,7 @@ async function initInicioSection() {
 }
 
 // Variables globales de datos
-let localPersonnel = [];
-let currentPersonnelData = [];
-let filteredPersonnelData = [];
-let currentPage = 1;
-let itemsPerPage = 10;
-let currentView = 'table';
+// Variables globales movidas al inicio del archivo
 
 function initPersonalSection() {
     const form = document.getElementById('formRegistroPersonal');
@@ -3054,58 +3050,7 @@ function isCanvasBlank(canvas) {
     return canvas.toDataURL() === blank.toDataURL();
 }
 
-async function initInventarioSection() {
-    const grid = document.getElementById('inventoryContainer');
-    if (!grid) return;
-
-    const personnel = await loadGoogleSheetsData();
-    grid.innerHTML = '';
-
-    // Contadores
-    let vehicles = 0;
-    let weapons = 0;
-
-    personnel.forEach(p => {
-        if (p.vehiculo && p.vehiculo !== 'SIN VEHÍCULO') vehicles++;
-        if (p.armado && p.armado !== 'SIN ARMA ASIGNADA') weapons++;
-
-        const card = document.createElement('div');
-        card.className = 'card inventory-item';
-        card.style.borderLeft = '4px solid ' + (p.estado === 'Activo' ? '#10b981' : '#f59e0b');
-        card.innerHTML = `
-        <div style = "display:flex; justify-content:space-between; align-items:flex-start;" >
-                <div>
-                    <h4 style="margin:0;">${p.nombre}</h4>
-                    <span class="status-badge ${p.estado.toLowerCase()}" style="font-size:0.6rem;">${p.estado}</span>
-                </div>
-                <div style="text-align:right;">
-                    <small style="color:#64748b; font-family:monospace;">${p.cuip}</small>
-                </div>
-            </div>
-            <div style="margin-top:15px; display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <div style="background:#f8fafc; padding:8px; border-radius:6px;">
-                    <small style="color:#64748b; display:block; font-size:0.6rem; text-transform:uppercase;">Vehículo</small>
-                    <span style="font-size:0.8rem; font-weight:600;"><i class="fas fa-car"></i> ${p.vehiculo || '---'}</span>
-                </div>
-                <div style="background:#f8fafc; padding:8px; border-radius:6px;">
-                    <small style="color:#64748b; display:block; font-size:0.6rem; text-transform:uppercase;">Armamento</small>
-                    <span style="font-size:0.8rem; font-weight:600;"><i class="fas fa-gun"></i> ${p.armado || '---'}</span>
-                </div>
-            </div>
-            <div style="margin-top:10px; padding-top:10px; border-top:1px solid #f1f5f9; display:flex; justify-content:flex-end; gap:5px;">
-                <button class="action-btn small secondary" onclick="editEquipment('${p.cuip}')"><i class="fas fa-exchange-alt"></i> Reasignar</button>
-            </div>
-    `;
-
-        grid.appendChild(card);
-    });
-
-    // Actualizar counters
-    document.getElementById('totalVehicles').textContent = vehicles;
-    document.getElementById('totalWeapons').textContent = weapons;
-    document.getElementById('totalRadios').textContent = personnel.length; // Ejemplo
-    document.getElementById('totalVests').textContent = personnel.length; // Ejemplo
-}
+// initInventarioSection antigua eliminada. Se usa la versión táctica (línea 4583 aprox)
 
 function initConfiguracionSection() {
     console.log('Modulo de configuración inicializado');
@@ -4196,7 +4141,8 @@ async function editEmployee(cuipOrId) {
             </div>
             <div class="modal-body" style="padding:35px; background:#f8fafc;">
                 <form id="editEmployeeForm" onsubmit="updateEmployee(event)">
-                    <input type="hidden" name="cuip" value="${person.cuip || ''}">
+                    <!-- Hidden field con fallback robusto para CUIP -->
+                    <input type="hidden" name="cuip" value="${person.cuip || person.id || person.nombre || ''}">
                     <input type="hidden" name="id" value="${person.id || ''}">
                     
                     <div style="display:grid; grid-template-columns: 220px 1fr; gap:40px;">
@@ -4577,8 +4523,7 @@ window.downloadQR = downloadQR;
 // ============================================
 
 // Cache global para los datos del inventario
-let _invData = [];
-let _currentInvTab = 'personal';
+// Variables movidas al inicio para evitar ReferenceError
 
 async function initInventarioSection() {
     await loadInventarioData();

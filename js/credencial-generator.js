@@ -166,8 +166,8 @@ function printEnhancedCredential() {
                     margin-bottom: 30px;
                 }
                 
-                .front-bg { background-image: url('${window.location.origin}/assets/credential_front_bg.jpg'); }
-                .back-bg { background-image: url('${window.location.origin}/assets/credential_back_bg.jpg'); }
+                .front-bg { background-image: url('assets/credential_front_bg.jpg'); }
+                .back-bg { background-image: url('assets/credential_back_bg.jpg'); }
 
                 .photo-oficial {
                     position: absolute;
@@ -243,7 +243,7 @@ function printEnhancedCredential() {
 
             <div class="card-print front-bg">
                 <div class="photo-oficial">
-                    <img src="${data.foto || window.location.origin + '/assets/FOTOGRAFIAS PERSONAL/' + (data.cuip || 'NONE').trim() + '.png'}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(data.nombre)}&background=0a192f&color=fff'">
+                    <img src="${data.foto || 'assets/FOTOGRAFIAS PERSONAL/' + (data.cuip || 'NONE').trim() + '.png'}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(data.nombre)}&background=0a192f&color=fff'">
                 </div>
                 
                 <!-- Campos con posición absoluta recalculada para cubrir los labels del fondo -->

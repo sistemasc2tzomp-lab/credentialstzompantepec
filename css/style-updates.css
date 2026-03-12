@@ -1,0 +1,254 @@
+/* --- Welcome Overlay Styles (Thanos Effect) --- */
+.welcome-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, #1a2a44 0%, #0a192f 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 1s ease;
+    backdrop-filter: blur(20px);
+}
+
+.welcome-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.welcome-text {
+    font-family: 'Montserrat', sans-serif;
+    color: white;
+    text-align: center;
+    transform: scale(0.8);
+    opacity: 0;
+    transition: all 1.5s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.welcome-overlay.active .welcome-text {
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* Efecto de desintegración */
+.disintegrate {
+    animation: disintegrate 1.5s forwards cubic-bezier(0.55, 0.085, 0.68, 0.53);
+    filter: blur(0px);
+}
+
+@keyframes disintegrate {
+    0% {
+        opacity: 1;
+        filter: blur(0px);
+        transform: scale(1) translateY(0);
+    }
+
+    100% {
+        opacity: 0;
+        filter: blur(20px);
+        transform: scale(1.2) translateY(-50px) rotateX(10deg);
+        letter-spacing: 20px;
+    }
+}
+
+.welcome-greeting {
+    font-size: 6rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #ffffff 30%, #c5a059 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0px;
+    letter-spacing: -3px;
+    line-height: 1;
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
+}
+
+.welcome-name {
+    font-size: 3rem;
+    font-weight: 400;
+    color: #e2e8f0;
+    text-transform: uppercase;
+    letter-spacing: 15px;
+    margin-top: 15px;
+    opacity: 0.8;
+}
+
+.welcome-line {
+    width: 0;
+    height: 2px;
+    background: linear-gradient(to right, transparent, #c5a059, transparent);
+    margin-top: 4rem;
+    transition: width 2s ease-in-out;
+}
+
+.welcome-overlay.active .welcome-line {
+    width: 400px;
+}
+
+/* --- DASHBOARD HOME ENHANCEMENTS (Táctico/Futurista) --- */
+.welcome-banner {
+    padding: 30px 40px !important;
+    min-height: 160px !important;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+    border-radius: 20px;
+    margin-bottom: 35px;
+    border: 1px solid rgba(197, 160, 89, 0.2);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.welcome-text-container {
+    transform: translateY(-5px);
+}
+
+.welcome-text-container h1 {
+    text-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    background: linear-gradient(to right, #ffffff, #cbd5e1);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.current-date-badge {
+    position: absolute;
+    bottom: 20px;
+    right: 30px;
+    background: rgba(197, 160, 89, 0.15);
+    padding: 8px 15px;
+    border-radius: 30px;
+    border: 1px solid rgba(197, 160, 89, 0.3);
+    color: var(--police-gold);
+    font-size: 0.85rem;
+    font-weight: 600;
+    backdrop-filter: blur(5px);
+}
+
+.stats-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 25px;
+    margin-bottom: 35px;
+}
+
+.stat-card.hero-3d-card {
+    position: relative;
+    overflow: hidden;
+    padding: 25px;
+    border-radius: 20px;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0 20px 0 100%;
+}
+
+.stat-icon {
+    font-size: 2.2rem;
+    opacity: 0.9;
+    filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.3));
+}
+
+.stat-number {
+    font-size: 2.5rem !important;
+    font-weight: 900 !important;
+    margin: 5px 0;
+    font-family: 'Montserrat', sans-serif !important;
+}
+
+.stat-content h3 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    opacity: 0.8;
+    margin: 0;
+}
+
+/* Gráficas y Listas */
+.dashboard-charts {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 25px;
+    margin-bottom: 35px;
+}
+
+@media (max-width: 1024px) {
+    .dashboard-charts {
+        grid-template-columns: 1fr;
+    }
+}
+
+.quick-reports-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.report-access-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    padding: 18px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+}
+
+.report-access-card:hover {
+    background: var(--police-navy);
+    color: white;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.report-access-card i {
+    font-size: 1.5rem;
+    color: var(--police-gold);
+}
+
+/* --- 3D Effects Restored --- */
+.hero-3d-scene {
+    perspective: 2000px;
+}
+
+.hero-3d-card {
+    transform-style: preserve-3d;
+    transition: all 0.6s ease;
+}
+
+.hero-3d-card:hover {
+    transform: scale(1.02);
+}
+
+.icon-3d {
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.icon-3d:hover {
+    transform: translateY(-10px) scale(1.1);
+}

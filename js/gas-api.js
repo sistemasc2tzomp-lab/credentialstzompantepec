@@ -3,7 +3,7 @@
 // Sistema C2 - Seguridad Pública Tzompantepec
 // ============================================================
 
-const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbz-qHToQO3uHptxEMV6v2yxM2gewsSDWkfvd-lUac3o2OQ_xn5ZCOtmdBntgxB2-ebe/exec';
+const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxZBIe-u9R2aASbstARif7bC8yWDfndhktJmAQIuP4o6_1A-NiGidx10LT8yIYcnJnm/exec';
 const SPREADSHEET_ID_CONFIG = '12_nohX3MHsU8WrvhDKLYbQYr0uoMFvlx30ICjjJsT2M';
 
 function checkWebAppConfig() {
@@ -64,26 +64,127 @@ async function apiGetPersonal() {
 }
 
 /**
- * POST: Guardar personal
+ * POST: Guardar personal (usando objeto plano con Base64)
  */
-async function apiGuardarPersonal(formData) {
-    if (!checkWebAppConfig()) return { success: false };
+async function apiGuardarPersonalObj(datos) {
+    if (!checkWebAppConfig()) return { success: false, message: 'Configuración de API no encontrada' };
     try {
-        const datos = { action: 'guardarPersonal' };
-        for (let [key, val] of formData.entries()) {
-            datos[key] = val;
-        }
-
-        await fetch(GAS_WEBAPP_URL, {
+        const response = await fetch(GAS_WEBAPP_URL, {
             method: 'POST',
             mode: 'cors',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify(datos)
         });
-        return { success: true, message: 'Personal guardado' };
+
+        const result = await response.json();
+        return result;
+    } catch (e) {
+        console.error('apiGuardarPersonalObj Error:', e);
+        return { success: false, message: 'Error de conexión: ' + e.message };
+    }
+}
+
+/**
+ * Helper: Convert File to Base64
+ */
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+}
+
+/**
+ * POST: Guardar personal (con soporte de foto/archivos)
+ */
+async function apiGuardarPersonal(formData) {
+    if (!checkWebAppConfig()) return { success: false, message: 'URL no configurada' };
+    try {
+        const datos = { action: 'guardarPersonal' };
+
+        // Procesar campos comunes
+        for (let [key, val] of formData.entries()) {
+            if (!(val instanceof File)) {
+                datos[key] = val;
+            }
+        }
+
+        // Procesar archivos (si existen)
+        const fileEntries = Array.from(formData.entries()).filter(e => e[1] instanceof File && e[1].size > 0);
+        for (let [key, file] of fileEntries) {
+            datos[key] = await fileToBase64(file);
+        }
+
+        const response = await fetch(GAS_WEBAPP_URL, {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(datos)
+        });
+
+        const result = await response.json();
+        return result;
     } catch (e) {
         console.error('apiGuardarPersonal Error:', e);
-        return { success: false };
+        return { success: false, message: e.message };
+    }
+}
+
+/**
+ * POST: Actualizar personal (con soporte de foto/archivos)
+ */
+async function apiActualizarPersonal(formData) {
+    if (!checkWebAppConfig()) return { success: false, message: 'URL no configurada' };
+    try {
+        const datos = { action: 'actualizarPersonal' };
+
+        // Procesar campos comunes
+        for (let [key, val] of formData.entries()) {
+            if (!(val instanceof File)) {
+                datos[key] = val;
+            }
+        }
+
+        // Procesar archivos (si existen)
+        const fileEntries = Array.from(formData.entries()).filter(e => e[1] instanceof File && e[1].size > 0);
+        for (let [key, file] of fileEntries) {
+            datos[key] = await fileToBase64(file);
+        }
+
+        const response = await fetch(GAS_WEBAPP_URL, {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(datos)
+        });
+
+        const result = await response.json();
+        return result;
+    } catch (e) {
+        console.error('apiActualizarPersonal Error:', e);
+        return { success: false, message: e.message };
+    }
+}
+
+/**
+ * POST: Eliminar personal
+ */
+async function apiDeletePersonal(cuip) {
+    if (!checkWebAppConfig()) return { success: false };
+    try {
+        const payload = { action: 'eliminarPersonal', cuip };
+        const response = await fetch(GAS_WEBAPP_URL, {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+        });
+        return await response.json();
+    } catch (e) {
+        console.error('apiDeletePersonal Error:', e);
+        return { success: false, message: e.message };
     }
 }
 
@@ -111,4 +212,7 @@ window.apiGetUsuarios = apiGetUsuarios;
 window.apiGuardarUsuario = apiGuardarUsuario;
 window.apiGetPersonal = apiGetPersonal;
 window.apiGuardarPersonal = apiGuardarPersonal;
+window.apiActualizarPersonal = apiActualizarPersonal;
+window.apiGuardarPersonalObj = apiGuardarPersonalObj;
 window.apiActualizarEstado = apiActualizarEstado;
+window.apiDeletePersonal = apiDeletePersonal;

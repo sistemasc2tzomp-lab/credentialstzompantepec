@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +9,14 @@
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon_io/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon_io/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon_io/favicon-16x16.png">
+    <link rel="manifest" href="assets/favicon_io/site.webmanifest">
 </head>
+
 <body>
     <nav class="navbar">
         <div class="nav-container">
@@ -29,7 +37,7 @@
     <main class="reportes-container">
         <h1>Reportes</h1>
         <p>Módulo de generación de reportes del sistema</p>
-        
+
         <!-- Selector de personal para reportes individuales -->
         <div class="selector-personal">
             <label for="selectPersonal">Seleccionar Personal:</label>
@@ -70,25 +78,26 @@
     </footer>
 
     <script>
-    function exportarReporte(tipo) {
-        if(tipo === 'excel') {
-            exportarExcel();
-        } else if(tipo === 'pdf') {
-            window.location.href = 'exportar_pdf.php?tipo=general';
-        } else if(tipo === 'pdf-individual') {
-            const id = document.getElementById('selectPersonal').value;
-            if(id) {
-                window.location.href = 'exportar_pdf.php?tipo=individual&id=' + id;
-            } else {
-                alert('Por favor seleccione un elemento');
+        function exportarReporte(tipo) {
+            if (tipo === 'excel') {
+                exportarExcel();
+            } else if (tipo === 'pdf') {
+                window.location.href = 'exportar_pdf.php?tipo=general';
+            } else if (tipo === 'pdf-individual') {
+                const id = document.getElementById('selectPersonal').value;
+                if (id) {
+                    window.location.href = 'exportar_pdf.php?tipo=individual&id=' + id;
+                } else {
+                    alert('Por favor seleccione un elemento');
+                }
             }
         }
-    }
 
-    function exportarExcel() {
-        // Función para exportar a Excel
-        window.location.href = 'exportar_excel.php';
-    }
+        function exportarExcel() {
+            // Función para exportar a Excel
+            window.location.href = 'exportar_excel.php';
+        }
     </script>
 </body>
+
 </html>

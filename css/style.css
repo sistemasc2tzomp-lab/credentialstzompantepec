@@ -313,6 +313,12 @@ body {
     color: white;
     transition: all 0.3s;
     border-right: 3px solid #c5a059;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    max-height: 100vh;
+    position: sticky;
+    top: 0;
 }
 
 .sidebar.collapsed {
@@ -329,20 +335,46 @@ body {
     border-bottom: 1px solid #1a3a5f;
     background: #0a192f;
     color: #ffd700;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 .sidebar-nav {
-    padding: 1rem 0;
+    padding: 0.5rem 0 2rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* Category headers in the sidebar nav */
+.nav-category {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.5rem 1.2rem;
+    font-size: 0.68rem;
+    font-weight: 800;
+    color: #c5a059;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-top: 12px;
+    border-top: 1px solid rgba(197, 160, 89, 0.15);
+}
+
+.nav-category i {
+    font-size: 0.7rem;
+    opacity: 0.8;
 }
 
 .sidebar-nav a {
     display: flex;
     align-items: center;
-    gap: 15px;
-    padding: 1rem 1.5rem;
+    gap: 12px;
+    padding: 0.75rem 1.5rem;
     color: #94a3b8;
     text-decoration: none;
-    transition: all 0.3s;
+    transition: all 0.25s;
+    font-size: 0.9rem;
 }
 
 .sidebar-nav a:hover,
@@ -350,17 +382,127 @@ body {
     background: #1a3a5f;
     color: #ffd700;
     border-left: 4px solid #ffd700;
+    padding-left: 1.25rem;
 }
 
 .sidebar-nav a i {
-    font-size: 1.2rem;
-    width: 24px;
+    font-size: 1rem;
+    width: 20px;
+    text-align: center;
 }
 
-.main-content {
-    flex: 1;
-    background: #f1f5f9;
+/* Premium Floating Action Button (FAB) */
+.fab-container {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 15px;
+    z-index: 2000;
 }
+
+.fab-main {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #c5a059, #b48a3d);
+    color: #0a192f;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(197, 160, 89, 0.4);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fab-main:hover {
+    transform: scale(1.1) rotate(90deg);
+}
+
+.fab-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.fab-options button {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: white;
+    color: #1a3a5f;
+    border: 1.5px solid #e2e8f0;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+.fab-options button:hover {
+    background: #1a3a5f;
+    color: white;
+    transform: translateX(-5px);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 1024px) {
+    .fab-container {
+        right: 20px;
+        bottom: 20px;
+    }
+}
+
+/* Responsive overrides */
+@media (max-width: 1024px) {
+    .sidebar {
+        position: fixed;
+        left: -280px;
+        top: 0;
+        bottom: 0;
+        z-index: 1500;
+        height: 100vh;
+    }
+
+    .sidebar.active {
+        left: 0;
+        box-shadow: 4px 0 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .fab-menu {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+        width: 100%;
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+}
+
+
 
 .top-bar {
     background: white;
@@ -380,6 +522,35 @@ body {
 .user-info i {
     font-size: 2rem;
     color: #64748b;
+}
+
+/* Escudo de Policía en Top Bar */
+.police-logo-top {
+    margin-left: auto;
+    margin-right: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.police-logo-top img {
+    height: 45px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    transition: transform 0.3s ease;
+}
+
+.police-logo-top img:hover {
+    transform: scale(1.1);
+}
+
+/* Utilidades para botones de acción */
+.action-btn.warning {
+    background: #f59e0b !important;
+    color: white !important;
+}
+
+.action-btn.danger {
+    background: #ef4444 !important;
+    color: white !important;
 }
 
 .user-role {
@@ -567,181 +738,354 @@ body {
     background: #475569;
 }
 
-/* Estilos para la Credencial Tzompantepec */
-.credential-tzomp {
-    width: 600px;
-    height: 380px;
-    background: white;
-    border-radius: 12px;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    margin: 0 auto;
-    border: 1px solid #ddd;
-    font-family: 'Inter', sans-serif;
-    color: #333;
+/* ============================================================
+   CREDENCIAL TZOMPANTEPEC – CR80 imprimible
+   Medidas físicas: 85.6mm × 54mm → a 300dpi = 1011 × 638px
+   En pantalla se muestra al 60%: 607 × 383px (escala 0.6)
+   ============================================================ */
+
+/* Contenedor de previsualización */
+.credential-preview-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
 }
 
+.credential-preview-box h3 {
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #64748b;
+    font-weight: 700;
+}
+
+/* Tarjeta base – orientación vertical (Portrait) */
+.credential-tzomp {
+    width: 638px;
+    height: 1011px;
+    transform: scale(0.5);
+    transform-origin: top center;
+    margin-bottom: calc((1011px * 0.5) - 1011px);
+    background: #ffffff;
+    border-radius: 25px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
+    font-family: 'Inter', Arial, sans-serif;
+    color: #111;
+    flex-shrink: 0;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ── FRENTE ─── */
+
+/* Header logos */
 .credential-tzomp .top-logos {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 20px;
-    height: 100px;
+    padding: 25px 35px;
+    height: 140px;
 }
 
 .credential-tzomp .top-logos img {
-    height: 80px;
+    height: 85px;
+    width: auto;
     object-fit: contain;
 }
 
-.credential-tzomp .logo-center {
-    height: 60px !important;
-}
-
+/* Banner azul */
 .credential-tzomp .banner {
-    background: linear-gradient(to right, #1a3a5f, #2563eb, #1a3a5f);
+    background: #1a3a6e;
     color: white;
     text-align: center;
-    padding: 8px 0;
-    font-weight: 800;
-    font-size: 1.1rem;
+    padding: 15px 0;
+    font-weight: 900;
+    font-size: 1.8rem;
     text-transform: uppercase;
-    border-top: 2px solid #c5a059;
-    border-bottom: 2px solid #c5a059;
+    letter-spacing: 1px;
+    line-height: 1.1;
 }
 
-.credential-tzomp .banner div {
-    line-height: 1.2;
-}
-
+/* Contenido principal: vertical */
 .credential-tzomp .main-content {
-    display: flex;
-    padding: 15px 20px;
-    gap: 20px;
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr;
+    padding: 30px;
+    gap: 30px;
+    justify-items: center;
 }
 
 .credential-tzomp .photo-area {
-    width: 160px;
-    height: 180px;
-    background: #f0f0f0;
-    border: 2px solid #ccc;
-    border-radius: 8px;
+    width: 240px;
+    height: 310px;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
 }
 
-.credential-tzomp .photo-area i {
-    font-size: 6rem;
-    color: #ccc;
-}
-
 .credential-tzomp .info-area {
-    flex: 1;
-    font-size: 1rem;
-    line-height: 1.4;
+    width: 100%;
+    font-size: 1.3rem;
+    line-height: 1.8;
 }
 
 .credential-tzomp .info-field {
-    margin-bottom: 5px;
+    margin-bottom: 7px;
 }
 
 .credential-tzomp .info-label {
     font-weight: 400;
-    color: #555;
+    color: #444;
     display: inline-block;
-    width: 100px;
+    min-width: 130px;
 }
 
 .credential-tzomp .info-value {
     font-weight: 700;
-    color: #000;
+    color: #111;
 }
 
-.credential-tzomp .footer-signature {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    text-align: center;
+/* Zona de firmas */
+.credential-tzomp .signatures-row {
+    display: flex;
+    padding: 0 30px 12px;
+    gap: 30px;
+    align-items: flex-start;
 }
 
-.credential-tzomp .signature-line {
-    width: 150px;
-    border-top: 1px solid #000;
-    margin-bottom: 5px;
+.credential-tzomp .sig-block {
+    flex: 1;
 }
 
-.credential-tzomp .signature-label {
-    font-size: 0.7rem;
+.credential-tzomp .sig-label {
+    font-size: 0.82rem;
     font-weight: 700;
+    text-transform: uppercase;
+    color: #334155;
+    margin-bottom: 4px;
+}
+
+.credential-tzomp .sig-box {
+    border: 1.5px solid #94a3b8;
+    border-radius: 4px;
+    height: 52px;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.credential-tzomp .sig-box img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.credential-tzomp .sig-name {
+    font-size: 0.78rem;
+    color: #1a3a6e;
+    font-weight: 700;
+    margin-top: 3px;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.credential-tzomp .sig-title {
+    font-size: 0.68rem;
+    color: #64748b;
+    text-align: center;
     text-transform: uppercase;
 }
 
-/* Versión Reverso */
+.credential-tzomp .sig-auth-content {
+    text-align: center;
+}
+
+/* Wave footer – frente */
+.credential-tzomp .cred-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 96px;
+    overflow: hidden;
+}
+
+.credential-tzomp .cred-footer svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.credential-tzomp .cred-footer .footer-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 65px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    z-index: 2;
+}
+
+.credential-tzomp .cred-footer .footer-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.credential-tzomp .cred-footer .c2-mini {
+    height: 50px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 0 4px rgba(197, 160, 89, 0.7));
+}
+
+.credential-tzomp .cred-footer .footer-num {
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 600;
+    margin-top: 3px;
+}
+
+.credential-tzomp .cred-footer .footer-center {
+    text-align: center;
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1.3;
+}
+
+.credential-tzomp .cred-footer .qr-area {
+    background: white;
+    width: 75px;
+    height: 75px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.credential-tzomp .cred-footer .qr-area i {
+    font-size: 3.2rem;
+    color: #111;
+}
+
+.credential-tzomp .cred-footer .qr-area img,
+.credential-tzomp .cred-footer .qr-area canvas {
+    width: 100%;
+    height: 100%;
+}
+
+/* ── REVERSO ─── */
 .credential-tzomp.back {
     display: flex;
     flex-direction: column;
 }
 
-.credential-tzomp.back .back-layout {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1.5fr;
-    padding: 20px;
-    gap: 15px;
-    height: 100%;
-}
-
-.credential-tzomp.back .auth-section {
-    border: 1px solid #ccc;
-    padding: 10px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-}
-
-.credential-tzomp.back .fingerprint-section {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.credential-tzomp.back .fingerprint {
-    width: 60px;
-    height: 80px;
-    background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
-    opacity: 0.5;
-}
-
-.credential-tzomp.back .confidentiality {
-    font-size: 0.75rem;
-    line-height: 1.3;
-}
-
-.credential-tzomp.back .confidentiality h4 {
-    color: #1a3a5f;
-    margin-bottom: 5px;
-    text-transform: uppercase;
-}
-
-.credential-tzomp.back .bottom-banner {
-    background: linear-gradient(to right, #0a192f, #1a3a5f);
-    color: white;
-    padding: 5px 20px;
+.credential-tzomp.back .back-top-logos {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.8rem;
-    font-weight: 600;
+    padding: 25px 35px;
+    height: 140px;
 }
 
-.credential-tzomp.back .qr-area {
-    background: white;
-    padding: 5px;
-    border-radius: 4px;
+.credential-tzomp.back .back-top-logos img {
+    height: 85px;
+    width: auto;
+    object-fit: contain;
 }
+
+.credential-tzomp.back .banner {
+    background: #1a3a6e;
+    color: white;
+    text-align: center;
+    padding: 15px 0;
+    font-weight: 900;
+    font-size: 1.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.credential-tzomp.back .confidentiality-block {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 40px 50px;
+    text-align: center;
+}
+
+.credential-tzomp.back .conf-title {
+    font-size: 1.4rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: #111;
+    margin-bottom: 25px;
+    letter-spacing: 0.5px;
+}
+
+.credential-tzomp.back .conf-text {
+    font-size: 1.2rem;
+    line-height: 1.7;
+    color: #111;
+    font-weight: 500;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+/* Wave footer – reverso (igual) */
+.credential-tzomp.back .cred-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 96px;
+    overflow: hidden;
+}
+
+.credential-tzomp.back .cred-footer svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.credential-tzomp.back .cred-footer .footer-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 65px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    z-index: 2;
+}
+
+
 
 .credential-header {
     display: flex;
@@ -2392,4 +2736,336 @@ textarea.form-control {
     display: flex;
     align-items: center;
     gap: 5px;
+}
+
+/* --- Welcome Overlay Styles (Thanos Effect) --- */
+.welcome-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, #1a2a44 0%, #0a192f 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 1s ease;
+    backdrop-filter: blur(20px);
+}
+
+.welcome-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.welcome-text {
+    font-family: 'Montserrat', sans-serif;
+    color: white;
+    text-align: center;
+    transform: scale(0.8);
+    opacity: 0;
+    transition: all 1.5s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.welcome-overlay.active .welcome-text {
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* Efecto de desintegración */
+.disintegrate {
+    animation: disintegrate 1.5s forwards cubic-bezier(0.55, 0.085, 0.68, 0.53);
+    filter: blur(0px);
+}
+
+@keyframes disintegrate {
+    0% {
+        opacity: 1;
+        filter: blur(0px);
+        transform: scale(1) translateY(0);
+    }
+
+    100% {
+        opacity: 0;
+        filter: blur(20px) spread(10px);
+        transform: scale(1.2) translateY(-50px) rotateX(10deg);
+        letter-spacing: 20px;
+    }
+}
+
+.welcome-greeting {
+    font-size: 6rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #ffffff 30%, #c5a059 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0px;
+    letter-spacing: -3px;
+    line-height: 1;
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.4));
+}
+
+.welcome-name {
+    font-size: 3rem;
+    font-weight: 400;
+    color: #e2e8f0;
+    text-transform: uppercase;
+    letter-spacing: 15px;
+    margin-top: 15px;
+    opacity: 0.8;
+}
+
+.welcome-line {
+    width: 0;
+    height: 2px;
+    background: linear-gradient(to right, transparent, #c5a059, transparent);
+    margin-top: 4rem;
+    transition: width 2s ease-in-out;
+}
+
+.welcome-overlay.active .welcome-line {
+    width: 400px;
+}
+
+/* --- DASHBOARD HOME ENHANCEMENTS (Táctico/Futurista) --- */
+.welcome-banner {
+    padding: 30px 40px !important;
+    min-height: 160px !important;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+    border-radius: 20px;
+    margin-bottom: 35px;
+    border: 1px solid rgba(197, 160, 89, 0.2);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.welcome-text-container {
+    transform: translateY(-10px);
+}
+
+.welcome-text-container h1 {
+    text-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(to right, #ffffff, #cbd5e1);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.current-date-badge {
+    position: absolute;
+    bottom: 20px;
+    right: 30px;
+    background: rgba(197, 160, 89, 0.15);
+    padding: 8px 15px;
+    border-radius: 30px;
+    border: 1px solid rgba(197, 160, 89, 0.3);
+    color: var(--police-gold);
+    font-size: 0.85rem;
+    font-weight: 600;
+    backdrop-filter: blur(5px);
+}
+
+.stats-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 25px;
+    margin-bottom: 35px;
+}
+
+.stat-card.hero-3d-card {
+    position: relative;
+    overflow: hidden;
+    padding: 25px;
+    border-radius: 20px;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0 20px 0 100%;
+}
+
+.stat-icon {
+    font-size: 2.2rem;
+    opacity: 0.9;
+    filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.3));
+}
+
+.stat-number {
+    font-size: 2.5rem !important;
+    font-weight: 900 !important;
+    margin: 5px 0;
+    font-family: 'Montserrat', sans-serif !important;
+}
+
+.stat-content h3 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    opacity: 0.8;
+    margin: 0;
+}
+
+.dashboard-charts {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 25px;
+    margin-bottom: 35px;
+}
+
+@media (max-width: 1024px) {
+    .dashboard-charts {
+        grid-template-columns: 1fr;
+    }
+}
+
+.quick-reports-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.report-access-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    padding: 18px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+}
+
+.report-access-card:hover {
+    background: var(--police-navy);
+    color: white;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.report-access-card i {
+    font-size: 1.5rem;
+    color: var(--police-gold);
+}
+
+/* Restored 3D classes */
+.hero-3d-scene {
+    perspective: 2000px;
+}
+
+.hero-3d-card {
+    transform-style: preserve-3d;
+    transition: all 0.6s ease;
+}
+
+.hero-3d-card:hover {
+    transform: scale(1.02);
+}
+
+.icon-3d {
+    transition: all 0.5s ease;
+}
+
+.icon-3d:hover {
+    transform: translateY(-5px) scale(1.1);
+}
+
+/* Master Configuration Styles */
+.config-container {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Switch Toggle Styling */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 46px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cbd5e1;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked+.slider {
+    background-color: var(--police-gold);
+}
+
+input:focus+.slider {
+    box-shadow: 0 0 1px var(--police-gold);
+}
+
+input:checked+.slider:before {
+    transform: translateX(22px);
+}
+
+.slider.round {
+    border-radius: 24px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+.card-3d {
+    background: white;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.card-3d:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.2);
+}
+
+.filter-input:focus {
+    border-color: var(--police-gold) !important;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.1);
 }

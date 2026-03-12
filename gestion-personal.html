@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +9,14 @@
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon_io/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon_io/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon_io/favicon-16x16.png">
+    <link rel="manifest" href="assets/favicon_io/site.webmanifest">
 </head>
+
 <body>
     <nav class="navbar">
         <div class="nav-container">
@@ -29,18 +37,17 @@
     <main class="gestion-personal-container">
         <h1>Gestión de Personal</h1>
         <p>Módulo de administración de personal de seguridad</p>
-        
+
         <!-- Formulario de registro de personal -->
         <div class="formulario-personal">
             <h2><i class="fas fa-user-plus"></i> Registrar Nuevo Personal</h2>
-            
+
             <form id="formRegistroPersonal" class="form-personal">
                 <div class="form-grid">
                     <!-- Datos personales -->
                     <div class="form-group">
                         <label for="nombre"><i class="fas fa-user"></i> Nombre completo *</label>
-                        <input type="text" id="nombre" name="nombre" required 
-                               placeholder="Nombre(s) y apellidos">
+                        <input type="text" id="nombre" name="nombre" required placeholder="Nombre(s) y apellidos">
                     </div>
 
                     <div class="form-group">
@@ -50,41 +57,35 @@
 
                     <div class="form-group">
                         <label for="curp"><i class="fas fa-id-card"></i> CURP *</label>
-                        <input type="text" id="curp" name="curp" required 
-                               placeholder="CURP (18 caracteres)"
-                               pattern="[A-Z]{4}[0-9]{6}[H,M][A-Z]{5}[A-Z0-9]{2}" 
-                               title="Formato de CURP válido">
+                        <input type="text" id="curp" name="curp" required placeholder="CURP (18 caracteres)"
+                            pattern="[A-Z]{4}[0-9]{6}[H,M][A-Z]{5}[A-Z0-9]{2}" title="Formato de CURP válido">
                         <small>Formato CURP oficial</small>
                     </div>
 
                     <!-- En el formulario de agregar personal, después del campo CURP -->
                     <div class="form-group">
                         <label for="cuip"><i class="fas fa-id-card"></i> CUIP *</label>
-                        <input type="text" id="cuip" name="cuip" required 
-                               placeholder="Clave Única de Identificación Personal"
-                               pattern="[A-Za-z0-9]{10,20}" 
-                               title="10-20 caracteres alfanuméricos">
+                        <input type="text" id="cuip" name="cuip" required
+                            placeholder="Clave Única de Identificación Personal" pattern="[A-Za-z0-9]{10,20}"
+                            title="10-20 caracteres alfanuméricos">
                         <small>Máximo 20 caracteres, solo letras y números</small>
                     </div>
 
                     <!-- El campo fechaNacimiento queda igual pero ahora irá después de CUIP -->
                     <div class="form-group">
                         <label for="rfc"><i class="fas fa-file-signature"></i> RFC</label>
-                        <input type="text" id="rfc" name="rfc" 
-                               placeholder="RFC (opcional)"
-                               pattern="[A-Z]{4}[0-9]{6}[A-Z0-9]{3}">
+                        <input type="text" id="rfc" name="rfc" placeholder="RFC (opcional)"
+                            pattern="[A-Z]{4}[0-9]{6}[A-Z0-9]{3}">
                     </div>
 
                     <div class="form-group">
                         <label for="email"><i class="fas fa-envelope"></i> Correo electrónico</label>
-                        <input type="email" id="email" name="email" 
-                               placeholder="correo@ejemplo.com">
+                        <input type="email" id="email" name="email" placeholder="correo@ejemplo.com">
                     </div>
 
                     <div class="form-group">
                         <label for="telefono"><i class="fas fa-phone"></i> Teléfono</label>
-                        <input type="tel" id="telefono" name="telefono" 
-                               placeholder="Número de contacto">
+                        <input type="tel" id="telefono" name="telefono" placeholder="Número de contacto">
                     </div>
 
                     <!-- Datos laborales -->
@@ -102,8 +103,7 @@
 
                     <div class="form-group">
                         <label for="rango"><i class="fas fa-star"></i> Rango</label>
-                        <input type="text" id="rango" name="rango" 
-                               placeholder="Rango o jerarquía">
+                        <input type="text" id="rango" name="rango" placeholder="Rango o jerarquía">
                     </div>
 
                     <div class="form-group">
@@ -113,28 +113,26 @@
 
                     <div class="form-group">
                         <label for="adscripcion"><i class="fas fa-building"></i> Adscripción</label>
-                        <input type="text" id="adscripcion" name="adscripcion" 
-                               placeholder="Área o departamento">
+                        <input type="text" id="adscripcion" name="adscripcion" placeholder="Área o departamento">
                     </div>
 
                     <div class="form-group">
                         <label for="numPlaca"><i class="fas fa-badge"></i> Número de Placa</label>
-                        <input type="text" id="numPlaca" name="numPlaca" 
-                               placeholder="Placa de identificación">
+                        <input type="text" id="numPlaca" name="numPlaca" placeholder="Placa de identificación">
                     </div>
 
                     <!-- Al final del formulario, antes del botón enviar, agregar: -->
                     <div class="form-group full-width">
                         <label for="armado"><i class="fas fa-gun"></i> Armamento Asignado</label>
-                        <textarea id="armado" name="armado" rows="3" 
-                                  placeholder="Especificar arma(s) asignada(s): marca, modelo, matrícula"></textarea>
+                        <textarea id="armado" name="armado" rows="3"
+                            placeholder="Especificar arma(s) asignada(s): marca, modelo, matrícula"></textarea>
                         <small>Detalle del armamento asignado al elemento</small>
                     </div>
 
                     <div class="form-group full-width">
                         <label for="observaciones"><i class="fas fa-comment"></i> Observaciones</label>
-                        <textarea id="observaciones" name="observaciones" rows="3" 
-                                  placeholder="Información adicional relevante"></textarea>
+                        <textarea id="observaciones" name="observaciones" rows="3"
+                            placeholder="Información adicional relevante"></textarea>
                     </div>
                 </div>
 
@@ -152,7 +150,7 @@
         <!-- Tabla de personal registrado -->
         <div class="personal-table-section">
             <h2><i class="fas fa-list"></i> Personal Registrado</h2>
-            
+
             <div class="search-bar">
                 <input type="text" id="buscarPersonal" placeholder="Buscar por nombre, CURP, CUIP o placa...">
                 <button class="btn-primary"><i class="fas fa-search"></i> Buscar</button>
@@ -276,7 +274,7 @@
             border-radius: 20px;
             padding: 2rem;
             margin-bottom: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
 
         .formulario-personal h2 {
@@ -336,7 +334,7 @@
         .form-group textarea:focus {
             outline: none;
             border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
         .form-group small {
@@ -374,7 +372,7 @@
             background: white;
             border-radius: 20px;
             padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
 
         .personal-table-section h2 {
@@ -389,15 +387,15 @@
             .gestion-personal-container {
                 padding: 80px 1rem 1rem;
             }
-            
+
             .form-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .form-actions {
                 flex-direction: column;
             }
-            
+
             .form-actions button {
                 width: 100%;
             }
@@ -408,9 +406,9 @@
         function toggleDropdown(button) {
             const dropdown = button.nextElementSibling;
             dropdown.classList.toggle('show');
-            
+
             // Cerrar otros dropdowns abiertos
-            document.addEventListener('click', function(event) {
+            document.addEventListener('click', function (event) {
                 if (!button.contains(event.target) && !dropdown.contains(event.target)) {
                     dropdown.classList.remove('show');
                 }
@@ -418,19 +416,20 @@
         }
 
         // Manejar envío del formulario
-        document.getElementById('formRegistroPersonal')?.addEventListener('submit', function(e) {
+        document.getElementById('formRegistroPersonal')?.addEventListener('submit', function (e) {
             e.preventDefault();
-            
+
             // Aquí iría la lógica para guardar los datos
             const formData = new FormData(this);
             console.log('Datos del formulario:', Object.fromEntries(formData));
-            
+
             // Mostrar notificación de éxito (simulada)
             alert('Personal registrado exitosamente');
-            
+
             // Limpiar formulario si es necesario
             // this.reset();
         });
     </script>
 </body>
+
 </html>

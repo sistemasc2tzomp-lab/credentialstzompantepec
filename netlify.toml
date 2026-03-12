@@ -1,0 +1,19 @@
+[build]
+  publish = "."
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false
+  # Nota: El redirect anterior es opcional para este sitio ya que no es una SPA, 
+  # pero ayuda si quieres que cualquier ruta inexistente cargue el inicio.
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer-when-downgrade"
+    # CORS Headers si fueran necesarios (GAS ya los maneja)

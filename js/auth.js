@@ -4141,7 +4141,9 @@ async function editEmployee(cuipOrId) {
             </div>
             <div class="modal-body" style="padding:35px; background:#f8fafc;">
                 <form id="editEmployeeForm" onsubmit="updateEmployee(event)">
-                    <!-- Hidden field con fallback robusto para CUIP -->
+                    <!-- Hidden field con fallback robusto para CUIP y Nombre Original -->
+                    <input type="hidden" name="cuip_original" value="${person.cuip || ''}">
+                    <input type="hidden" name="nombre_original" value="${person.nombre || ''}">
                     <input type="hidden" name="cuip" value="${person.cuip || person.id || person.nombre || ''}">
                     <input type="hidden" name="id" value="${person.id || ''}">
                     
@@ -5801,8 +5803,7 @@ async function loadArmamentoData(type = 'armas') {
 
     try {
         const action = type === 'armas' ? 'getArmamento' : type === 'radios' ? 'getRadios' : 'getChalecos';
-        const response = await fetch(`${GAS_WEBAPP_URL}?action=${action}`);
-        const data = await response.json();
+        const data = await window.apiGetSheetData(action);
 
         if (!data || data.length === 0) {
             container.innerHTML = `<div style="padding:40px; text-align:center; color:#64748b;"><i class="fas fa-box-open fa-3x"></i><p>No se encontraron registros de ${type}.</p></div>`;
@@ -5837,8 +5838,7 @@ async function loadVehiculosData() {
     container.innerHTML = `<div style="padding:40px; text-align:center; width:100%;"><i class="fas fa-spinner fa-spin fa-3x"></i><p>Sincronizando flota vehicular...</p></div>`;
 
     try {
-        const response = await fetch(`${GAS_WEBAPP_URL}?action=getVehiculos`);
-        const data = await response.json();
+        const data = await window.apiGetSheetData('getVehiculos');
 
         if (!data || data.length === 0) {
             container.innerHTML = `<div style="padding:40px; text-align:center; width:100%; color:#64748b;"><i class="fas fa-car-side fa-3x"></i><p>No hay vehículos registrados.</p></div>`;

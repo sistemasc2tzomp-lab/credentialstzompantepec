@@ -279,15 +279,18 @@ function actualizarPersonal(datos) {
     var folderFotos = getOrCreateOfficerFolder(nombreCompleto, 'FOTO');
     var folderDocs = getOrCreateOfficerFolder(nombreCompleto, 'DOCS');
     
-    // Búsqueda inteligente (CUIP > ID > Nombre)
-    var searchId = String(datos.cuip || datos.id || datos.nombre).trim().toUpperCase();
+    // Búsqueda inteligente
+    var cuipOrig = String(datos.cuip_original || datos.cuip || '').trim().toUpperCase();
+    var nombreOrig = String(datos.nombre_original || datos.nombre || '').trim().toUpperCase();
     
     for (var i = 1; i < data.length; i++) {
         var cuipHoja = String(data[i][5]).trim().toUpperCase();
-        var idHoja = String(data[i][22] || '').trim().toUpperCase(); // Usamos columna de ID si existe (aunque en este sheet 5 es principal)
         var nombreHoja = String(data[i][1]).trim().toUpperCase();
         
-        if (cuipHoja === searchId || nombreHoja === searchId) {
+        var matchByCuip = cuipOrig && cuipHoja === cuipOrig && cuipOrig !== 'ADMINISTRATIVO';
+        var matchByName = nombreOrig && nombreHoja === nombreOrig;
+        
+        if (matchByCuip || matchByName) {
             var rowNum = i + 1;
         
         if (datos.nombre) sheet.getRange(rowNum, 2).setValue(datos.nombre);
@@ -325,10 +328,40 @@ function actualizarPersonal(datos) {
         if (datos.cuip_doc_file) sheet.getRange(rowNum, 35).setValue(saveFileToDrive(datos.cuip_doc_file, 'CUIP_DOC_' + nombreCompleto + '.pdf', folderDocs));
         if (datos.comprobante_file) sheet.getRange(rowNum, 36).setValue(saveFileToDrive(datos.comprobante_file, 'COMPROBANTE_' + nombreCompleto + '.pdf', folderDocs));
 
-        return { success: true, message: 'Expediente de ' + cuip + ' actualizado en Google Drive y Sheets' };
+        return { success: true, message: 'Expediente actualizado en Google Drive y Sheets' };
       }
     }
-    return { success: false, message: 'No se encontró el oficial con CUIP: ' + cuip };
+    return { success: false, message: 'No se encontró el oficial con CUIP/Nombre proporcionado' };
+  } catch (err) {
+    return { success: false, message: 'Error: ' + err.toString() };
+  }
+}
+
+// ============================================================
+// FUNCIÓN: Eliminar personal existente
+// ============================================================
+function eliminarPersonal(searchId) {
+  try {
+    if (!searchId) return { success: false, message: 'ID o CUIP es requerido para eliminar' };
+    
+    var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    var sheet = ss.getSheetByName(SHEET_PERSONAL);
+    if (!sheet) return { success: false, message: 'Hoja PERSONAL no encontrada' };
+    
+    var data = sheet.getDataRange().getValues();
+    var search = String(searchId).trim().toUpperCase();
+    
+    for (var i = 1; i < data.length; i++) {
+        var cuipHoja = String(data[i][5]).trim().toUpperCase();
+        var idHoja = String(data[i][22] || '').trim().toUpperCase();
+        var nombreHoja = String(data[i][1]).trim().toUpperCase();
+        
+        if (cuipHoja === search || idHoja === search || nombreHoja === search) {
+            sheet.deleteRow(i + 1);
+            return { success: true, message: 'Expediente eliminado correctamente' };
+        }
+    }
+    return { success: false, message: 'No se encontró el expediente a eliminar' };
   } catch (err) {
     return { success: false, message: 'Error: ' + err.toString() };
   }

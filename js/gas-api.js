@@ -18,7 +18,14 @@ async function apiGetUsuarios() {
     if (!checkWebAppConfig()) return [];
     try {
         const response = await fetch(`${GAS_WEBAPP_URL}?action=getUsuarios`);
-        return await response.json();
+        if (!response.ok) throw new Error('Network response was not ok');
+        const text = await response.text();
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            console.error('Error parseando JSON (probablemente necesita permisos Públicos "Anyone" en el WebApp):', text.substring(0, 100));
+            return [];
+        }
     } catch (e) {
         console.error('apiGetUsuarios Error:', e);
         return [];
@@ -56,7 +63,14 @@ async function apiGetPersonal() {
     if (!checkWebAppConfig()) return null;
     try {
         const response = await fetch(`${GAS_WEBAPP_URL}?action=getPersonal`);
-        return await response.json();
+        if (!response.ok) throw new Error('Error HTTP');
+        const text = await response.text();
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            console.error('Error parseando JSON (probablemente necesita permisos Públicos "Anyone" en el WebApp):', text.substring(0, 100));
+            return null;
+        }
     } catch (e) {
         console.error('apiGetPersonal Error:', e);
         return null;
@@ -207,6 +221,27 @@ async function apiActualizarEstado(cuip, estado) {
     }
 }
 
+/**
+ * GET: Obtener datos genéricos
+ */
+async function apiGetSheetData(action) {
+    if (!checkWebAppConfig()) return [];
+    try {
+        const response = await fetch(`${GAS_WEBAPP_URL}?action=${action}`);
+        if (!response.ok) throw new Error('HTTP error ' + response.status);
+        const text = await response.text();
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            console.error('Error parseando JSON en', action, '(probablemente necesita permisos Públicos "Anyone"):', text.substring(0, 100));
+            return [];
+        }
+    } catch (e) {
+        console.error('apiGetSheetData Error:', e);
+        return [];
+    }
+}
+
 // Globales
 window.apiGetUsuarios = apiGetUsuarios;
 window.apiGuardarUsuario = apiGuardarUsuario;
@@ -216,3 +251,4 @@ window.apiActualizarPersonal = apiActualizarPersonal;
 window.apiGuardarPersonalObj = apiGuardarPersonalObj;
 window.apiActualizarEstado = apiActualizarEstado;
 window.apiDeletePersonal = apiDeletePersonal;
+window.apiGetSheetData = apiGetSheetData;

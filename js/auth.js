@@ -1613,12 +1613,13 @@ function getCredencialesSection() {
                 text-align: left;
                 text-transform: uppercase;
             }
-            .name-abs { top: 191px; left: 236px; font-size: 0.95rem; color: #1e40af; }
-            .pos-abs  { top: 224px; left: 236px; color: #334155; }
-            .cuip-abs { top: 257px; left: 236px; font-family: monospace; font-weight: 900; }
-            .curp-abs { top: 290px; left: 236px; font-family: monospace; font-weight: 900; }
-            .vig-abs  { top: 323px; left: 236px; }
-            .exp-abs  { top: 356px; left: 236px; }
+            /* Valores debajo de las etiquetas del fondo */
+            .name-abs { top: 201px; left: 165px; font-size: 0.85rem; color: #1e40af; }
+            .pos-abs  { top: 236px; left: 165px; color: #334155; }
+            .cuip-abs { top: 271px; left: 165px; font-family: monospace; font-weight: 900; }
+            .curp-abs { top: 306px; left: 165px; font-family: monospace; font-weight: 900; }
+            .vig-abs  { top: 341px; left: 165px; }
+            .exp-abs  { top: 376px; left: 165px; }
             
             /* Ajuste de firma y huella para reposicionamiento */
             .signature-box-abs {
@@ -1701,12 +1702,12 @@ function getCredencialesSection() {
                             <i class="fas fa-user"></i>
                         </div>
                         
-                        <span class="info-val-abs name-abs" id="previewName">JUAN PÉREZ GARCÍA</span>
-                        <span class="info-val-abs pos-abs" id="previewPosition">OFICIAL DE POLICÍA</span>
-                        <span class="info-val-abs cuip-abs" id="previewCUIP">TZ-00-00-00</span>
-                        <span class="info-val-abs curp-abs" id="previewCURP">CURP00000000000000</span>
-                        <span class="info-val-abs vig-abs" id="previewVigencia">1 AÑO</span>
-                        <span class="info-val-abs exp-abs" id="previewExpedicion">${dateStr}</span>
+                        <span class="info-val-abs name-abs" id="previewName">---</span>
+                        <span class="info-val-abs pos-abs" id="previewPosition">---</span>
+                        <span class="info-val-abs cuip-abs" id="previewCUIP">---</span>
+                        <span class="info-val-abs curp-abs" id="previewCURP">---</span>
+                        <span class="info-val-abs vig-abs" id="previewVigencia">---</span>
+                        <span class="info-val-abs exp-abs" id="previewExpedicion">---</span>
 
                         <div class="signature-box-abs" id="previewSignature"></div>
                         <div class="huella-abs" id="previewHuella"></div>
@@ -6016,12 +6017,11 @@ function initInicioSection() {
         });
     }
 
-    // Cargar métricas numéricas
-    setTimeout(() => {
-        if (document.getElementById('totalPersonal')) document.getElementById('totalPersonal').textContent = '55';
-        if (document.getElementById('credencialesActivas')) document.getElementById('credencialesActivas').textContent = '48';
-        if (document.getElementById('equipoResguardo')) document.getElementById('equipoResguardo').textContent = '120';
-    }, 500);
+    // Cargar métricas numéricas reales
+    if (currentPersonnelData) {
+        if (document.getElementById('totalPersonal')) document.getElementById('totalPersonal').textContent = currentPersonnelData.length;
+        if (document.getElementById('credencialesActivas')) document.getElementById('credencialesActivas').textContent = currentPersonnelData.filter(p => p.estado === 'Activo').length;
+    }
 }
 
 // Exportar globales

@@ -50,6 +50,10 @@ function doGet(e) {
       case 'inicializar':
         result = inicializarHojas();
         break;
+      case 'eliminarPersonal':
+        var cuipToDel = e.parameter.cuip || '';
+        result = eliminarPersonal(cuipToDel);
+        break;
       default:
         result = { success: false, message: 'Acción no reconocida: ' + action };
     }

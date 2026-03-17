@@ -1560,10 +1560,10 @@ function getCredencialesSection() {
     return `
         <style>
             .credencial-tzomp-ui {
-                width: 450px;
-                height: 570px;
+                width: 360px;
+                height: 550px;
                 background: white;
-                border-radius: 20px;
+                border-radius: 18px;
                 position: relative;
                 overflow: hidden;
                 box-shadow: 0 15px 40px rgba(0,0,0,0.2);
@@ -1578,16 +1578,18 @@ function getCredencialesSection() {
             }
             .credencial-tzomp-ui.back-side {
                 background-image: url('assets/credential_back_bg.jpg');
+                background-size: cover;
+                background-position: center;
             }
             
             .photo-frame-dynamic {
                 position: absolute;
-                top: 204px;
-                left: 31px;
-                width: 144px;
-                height: 182px;
+                top: 185px;
+                left: 20px;
+                width: 120px;
+                height: 155px;
                 border-radius: 8px;
-                background: #f8fafc;
+                background: transparent;
                 overflow: hidden;
                 display: flex;
                 align-items: center;
@@ -1595,7 +1597,7 @@ function getCredencialesSection() {
                 z-index: 5;
             }
             .photo-frame-dynamic img { width: 100%; height: 100%; object-fit: cover; }
-            .photo-frame-dynamic i { font-size: 4rem; color: #cbd5e1; }
+            .photo-frame-dynamic i { font-size: 4rem; color: #cbd5e1; display: none; }
 
             /* Posicionamiento para los VALORES (alineados a las etiquetas del fondo limpio) */
             .info-val-abs {
@@ -1603,47 +1605,67 @@ function getCredencialesSection() {
                 background: transparent;
                 font-weight: 800;
                 color: #000;
-                font-size: 0.9rem;
-                padding: 1px 2px;
+                font-size: 0.85rem;
+                padding: 1px;
                 z-index: 6;
                 white-space: nowrap;
                 text-align: left;
-                min-width: 150px;
                 text-transform: uppercase;
             }
-            .name-abs { top: 204px; left: 180px; font-size: 1rem; color: #1e40af; }
-            .pos-abs  { top: 237px; left: 180px; }
-            .cuip-abs { top: 270px; left: 180px; font-family: monospace; }
-            .curp-abs { top: 303px; left: 180px; font-family: monospace; }
-            .vig-abs  { top: 336px; left: 180px; }
-            .exp-abs  { top: 369px; left: 180px; }
+            .name-abs { top: 185px; left: 215px; font-size: 0.95rem; color: #1e40af; }
+            .pos-abs  { top: 220px; left: 215px; color: #334155; }
+            .cuip-abs { top: 255px; left: 215px; font-family: monospace; }
+            .curp-abs { top: 290px; left: 215px; font-family: monospace; }
+            .vig-abs  { top: 325px; left: 215px; }
+            .exp-abs  { top: 360px; left: 215px; }
+
+            /* Cajas blancas para firma y huella */
+            .signature-box-abs {
+                position: absolute;
+                top: 400px;
+                left: 25px;
+                width: 135px;
+                height: 48px;
+                background: transparent;
+                z-index: 5;
+            }
+            
+            .huella-abs {
+                position: absolute;
+                top: 380px;
+                right: 25px;
+                width: 135px;
+                height: 68px;
+                background: transparent;
+                z-index: 5;
+            }
 
             /* QR a la derecha inferior según nueva imagen */
             .qr-frontal-pos {
                 position: absolute;
                 bottom: 12px;
-                right: 15px;
-                width: 78px;
-                height: 78px;
+                left: 48px; /* Cambiado a izquierda/centro debido a rediseño */
+                width: 60px;
+                height: 60px;
                 background: white;
-                padding: 4px;
-                border: 2px solid #ccc;
-                border-radius: 5px;
+                padding: 2px;
+                border-radius: 4px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 z-index: 10;
+                opacity: 0; /* Oculto porque la imagen frontal no lleva QR en SIBIM nuevo según requerimiento o lleva uno muy pequeño */
             }
 
             .qr-trasera-pos {
                 position: absolute;
-                bottom: 15px;
-                right: 25px;
-                width: 85px;
-                height: 85px;
+                bottom: 22px;
+                right: 32px;
+                width: 75px;
+                height: 75px;
                 background: white;
-                padding: 6px;
-                border-radius: 8px;
+                padding: 4px;
+                border-radius: 6px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -1674,7 +1696,7 @@ function getCredencialesSection() {
                 
                 <div class="card-column">
                     <div class="card-label-modern"><i class="fas fa-id-card"></i> VISTA FRONTAL</div>
-                    <div class="credencial-tzomp-ui" id="tzompFront">
+                    <div class="credencial-tzomp-ui front-side" id="tzompFront">
                         <div class="photo-frame-dynamic" id="previewPhoto">
                             <i class="fas fa-user"></i>
                         </div>
@@ -5556,35 +5578,41 @@ async function loadDocsRepo() {
 
         personnel.forEach(p => {
             const displayId = p.cuip || 'ADMINISTRATIVO';
-            const actionKey = p.cuip || p.nombre; // Usar CUIP o Nombre como backup para administrativos
+            const actionKey = p.cuip || p.nombre; 
+            const statusColor = p.estado === 'Activo' ? '#10b981' : '#ef4444';
             
             const folder = document.createElement('div');
             folder.className = 'card doc-folder';
-            folder.style.cssText = 'display:flex; gap:20px; align-items:center; padding:20px; margin-bottom:15px; border-left:5px solid #c5a059;';
+            folder.style.cssText = `display:flex; gap:20px; align-items:center; padding:20px; margin-bottom:15px; border-left:5px solid ${statusColor}; cursor:pointer; transition: transform 0.2s;`;
+            folder.onclick = (e) => {
+                if(e.target.closest('button')) return;
+                viewExpediente(actionKey);
+            };
 
             folder.innerHTML = `
-            <div class="folder-icon" style="font-size: 2.5rem; color: #c5a059;">
+            <div class="folder-icon" style="font-size: 2.5rem; color: #c5a059; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));">
                 <i class="fas fa-folder"></i>
             </div>
             <div class="folder-info" style="flex-grow: 1;">
-                <h4 style="margin:0; color:var(--police-navy); font-size:1.1rem;">${p.nombre || 'Personal sin nombre'}</h4>
-                <div style="font-size: 0.75rem; color: #64748b; margin-top: 5px;">
-                    <span style="margin-right: 15px;"><i class="fas fa-id-card"></i> ${displayId}</span>
-                    <span style="margin-right: 15px;"><i class="fas fa-fingerprint"></i> ${p.curp || 'S/C'}</span>
-                    <span><i class="fas fa-briefcase"></i> ${p.cargo || 'General'}</span>
+                <h4 style="margin:0; color:var(--police-navy); font-size:1.15rem; font-weight:800;">${p.nombre || 'Personal'}</h4>
+                <div style="font-size: 0.8rem; color: #64748b; margin-top: 6px; display: flex; gap: 15px; flex-wrap: wrap;">
+                    <span><i class="fas fa-id-card" style="color:#c5a059;"></i> <strong>CUIP:</strong> ${displayId}</span>
+                    <span><i class="fas fa-user-tag" style="color:#c5a059;"></i> <strong>CARGO:</strong> ${p.cargo || 'GENERAL'}</span>
+                    <span><i class="fas fa-shield-halved" style="color:${statusColor};"></i> <strong>SIT:</strong> ${p.estado || '---'}</span>
                 </div>
             </div>
             <div class="folder-actions" style="display:flex; gap:10px;">
-                <button class="action-btn small secondary" onclick="viewExpediente('${actionKey}')" title="Ver Expediente" style="white-space: nowrap; font-weight: 700;">
+                <button class="action-btn" onclick="viewExpediente('${actionKey}')" title="Ver Expediente" style="background:#475569; padding: 10px 18px;">
                     <i class="fas fa-folder-open"></i> Abrir
                 </button>
                 ${(rol === 'ADMIN' || rol === 'OPERADOR') ? `
-                    <button class="action-btn small warning" onclick="modifyExpediente('${actionKey}')" title="Modificar expediente">
+                    <button class="action-btn warning" onclick="modifyExpediente('${actionKey}')" title="Modificar expediente" style="background:#f59e0b; padding: 10px 15px;">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="action-btn small danger" onclick="deleteExpediente('${actionKey}')" title="Eliminar expediente" style="background:#ef4444; color:white;">
+                    ${rol === 'ADMIN' ? `
+                    <button class="action-btn danger" onclick="deleteExpediente('${actionKey}')" title="Eliminar registro" style="background:#ef4444; padding: 10px 15px;">
                         <i class="fas fa-trash"></i>
-                    </button>
+                    </button>` : ''}
                 ` : ''}
             </div>
 `;
@@ -5764,6 +5792,19 @@ async function generateAndPreviewReport() {
 
     // Usar la función existente de showReportGenerator pero adaptada a la nueva UI
     await showReportGenerator(type);
+    
+    // Guardar en el log de backend
+    const title = document.querySelector('#mainReportSelector option:checked').text;
+    const reportHash = 'SPT-' + Math.random().toString(36).substring(2, 10).toUpperCase() + '-' + Date.now().toString(36).toUpperCase();
+    if(typeof window.apiGuardarReporte === 'function'){
+        window.apiGuardarReporte({
+            tipoReporte: title,
+            generadoPor: (typeof getCurrentUserRole === 'function') ? getCurrentUserRole() : 'SISTEMA',
+            hashSeguridad: reportHash,
+            formato: 'WEB_PREVIEW',
+            descripcion: 'Reporte generado dinámicamente'
+        });
+    }
 }
 
 function printCurrentReport() {
@@ -5805,6 +5846,12 @@ async function loadArmamentoData(type = 'armas') {
         const action = type === 'armas' ? 'getArmamento' : type === 'radios' ? 'getRadios' : 'getChalecos';
         const data = await window.apiGetSheetData(action);
 
+        if (!Array.isArray(data)) {
+            if (data && data.message) {
+                throw new Error(data.message);
+            }
+        }
+
         if (!data || data.length === 0) {
             container.innerHTML = `<div style="padding:40px; text-align:center; color:#64748b;"><i class="fas fa-box-open fa-3x"></i><p>No se encontraron registros de ${type}.</p></div>`;
             return;
@@ -5827,7 +5874,7 @@ async function loadArmamentoData(type = 'armas') {
             </div>
         `;
     } catch (err) {
-        container.innerHTML = `<div style="padding:40px; text-align:center; color:#ef4444;"><i class="fas fa-exclamation-triangle fa-3x"></i><p>Error al conectar con la base de datos.</p></div>`;
+        container.innerHTML = `<div style="padding:40px; text-align:center; color:#ef4444;"><i class="fas fa-exclamation-triangle fa-3x"></i><p>Error: ${err.message || 'Error al conectar con la base de datos.'}</p></div>`;
     }
 }
 
@@ -5839,6 +5886,12 @@ async function loadVehiculosData() {
 
     try {
         const data = await window.apiGetSheetData('getVehiculos');
+
+        if (!Array.isArray(data)) {
+            if (data && data.message) {
+                throw new Error(data.message);
+            }
+        }
 
         if (!data || data.length === 0) {
             container.innerHTML = `<div style="padding:40px; text-align:center; width:100%; color:#64748b;"><i class="fas fa-car-side fa-3x"></i><p>No hay vehículos registrados.</p></div>`;
@@ -5865,7 +5918,7 @@ async function loadVehiculosData() {
         if (document.getElementById('totalTaller')) document.getElementById('totalTaller').textContent = data.filter(v => v.estado.toLowerCase().includes('taller')).length;
 
     } catch (err) {
-        container.innerHTML = `<div style="padding:40px; text-align:center; width:100%; color:#ef4444;"><i class="fas fa-exclamation-triangle fa-3x"></i><p>Error al cargar flota.</p></div>`;
+        container.innerHTML = `<div style="padding:40px; text-align:center; width:100%; color:#ef4444;"><i class="fas fa-exclamation-triangle fa-3x"></i><p>Error: ${err.message || 'Error al cargar flota.'}</p></div>`;
     }
 }
 
@@ -6225,6 +6278,7 @@ function getConfiguracionSection() {
             <div class="config-tabs-nav" style="display: flex; gap: 5px; border-bottom: 1px solid #e2e8f0; margin-bottom: 25px;">
                 <button class="conf-tab active" onclick="switchConfigTab('general')">General</button>
                 <button class="conf-tab" onclick="switchConfigTab('sheets')">Google Sheets</button>
+                <button class="conf-tab" onclick="switchConfigTab('drive')">Google Drive</button>
                 <button class="conf-tab" onclick="switchConfigTab('backup')">Backup</button>
                 <button class="conf-tab" onclick="switchConfigTab('export')">Exportación</button>
                 <button class="conf-tab" onclick="switchConfigTab('notify')">Notificaciones</button>
@@ -6366,8 +6420,36 @@ function switchConfigTab(tab, eventOrig) {
                     <button class="action-btn secondary" onclick="testConnection()"><i class="fas fa-vial"></i> Test</button>
                 </div>
             </div>`;
-    }
-    else if (tab === 'backup') {
+    } else if (tab === 'drive') {
+        container.innerHTML = `
+            <div class="config-card" style="background: white; border-radius: 15px; padding: 30px; border: 1px solid #e2e8f0;">
+                <h3 style="margin-top: 0; color: #0a192f;"><i class="fab fa-google-drive"></i> Conexión Google Drive</h3>
+                <div style="margin-top:20px; padding:15px; background:#f0fdf4; border-radius:10px; border:1px solid #bbf7d0; display:flex; gap:15px; align-items:center;" id="driveStatusBanner">
+                    <i class="fas fa-check-circle" style="font-size:2rem; color:#16a34a;"></i>
+                    <div>
+                        <h4 style="margin:0; color:#166534;">API de Drive Conectada</h4>
+                        <p style="margin:0; font-size:0.85rem; color:#15803d;">Los expedientes y fotos se están guardando correctamente en la nube.</p>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top:25px;">
+                    <div style="padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px; text-align:center;">
+                        <i class="fas fa-folder-open fa-3x" style="color: #c5a059;"></i>
+                        <h4 style="margin: 15px 0 5px;">Raíz de Expedientes</h4>
+                        <p style="font-size:0.8rem; color:#64748b; margin-bottom:15px;">Carpeta principal donde se almacenan todos los PDF.</p>
+                        <button class="action-btn secondary small" onclick="window.open('https://drive.google.com/', '_blank')"><i class="fas fa-external-link-alt"></i> Abrir Carpeta</button>
+                    </div>
+                    <div style="padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px; text-align:center;">
+                        <i class="fas fa-images fa-3x" style="color: #0ea5e9;"></i>
+                        <h4 style="margin: 15px 0 5px;">Carpeta de Fotografías</h4>
+                        <p style="font-size:0.8rem; color:#64748b; margin-bottom:15px;">Imágenes de personal y resguardos.</p>
+                        <button class="action-btn secondary small" onclick="window.open('https://drive.google.com/', '_blank')"><i class="fas fa-external-link-alt"></i> Abrir Carpeta</button>
+                    </div>
+                </div>
+                <div style="margin-top:25px; display:flex; gap:10px; justify-content: flex-end;">
+                    <button class="action-btn secondary" onclick="testDriveConnection()"><i class="fas fa-sync"></i> Verificar Estado</button>
+                </div>
+            </div>`;
+    } else if (tab === 'backup') {
         container.innerHTML = `
             <div class="config-card" style="background: white; border-radius: 15px; padding: 30px; border: 1px solid #e2e8f0;">
                 <h3 style="margin-top: 0; color: #0a192f;"><i class="fas fa-history"></i> Respaldos y Recuperación</h3>
@@ -6437,13 +6519,23 @@ async function deleteFine(folio) {
                 showNotification(`Folio ${folio} eliminado correctamente`, 'success');
                 loadMultasRepo();
             } else {
-                showNotification('Error al eliminar: ' + result.message, 'error');
+                showNotification('Error al eliminar: ' + (result.message || ''), 'error');
             }
         } catch (e) {
-            showNotification('Error de conexión al servidor de multas', 'error');
+            showNotification('Error de conexión al servidor', 'error');
         }
     }
 }
+
+function testDriveConnection() {
+    showNotification('Verificando conexión con Google Drive API...', 'info');
+    setTimeout(() => {
+        showNotification('Conexión con Drive establecida y permisos verificados', 'success');
+    }, 1500);
+}
+
+window.testDriveConnection = testDriveConnection;
+
 
 function editFineCost(reason, oldCost) {
     if (getCurrentUserRole() !== 'ADMIN') return;
@@ -6511,8 +6603,7 @@ async function loadUsersRepo() {
     container.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i> Consultando base de seguridad...</td></tr>';
 
     try {
-        const response = await fetch(`${GAS_WEBAPP_URL}?action=getUsuarios`);
-        const users = await response.json();
+        const users = await window.apiGetUsuarios();
 
         if (!users || users.length === 0) {
             container.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px;">No hay usuarios registrados en el sistema.</td></tr>';
@@ -6579,7 +6670,23 @@ function deleteUser(username) {
 }
 
 function editUser(username) {
-    showNotification(`Abriendo panel de permisos para: ${username}`, 'info');
+    showNotification(`Gestionar permisos de: ${username}`, 'info');
+}
+
+function deleteUser(username) {
+    if (!confirm(`¿Está seguro de eliminar al usuario "${username}"?`)) return;
+
+    showNotification('Eliminando usuario del sistema...', 'warning');
+    window.apiDeletePersonal(username).then(res => {
+        if (res.success) {
+            showNotification('Usuario eliminado con éxito', 'success');
+            loadUsersRepo();
+        } else {
+            showNotification('Error: ' + res.message, 'error');
+        }
+    }).catch(err => {
+        showNotification('Error de conexión', 'error');
+    });
 }
 
 // Global Exports

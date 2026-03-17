@@ -169,38 +169,38 @@ function printEnhancedCredential() {
                 .front-bg { background-image: url('assets/credential_front_bg.jpg'); }
                 .back-bg { background-image: url('assets/credential_back_bg.jpg'); }
 
-                .photo-oficial {
-                    position: absolute;
-                    top: 178px;
-                    left: 23px;
-                    width: 106px;
-                    height: 135px;
-                    border-radius: 6px;
-                    overflow: hidden;
-                    background: transparent;
-                }
-                /* Posiciones de texto para impresión 324px ajustadas al fondo limpio */
                 .val-print-abs {
                     position: absolute;
-                    background: transparent; /* Ya no cubrimos, alineamos al lado de la etiqueta */
+                    background: transparent;
                     color: #000;
                     font-weight: 800;
                     white-space: nowrap;
                     z-index: 10;
                 }
-                .p-name { top: 204px; left: 184px; font-size: 0.85rem; color: #1e40af; }
-                .p-cargo{ top: 237px; left: 184px; font-size: 0.68rem; }
-                .p-cuip { top: 270px; left: 184px; font-size: 0.68rem; font-family: monospace; }
-                .p-curp { top: 303px; left: 184px; font-size: 0.68rem; font-family: monospace; }
-                .p-vig  { top: 336px; left: 184px; font-size: 0.68rem; }
-                .p-exp  { top: 369px; left: 184px; font-size: 0.68rem; }
+                .p-name { top: 167px; left: 194px; font-size: 0.85rem; color: #1a3a6e; text-transform: uppercase; letter-spacing: 0.5px; } /* Proportional alignment */
+                .p-cargo{ top: 199px; left: 194px; font-size: 0.72rem; color: #334155; text-transform: uppercase; }
+                .p-cuip { top: 231px; left: 194px; font-size: 0.72rem; font-family: monospace; font-weight: 900; }
+                .p-curp { top: 263px; left: 194px; font-size: 0.72rem; font-family: monospace; font-weight: 900; }
+                .p-vig  { top: 295px; left: 194px; font-size: 0.72rem; }
+                .p-exp  { top: 327px; left: 194px; font-size: 0.72rem; }
+
+                .photo-oficial {
+                    position: absolute;
+                    top: 155px;
+                    left: 20px;
+                    width: 105px;
+                    height: 135px;
+                    border-radius: 6px;
+                    overflow: hidden;
+                    background: transparent;
+                }
 
                 .qr-box-print {
                     position: absolute;
                     bottom: 12px;
-                    right: 15px;
-                    width: 65px;
-                    height: 65px;
+                    left: 30px;
+                    width: 50px;
+                    height: 50px;
                     background: white;
                     display: flex;
                     align-items: center;
@@ -208,15 +208,16 @@ function printEnhancedCredential() {
                     border-radius: 4px;
                     padding: 2px;
                     border: 1px solid #ddd;
+                    opacity: 0; /* Front QR hidden */
                 }
                 .qr-box-print img { width: 100%; height: 100%; }
 
                 .qr-back-print {
                     position: absolute;
-                    bottom: 12px;
-                    right: 18px;
-                    width: 68px;
-                    height: 68px;
+                    bottom: 15px;
+                    right: 25px;
+                    width: 70px;
+                    height: 70px;
                     background: white;
                     display: flex;
                     align-items: center;

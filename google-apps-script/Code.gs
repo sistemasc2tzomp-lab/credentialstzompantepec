@@ -13,6 +13,7 @@ var SHEET_ARMAMENTO = 'ARMAMENTO';
 var SHEET_VEHICULOS = 'VEHICULOS';
 var SHEET_RADIO = 'RADIO';
 var SHEET_CHALECOS = 'CHALECOS';
+var SHEET_REPORTES = 'REPORTES';
 // CONFIGURACIÓN DE GOOGLE DRIVE (IDs proporcionados por el usuario)
 const FOLDER_ID_FOTOS = '1jgEvqN01I3eH0aGjGJdODxLkRlusiD59';
 const FOLDER_ID_DOCS = '1oxAmRdspivrL7LLG7WD01kMym19RJbs-';
@@ -85,28 +86,33 @@ function doPost(e) {
     }
     
     var action = (params.action || e.parameter.action || '').trim();
+    var actionLower = action.toLowerCase();
     
-    switch (action) {
-      case 'guardarPersonal':
+    switch (actionLower) {
+      case 'guardarpersonal':
         result = guardarPersonal(params);
         break;
-      case 'actualizarPersonal':
+      case 'actualizarpersonal':
         result = actualizarPersonal(params);
         break;
-      case 'guardarUsuario':
+      case 'guardarusuario':
         result = guardarUsuario(params);
         break;
-      case 'actualizarEstado':
-        result = actualizarEstado(params.cuip, params.estado);
+      case 'actualizarestado':
+        result = actualizarEstado(String(params.cuip || e.parameter.cuip), String(params.estado || e.parameter.estado));
         break;
-      case 'actualizarResguardo':
+      case 'actualizarresguardo':
         result = actualizarResguardo(params);
         break;
-      case 'eliminarPersonal':
-        result = eliminarPersonal(params.cuip);
+      case 'eliminarpersonal':
+        var cuipToDel = params.cuip || e.parameter.cuip || params.searchId || '';
+        result = eliminarPersonal(cuipToDel);
+        break;
+      case 'guardarreporte':
+        result = guardarReporte(params);
         break;
       default:
-        result = { success: false, message: 'Acción POST no reconocida: ' + action };
+        result = { success: false, message: 'Acción POST no reconocida: ' + action + ' (Intentado: ' + actionLower + ')' };
     }
   } catch (err) {
     result = { success: false, message: 'Error en POST: ' + err.toString() };
@@ -287,7 +293,10 @@ function actualizarPersonal(datos) {
         var cuipHoja = String(data[i][5]).trim().toUpperCase();
         var nombreHoja = String(data[i][1]).trim().toUpperCase();
         
-        var matchByCuip = cuipOrig && cuipHoja === cuipOrig && cuipOrig !== 'ADMINISTRATIVO';
+        // Búsqueda robusta: Si el oficial es Administrativo (sin CUIP), buscamos por nombre original. 
+        // Si tiene CUIP, usamos CUIP.
+        var isAdministrativo = (cuipHoja === 'ADMINISTRATIVO' || !cuipHoja || cuipHoja === '---');
+        var matchByCuip = cuipOrig && cuipHoja === cuipOrig && !isAdministrativo;
         var matchByName = nombreOrig && nombreHoja === nombreOrig;
         
         if (matchByCuip || matchByName) {
@@ -612,6 +621,14 @@ function inicializarHojas() {
       }
     });
     
+    // Crear hoja REPORTES si no existe
+    var reportesSheet = ss.getSheetByName(SHEET_REPORTES);
+    if (!reportesSheet) {
+      reportesSheet = ss.insertSheet(SHEET_REPORTES);
+      reportesSheet.appendRow(['FECHA', 'TIPO_REPORTE', 'GENERADO_POR', 'HASH_SEGURIDAD', 'FORMATO', 'DESCRIPCION']);
+      reportesSheet.getRange(1, 1, 1, 6).setBackground('#0a192f').setFontColor('#c5a059').setFontWeight('bold');
+    }
+
     return { success: true, message: 'Hojas inicializadas correctamente' };
     
   } catch (err) {
@@ -664,26 +681,219 @@ function actualizarResguardo(datos) {
 }
 
 // ============================================================
-// FUNCIÓN: Eliminar elemento
+// FUNCIÓN: Guardar registro de reporte generado
+// ============================================================
+function guardarReporte(datos) {
+  try {
+    var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    var sheet = ss.getSheetByName(SHEET_REPORTES);
+    
+    if (!sheet) {
+      inicializarHojas();
+      sheet = ss.getSheetByName(SHEET_REPORTES);
+    }
+    
+    sheet.appendRow([
+      new Date().toISOString(),
+      datos.tipoReporte || 'DESCONOCIDO',
+      datos.generadoPor || 'SISTEMA',
+      datos.hashSeguridad || '',
+      datos.formato || 'PDF',
+      datos.descripcion || ''
+    ]);
+    
+    return { success: true, message: 'Reporte registrado en la bitácora.' };
+  } catch (err) {
+    return { success: false, message: 'Error al reportar: ' + err.toString() };
+  }
+}
+
+// ============================================================
+// FUNCIÓN: Obtener usuarios del sistema (Acceso)
+// ============================================================
+function getUsuarios() {
+  try {
+    var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    var sheet = ss.getSheetByName(SHEET_USUARIOS);
+    if (!sheet) return [];
+    
+    var data = sheet.getDataRange().getValues();
+    if (data.length <= 1) return [];
+    
+    var users = [];
+    for (var i = 1; i < data.length; i++) {
+      users.push({
+        id: i,
+        fecha: data[i][0],
+        nombre: data[i][1],
+        username: data[i][2],
+        password: data[i][3],
+        role: data[i][4],
+        estado: data[i][5] || 'ACTIVO',
+        ultimoacceso: data[i][6] || '---'
+      });
+    }
+    return users;
+  } catch (err) {
+    return [];
+  }
+}
+
+// ============================================================
+// FUNCIÓN: Actualizar datos de personal existente
+// ============================================================
+function actualizarPersonal(datos) {
+  try {
+    var cuip = datos.cuip;
+    if (!cuip) return { success: false, message: 'CUIP es requerido' };
+
+    var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    var sheet = ss.getSheetByName(SHEET_PERSONAL);
+    if (!sheet) return { success: false, message: 'Hoja no encontrada' };
+
+    var data = sheet.getDataRange().getValues();
+    var rowIndex = -1;
+
+    for (var i = 1; i < data.length; i++) {
+      if (String(data[i][5]) === String(cuip)) {
+        rowIndex = i + 1;
+        break;
+      }
+    }
+
+    if (rowIndex === -1) return { success: false, message: 'No se encontró el personal con CUIP: ' + cuip };
+
+    // Manejo de archivos en Drive
+    var folder = getOrCreateOfficerFolder(cuip, datos.nombre);
+    
+    // Si se envía foto nueva (en base64)
+    if (datos.foto && datos.foto.includes('base64')) {
+      datos.foto = saveFileToDrive(datos.foto, 'FOTO_' + cuip + '.png', folder);
+    }
+    
+    // Archivos de expediente (PDFs)
+    if (datos.ine_file && datos.ine_file.includes('base64')) {
+      datos.ine_link = saveFileToDrive(datos.ine_file, 'INE_' + cuip + '.pdf', folder);
+    }
+    if (datos.curp_file && datos.curp_file.includes('base64')) {
+      datos.curp_link = saveFileToDrive(datos.curp_file, 'CURP_' + cuip + '.pdf', folder);
+    }
+    if (datos.cuip_doc_file && datos.cuip_doc_file.includes('base64')) {
+      datos.cuip_doc_link = saveFileToDrive(datos.cuip_doc_file, 'CUIP_DOC_' + cuip + '.pdf', folder);
+    }
+    if (datos.comprobante_file && datos.comprobante_file.includes('base64')) {
+      datos.comprobante_link = saveFileToDrive(datos.comprobante_file, 'COMPROBANTE_' + cuip + '.pdf', folder);
+    }
+
+    // Actualizar fila
+    // Mapeo: B=2, C=3, ..., O=15, P=16 (foto), AG=33 (ine_link) etc.
+    if (datos.nombre)    sheet.getRange(rowIndex, 2).setValue(datos.nombre);
+    if (datos.apellidos) sheet.getRange(rowIndex, 3).setValue(datos.apellidos);
+    if (datos.rfc)       sheet.getRange(rowIndex, 4).setValue(datos.rfc);
+    if (datos.curp)      sheet.getRange(rowIndex, 5).setValue(datos.curp);
+    if (datos.puesto || datos.cargo) sheet.getRange(rowIndex, 8).setValue(datos.puesto || datos.cargo);
+    if (datos.estado)    sheet.getRange(rowIndex, 15).setValue(datos.estado);
+    if (datos.foto)      sheet.getRange(rowIndex, 16).setValue(datos.foto);
+    if (datos.firma)     sheet.getRange(rowIndex, 17).setValue(datos.firma);
+    
+    // Links de expedientes (AG-AJ = 33-36)
+    if (datos.ine_link)         sheet.getRange(rowIndex, 33).setValue(datos.ine_link);
+    if (datos.curp_link)        sheet.getRange(rowIndex, 34).setValue(datos.curp_link);
+    if (datos.cuip_doc_link)    sheet.getRange(rowIndex, 35).setValue(datos.cuip_doc_link);
+    if (datos.comprobante_link) sheet.getRange(rowIndex, 36).setValue(datos.comprobante_link);
+
+    return { success: true, message: 'Expediente actualizado correctamente para ' + (datos.nombre || cuip) };
+
+  } catch (err) {
+    return { success: false, message: 'Error al actualizar: ' + err.toString() };
+  }
+}
+
+// ============================================================
+// FUNCIÓN: Eliminar personal o usuario
 // ============================================================
 function eliminarPersonal(id) {
   try {
     var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-    var sheet = ss.getSheetByName(SHEET_PERSONAL);
-    if (!sheet) return { success: false, message: 'Hoja PERSONAL no encontrada' };
-
-    var data = sheet.getDataRange().getValues();
-
-    for (var i = 1; i < data.length; i++) {
-        // Buscamos por CUIP (columna 5) o por Nombre (columna 1) si es administrativo
-        var rowId = data[i][5] || data[i][1];
-        if (String(rowId).trim() === String(id).trim()) {
-            sheet.deleteRow(i + 1);
-            return { success: true, message: 'Elemento '+ id +' eliminado correctamente' };
+    
+    // Intentar en hoja PERSONAL primero (por CUIP)
+    var sheetP = ss.getSheetByName(SHEET_PERSONAL);
+    if (sheetP) {
+      var dataP = sheetP.getDataRange().getValues();
+      for (var i = 1; i < dataP.length; i++) {
+        if (String(dataP[i][5]) === String(id)) {
+          sheetP.deleteRow(i + 1);
+          return { success: true, message: 'Expediente eliminado correctamente' };
         }
+      }
     }
-    return { success: false, message: 'Elemento no encontrado con el ID: ' + id };
+    
+    // Intentar en hoja USUARIOS (por USERNAME)
+    var sheetU = ss.getSheetByName(SHEET_USUARIOS);
+    if (sheetU) {
+      var dataU = sheetU.getDataRange().getValues();
+      for (var j = 1; j < dataU.length; j++) {
+        if (String(dataU[j][2]) === String(id)) {
+          sheetU.deleteRow(j + 1);
+          return { success: true, message: 'Usuario de sistema eliminado' };
+        }
+      }
+    }
+    
+    return { success: false, message: 'No se encontró el registro: ' + id };
   } catch (err) {
-    return { success: false, message: 'Error interno al eliminar: ' + err.toString() };
+    return { success: false, message: 'Error al borrar: ' + err.toString() };
   }
 }
+
+// ============================================================
+// FUNCIÓN: Gestionar carpetas en Drive para cada oficial
+// ============================================================
+function getOrCreateOfficerFolder(cuip, nombre) {
+  try {
+    var parentFolder = DriveApp.getFolderById(FOLDER_ID_DOCS);
+    var folderName = '[' + cuip + '] ' + (nombre || 'SIN_NOMBRE');
+    
+    var folders = parentFolder.getFoldersByName(folderName);
+    if (folders.hasNext()) {
+      return folders.next();
+    } else {
+      // Intentar buscar solo por CUIP si el nombre cambió
+      var allSubFolders = parentFolder.getFolders();
+      while(allSubFolders.hasNext()){
+        var f = allSubFolders.next();
+        if(f.getName().indexOf('[' + cuip + ']') === 0){
+          f.setName(folderName); // Actualizar nombre si es necesario
+          return f;
+        }
+      }
+      return parentFolder.createFolder(folderName);
+    }
+  } catch (e) {
+    return DriveApp.getFolderById(FOLDER_ID_DOCS); // Fallback al padre
+  }
+}
+
+// ============================================================
+// FUNCIÓN: Guardar archivo base64 en Drive y obtener link
+// ============================================================
+function saveFileToDrive(base64, filename, folder) {
+  try {
+    var contentType = base64.split(';')[0].split(':')[1];
+    var data = Utilities.base64Decode(base64.split(',')[1]);
+    var blob = Utilities.newBlob(data, contentType, filename);
+    
+    // Borrar versión anterior si existe con el mismo nombre en esa carpeta
+    var existingFiles = folder.getFilesByName(filename);
+    while (existingFiles.hasNext()) {
+      existingFiles.next().setTrashed(true);
+    }
+    
+    var file = folder.createFile(blob);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    return file.getUrl();
+  } catch (e) {
+    return '';
+  }
+}
+

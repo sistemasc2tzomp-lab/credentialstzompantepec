@@ -3,7 +3,7 @@
 // Sistema C2 - Seguridad Pública Tzompantepec
 // ============================================================
 
-const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxZBIe-u9R2aASbstARif7bC8yWDfndhktJmAQIuP4o6_1A-NiGidx10LT8yIYcnJnm/exec';
+const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwf9y96jVZAwHyODQhpP8rVSmaPyeL3cmSygY44sTv7ht-xr6RaBveJOh6NauweoIZm/exec';
 const SPREADSHEET_ID_CONFIG = '12_nohX3MHsU8WrvhDKLYbQYr0uoMFvlx30ICjjJsT2M';
 
 function checkWebAppConfig() {
@@ -242,6 +242,26 @@ async function apiGetSheetData(action) {
     }
 }
 
+/**
+ * POST: Guardar registro de reporte
+ */
+async function apiGuardarReporte(datos) {
+    if (!checkWebAppConfig()) return { success: false };
+    try {
+        const payload = { action: 'guardarReporte', ...datos };
+        const response = await fetch(GAS_WEBAPP_URL, {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+        });
+        return await response.json();
+    } catch (e) {
+        console.error('apiGuardarReporte Error:', e);
+        return { success: false, message: e.message };
+    }
+}
+
 // Globales
 window.apiGetUsuarios = apiGetUsuarios;
 window.apiGuardarUsuario = apiGuardarUsuario;
@@ -252,3 +272,4 @@ window.apiGuardarPersonalObj = apiGuardarPersonalObj;
 window.apiActualizarEstado = apiActualizarEstado;
 window.apiDeletePersonal = apiDeletePersonal;
 window.apiGetSheetData = apiGetSheetData;
+window.apiGuardarReporte = apiGuardarReporte;

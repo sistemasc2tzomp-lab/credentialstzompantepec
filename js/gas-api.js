@@ -3,7 +3,7 @@
 // Sistema C2 - Seguridad Pública Tzompantepec
 // ============================================================
 
-const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwf9y96jVZAwHyODQhpP8rVSmaPyeL3cmSygY44sTv7ht-xr6RaBveJOh6NauweoIZm/exec';
+const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbyZqg9lzxJKwxxsQUms9mPEXlccpiGd2ydrmSB0mYd-QG8JXWs2BaQr1RoBIr3DphTZeg/exec';
 const SPREADSHEET_ID_CONFIG = '12_nohX3MHsU8WrvhDKLYbQYr0uoMFvlx30ICjjJsT2M';
 
 function checkWebAppConfig() {

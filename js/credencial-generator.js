@@ -2,16 +2,18 @@
 let currentPersonData = null;
 
 /**
- * Convierte un enlace de Google Drive a URL directa para img src.
+ * Convierte URL de Google Drive a formato de miniatura accesible sin CORS.
+ * Este formato funciona correctamente en etiquetas <img> sin bloqueos del navegador.
  */
 function toDirectDriveUrl(url) {
     if (!url) return '';
-    // Si ya es formato UC download/view, devolverlo
-    if (url.includes('uc?export')) return url;
-    // Extraer el ID del archivo
-    const idMatch = url.match(/\/d\/([\w-]+)/) || url.match(/id=([\w-]+)/);
-    if (idMatch) {
-        return `https://drive.google.com/uc?export=view&id=${idMatch[1]}`;
+    // Si ya es base64, devolver directamente
+    if (url.startsWith('data:')) return url;
+    // Extraer el ID del archivo de Drive
+    const idMatch = url.match(/\/d\/([-\w]+)/) || url.match(/[?&]id=([-\w]+)/) || url.match(/\/uc\?.*id=([-\w]+)/);
+    if (idMatch && idMatch[1]) {
+        // Usar formato thumbnail que funciona sin CORS en <img>
+        return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w400`;
     }
     return url;
 }
@@ -74,15 +76,12 @@ function updateEnhancedCredential(data) {
         let photoSrc = data.foto;
         const cuipLimpio = data.cuip ? data.cuip.trim() : '';
 
-        // Convertir URLs de Google Drive al formato directo para img
-        if (photoSrc && photoSrc.includes('drive.google.com')) {
-            const idMatch = photoSrc.match(/[-\w]{25,}/);
-            if (idMatch) {
-                photoSrc = `https://drive.google.com/uc?export=view&id=${idMatch[0]}`;
-            }
+        // Convertir URLs de Google Drive al formato thumbnail (sin CORS)
+        if (photoSrc && photoSrc.includes('drive.google.com') && !photoSrc.startsWith('data:')) {
+            photoSrc = toDirectDriveUrl(photoSrc);
         }
 
-        // Si no hay foto o es el placeholder 'foto', intentar fallback local
+        // Si no hay foto, intentar fallback local por CUIP
         if (!photoSrc || photoSrc === '' || photoSrc === 'foto') {
             if (cuipLimpio) {
                 photoSrc = `assets/FOTOGRAFIAS PERSONAL/${cuipLimpio}.png`;
@@ -91,7 +90,7 @@ function updateEnhancedCredential(data) {
 
         photoArea.innerHTML = `
             <img src="${photoSrc || ''}" 
-                 onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(data.nombre)}&background=0a192f&color=fff&size=200'"
+                 onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(data.nombre)}&background=0a192f&color=fff&size=200&bold=true'"
                  style="width: 100%; height: 100%; object-fit: cover;">
         `;
     }

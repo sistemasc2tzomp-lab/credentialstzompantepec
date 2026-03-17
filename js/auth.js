@@ -1584,9 +1584,9 @@ function getCredencialesSection() {
             
             .photo-frame-dynamic {
                 position: absolute;
-                top: 191px;
-                left: 28px;
-                width: 130px;
+                top: 200px;
+                left: 25px;
+                width: 135px;
                 height: 165px;
                 border-radius: 4px;
                 background: rgba(0,0,0,0.05);
@@ -1595,31 +1595,32 @@ function getCredencialesSection() {
                 align-items: center;
                 justify-content: center;
                 z-index: 5;
-                border: 1px solid #ddd;
+                border: 1px solid rgba(0,0,0,0.15);
             }
             .photo-frame-dynamic img { width: 100%; height: 100%; object-fit: cover; }
             .photo-frame-dynamic i { font-size: 4rem; color: #cbd5e1; display: none; }
 
-            /* Posicionamiento para los VALORES (alineados a las etiquetas del fondo limpio) */
+            /* Posicionamiento para los VALORES - BAJO las etiquetas del fondo */
             .info-val-abs {
                 position: absolute;
                 background: transparent;
                 font-weight: 800;
-                color: #000;
-                font-size: 0.85rem;
-                padding: 1px;
+                color: #1a1a1a;
+                font-size: 0.78rem;
+                padding: 0;
                 z-index: 6;
                 white-space: nowrap;
                 text-align: left;
                 text-transform: uppercase;
+                line-height: 1;
             }
-            /* Valores debajo de las etiquetas del fondo */
-            .name-abs { top: 201px; left: 165px; font-size: 0.85rem; color: #1e40af; }
-            .pos-abs  { top: 236px; left: 165px; color: #334155; }
-            .cuip-abs { top: 271px; left: 165px; font-family: monospace; font-weight: 900; }
-            .curp-abs { top: 306px; left: 165px; font-family: monospace; font-weight: 900; }
-            .vig-abs  { top: 341px; left: 165px; }
-            .exp-abs  { top: 376px; left: 165px; }
+            /* Texto exactamente DEBAJO de cada etiqueta del fondo (alineado por prueba visual) */
+            .name-abs { top: 207px; left: 170px; font-size: 0.78rem; color: #1a3a6e; }
+            .pos-abs  { top: 243px; left: 170px; color: #181818; }
+            .cuip-abs { top: 278px; left: 170px; font-family: monospace; font-weight: 900; font-size: 0.73rem; }
+            .curp-abs { top: 313px; left: 170px; font-family: monospace; font-weight: 900; font-size: 0.73rem; }
+            .vig-abs  { top: 348px; left: 170px; font-size: 0.75rem; }
+            .exp-abs  { top: 383px; left: 170px; font-size: 0.75rem; }
             
             /* Ajuste de firma y huella para reposicionamiento */
             .signature-box-abs {
@@ -5090,27 +5091,39 @@ function syncRegistrationWithPreview() {
 async function loadUsersRepo() {
     const container = document.getElementById('userListBody');
     if (!container) return;
+    container.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:30px; color:#94a3b8;"><i class="fas fa-spinner fa-spin fa-2x"></i><br>Cargando usuarios...</td></tr>';
 
     try {
-        const users = await apiGetUsuarios();
-        if (!users || users.length === 0) {
-            container.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:30px;">No se encontraron usuarios</td></tr>';
+        const rawUsers = await apiGetUsuarios();
+        
+        if (!rawUsers || !Array.isArray(rawUsers) || rawUsers.length === 0) {
+            container.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:40px; color:#64748b;"><i class="fas fa-users-slash fa-2x"></i><br><br>No se encontraron usuarios en el sistema.</td></tr>';
             return;
         }
+
+        // Normalizar campos: backend devuelve username/role, frontend espera usuario/rol
+        const users = rawUsers.map(u => ({
+            usuario  : u.usuario || u.username || u.user || '---',
+            nombre   : u.nombre  || u.name     || 'Sin nombre',
+            rol      : u.rol     || u.role     || u.perfil || 'USUARIO',
+            departamento: u.departamento || u.depto || 'General',
+            estado   : u.estado  || u.status   || 'Activo',
+            ultimoAcceso: u.ultimoAcceso || u.ultimoacceso || u.lastAccess || '---'
+        }));
 
         container.innerHTML = users.map((u, index) => `
             <tr style="border-bottom: 1px solid #f1f5f9;">
                 <td style="padding: 15px 20px;">${index + 1}</td>
                 <td style="padding: 15px 20px;"><strong>${u.usuario}</strong></td>
-                <td style="padding: 15px 20px;">${u.nombre || 'Nombre Apellido'}</td>
+                <td style="padding: 15px 20px;">${u.nombre}</td>
                 <td style="padding: 15px 20px;">
-                    <span class="role-badge ${u.rol?.toLowerCase()}">${u.rol || 'USUARIO'}</span>
+                    <span class="role-badge ${u.rol?.toLowerCase()}">${u.rol}</span>
                 </td>
-                <td style="padding: 15px 20px;">${u.departamento || 'General'}</td>
+                <td style="padding: 15px 20px;">${u.departamento}</td>
                 <td style="padding: 15px 20px;">
-                    <span class="status-badge ${u.estado?.toLowerCase()}">${u.estado || 'Activo'}</span>
+                    <span class="status-badge ${u.estado?.toLowerCase()}">${u.estado}</span>
                 </td>
-                <td style="padding: 15px 20px;">${u.ultimoAcceso || '---'}</td>
+                <td style="padding: 15px 20px;">${u.ultimoAcceso}</td>
                 <td style="padding: 15px 20px;">
                     <div style="display:flex; gap:8px;">
                         <button class="action-btn small" style="background:#f0fdf4; color:#10b981; border:1px solid #bbf7d0;" onclick="viewUser('${u.usuario}')">
@@ -5130,7 +5143,8 @@ async function loadUsersRepo() {
         `).join('');
 
     } catch (e) {
-        container.innerHTML = '<tr><td colspan="8">Error al cargar repositorio</td></tr>';
+        console.error('loadUsersRepo error:', e);
+        container.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px; color:#ef4444;"><i class="fas fa-wifi fa-2x"></i><br><br>Error de conexión con el repositorio de usuarios.<br><small style="color:#94a3b8;">${e.message}</small></td></tr>`;
     }
 }
 
@@ -5731,8 +5745,8 @@ function viewExpediente(employeeId) {
         <body>
             <div class="container">
                 <div class="header">
-                    <img src="${(function(u){ if(!u) return ''; if(u.includes('uc?export')) return u; const m=u.match(/\/d\/([-\w]+)/)||u.match(/id=([-\w]+)/); return m? 'https://drive.google.com/uc?export=view&id='+m[1]:u; })(employee.foto) || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(employee.nombre) + '&background=0a192f&color=fff&size=200'}" 
-                         onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(employee.nombre)}&background=0a192f&color=fff&size=200'"
+                    <img src="${(function(u){ if(!u) return ''; if(u.startsWith('data:')) return u; const m=u.match(/\/d\/([-\w]+)/)||u.match(/[?&]id=([-\w]+)/); return m? 'https://drive.google.com/thumbnail?id='+m[1]+'&sz=w400':u; })(employee.foto) || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(employee.nombre) + '&background=0a192f&color=fff&size=200&bold=true'}" 
+                         onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(employee.nombre)}&background=0a192f&color=fff&size=200&bold=true'"
                          class="photo">
                     <div class="info">
                         <h1>${employee.nombre}</h1>

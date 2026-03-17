@@ -1660,10 +1660,10 @@ function getCredencialesSection() {
 
             .qr-trasera-pos {
                 position: absolute;
-                bottom: 22px;
-                right: 32px;
-                width: 75px;
-                height: 75px;
+                bottom: 14px;
+                right: 22px;
+                width: 110px;
+                height: 110px;
                 background: white;
                 padding: 4px;
                 border-radius: 6px;
@@ -5731,8 +5731,8 @@ function viewExpediente(employeeId) {
         <body>
             <div class="container">
                 <div class="header">
-                    <img src="${employee.foto || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(employee.nombre)}" 
-                         onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(employee.nombre)}&background=0a192f&color=fff'"
+                    <img src="${(function(u){ if(!u) return ''; if(u.includes('uc?export')) return u; const m=u.match(/\/d\/([-\w]+)/)||u.match(/id=([-\w]+)/); return m? 'https://drive.google.com/uc?export=view&id='+m[1]:u; })(employee.foto) || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(employee.nombre) + '&background=0a192f&color=fff&size=200'}" 
+                         onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(employee.nombre)}&background=0a192f&color=fff&size=200'"
                          class="photo">
                     <div class="info">
                         <h1>${employee.nombre}</h1>

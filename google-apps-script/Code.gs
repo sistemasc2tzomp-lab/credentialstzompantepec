@@ -755,7 +755,17 @@ function actualizarPersonal(datos) {
     var rowIndex = -1;
 
     for (var i = 1; i < data.length; i++) {
-      if (String(data[i][5]) === String(cuip)) {
+      var sheetCuip = String(data[i][5]  || '').trim().toUpperCase();
+      var sheetCurp = String(data[i][4]  || '').trim().toUpperCase();
+      var sheetName = String(data[i][1]  || '').trim().toUpperCase();
+      
+      var targetCuip = String(cuip).trim().toUpperCase();
+      var targetCurp = String(datos.curp || '').trim().toUpperCase();
+      var targetName = String(datos.nombre || '').trim().toUpperCase();
+
+      if (sheetCuip === targetCuip || 
+          (targetCurp !== '' && sheetCurp === targetCurp) ||
+          (targetName !== '' && sheetName === targetName)) {
         rowIndex = i + 1;
         break;
       }
@@ -891,7 +901,8 @@ function saveFileToDrive(base64, filename, folder) {
     
     var file = folder.createFile(blob);
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-    return file.getUrl();
+    // Link directo para img src (UC export)
+    return 'https://drive.google.com/uc?export=download&id=' + file.getId();
   } catch (e) {
     return '';
   }

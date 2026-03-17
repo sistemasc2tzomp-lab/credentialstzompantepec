@@ -1584,17 +1584,18 @@ function getCredencialesSection() {
             
             .photo-frame-dynamic {
                 position: absolute;
-                top: 185px;
-                left: 20px;
-                width: 120px;
-                height: 155px;
-                border-radius: 8px;
-                background: transparent;
+                top: 191px;
+                left: 28px;
+                width: 130px;
+                height: 165px;
+                border-radius: 4px;
+                background: rgba(0,0,0,0.05);
                 overflow: hidden;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 z-index: 5;
+                border: 1px solid #ddd;
             }
             .photo-frame-dynamic img { width: 100%; height: 100%; object-fit: cover; }
             .photo-frame-dynamic i { font-size: 4rem; color: #cbd5e1; display: none; }
@@ -1612,32 +1613,31 @@ function getCredencialesSection() {
                 text-align: left;
                 text-transform: uppercase;
             }
-            .name-abs { top: 185px; left: 215px; font-size: 0.95rem; color: #1e40af; }
-            .pos-abs  { top: 220px; left: 215px; color: #334155; }
-            .cuip-abs { top: 255px; left: 215px; font-family: monospace; }
-            .curp-abs { top: 290px; left: 215px; font-family: monospace; }
-            .vig-abs  { top: 325px; left: 215px; }
-            .exp-abs  { top: 360px; left: 215px; }
-
-            /* Cajas blancas para firma y huella */
+            .name-abs { top: 191px; left: 236px; font-size: 0.95rem; color: #1e40af; }
+            .pos-abs  { top: 224px; left: 236px; color: #334155; }
+            .cuip-abs { top: 257px; left: 236px; font-family: monospace; font-weight: 900; }
+            .curp-abs { top: 290px; left: 236px; font-family: monospace; font-weight: 900; }
+            .vig-abs  { top: 323px; left: 236px; }
+            .exp-abs  { top: 356px; left: 236px; }
+            
+            /* Ajuste de firma y huella para reposicionamiento */
             .signature-box-abs {
                 position: absolute;
-                top: 400px;
-                left: 25px;
-                width: 135px;
-                height: 48px;
-                background: transparent;
+                top: 412px;
+                left: 30px;
+                width: 130px;
+                height: 52px;
                 z-index: 5;
+                background: rgba(255, 255, 255, 0.4);
             }
-            
             .huella-abs {
                 position: absolute;
-                top: 380px;
-                right: 25px;
-                width: 135px;
-                height: 68px;
-                background: transparent;
+                top: 412px;
+                right: 30px;
+                width: 120px;
+                height: 52px;
                 z-index: 5;
+                background: rgba(255, 255, 255, 0.4);
             }
 
             /* QR a la derecha inferior según nueva imagen */

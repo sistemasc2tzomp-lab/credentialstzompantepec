@@ -177,23 +177,25 @@ function printEnhancedCredential() {
                     white-space: nowrap;
                     z-index: 10;
                 }
-                .p-name { top: 167px; left: 194px; font-size: 0.85rem; color: #1a3a6e; text-transform: uppercase; letter-spacing: 0.5px; } /* Proportional alignment */
-                .p-cargo{ top: 199px; left: 194px; font-size: 0.72rem; color: #334155; text-transform: uppercase; }
-                .p-cuip { top: 231px; left: 194px; font-size: 0.72rem; font-family: monospace; font-weight: 900; }
-                .p-curp { top: 263px; left: 194px; font-size: 0.72rem; font-family: monospace; font-weight: 900; }
-                .p-vig  { top: 295px; left: 194px; font-size: 0.72rem; }
-                .p-exp  { top: 327px; left: 194px; font-size: 0.72rem; }
+                .p-name { top: 182px; left: 232px; font-size: 0.82rem; color: #1a3a6e; text-transform: uppercase; letter-spacing: 0.5px; } 
+                .p-cargo{ top: 215px; left: 232px; font-size: 0.72rem; color: #334155; text-transform: uppercase; }
+                .p-cuip { top: 247px; left: 232px; font-size: 0.72rem; font-family: monospace; font-weight: 900; }
+                .p-curp { top: 280px; left: 232px; font-size: 0.72rem; font-family: monospace; font-weight: 900; }
+                .p-vig  { top: 312px; left: 232px; font-size: 0.72rem; }
+                .p-exp  { top: 345px; left: 232px; font-size: 0.72rem; }
 
                 .photo-oficial {
                     position: absolute;
-                    top: 155px;
-                    left: 20px;
-                    width: 105px;
-                    height: 135px;
-                    border-radius: 6px;
+                    top: 182px;
+                    left: 25px;
+                    width: 120px;
+                    height: 155px;
+                    border-radius: 4px;
                     overflow: hidden;
                     background: transparent;
+                    border: 0.5px solid #ccc;
                 }
+                .photo-oficial img { width: 100%; height: 100%; object-fit: cover; }
 
                 .qr-box-print {
                     position: absolute;

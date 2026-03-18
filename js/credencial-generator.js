@@ -199,12 +199,12 @@ function printEnhancedCredential() {
                     white-space: nowrap;
                     z-index: 10;
                 }
-                .p-name { top: 207px; left: 170px; font-size: 0.82rem; color: #1a3a6e; text-transform: uppercase; letter-spacing: 0.3px; width: 140px; white-space: normal; line-height: 1.1; font-weight: 900; } 
-                .p-cargo{ top: 243px; left: 170px; font-size: 0.75rem; color: #334155; text-transform: uppercase; }
-                .p-cuip { top: 278px; left: 170px; font-size: 0.75rem; font-family: monospace; font-weight: 900; }
-                .p-curp { top: 313px; left: 170px; font-size: 0.75rem; font-family: monospace; font-weight: 900; }
-                .p-vig  { top: 348px; left: 170px; font-size: 0.75rem; font-weight: 800; }
-                .p-exp  { top: 383px; left: 170px; font-size: 0.75rem; font-weight: 800; }
+                .p-name { top: 207px; left: 170px; font-size: 0.72rem; color: #1a3a6e; text-transform: uppercase; letter-spacing: 0.2px; width: 135px; max-height: 33px; overflow: hidden; white-space: normal; line-height: 1.1; font-weight: 900; } 
+                .p-cargo{ top: 243px; left: 170px; font-size: 0.7rem; color: #334155; text-transform: uppercase; width: 135px; max-height: 28px; overflow: hidden; white-space: normal; line-height: 1.1;}
+                .p-cuip { top: 278px; left: 170px; font-size: 0.7rem; font-family: monospace; font-weight: 900; }
+                .p-curp { top: 313px; left: 170px; font-size: 0.7rem; font-family: monospace; font-weight: 900; letter-spacing: -0.5px; }
+                .p-vig  { top: 348px; left: 170px; font-size: 0.7rem; font-weight: 800; }
+                .p-exp  { top: 383px; left: 170px; font-size: 0.7rem; font-weight: 800; }
 
                 .photo-oficial {
                     position: absolute;

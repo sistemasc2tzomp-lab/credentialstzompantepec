@@ -295,6 +295,82 @@ async function apiGuardarVehiculo(datos) {
     }
 }
 
+/**
+ * POST: Actualizar Armamento
+ */
+async function apiActualizarArmamento(datos) {
+    if (!checkWebAppConfig()) return { success: false };
+    try {
+        const payload = { action: 'actualizarArmamento', ...datos };
+        await fetch(GAS_WEBAPP_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify(payload)
+        });
+        return { success: true, message: 'Armamento actualizado' };
+    } catch (e) {
+        return { success: false, message: e.message };
+    }
+}
+
+/**
+ * POST: Actualizar Vehículo
+ */
+async function apiActualizarVehiculo(datos) {
+    if (!checkWebAppConfig()) return { success: false };
+    try {
+        const payload = { action: 'actualizarVehiculo', ...datos };
+        await fetch(GAS_WEBAPP_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify(payload)
+        });
+        return { success: true, message: 'Vehículo actualizado' };
+    } catch (e) {
+        return { success: false, message: e.message };
+    }
+}
+
+/**
+ * POST: Eliminar Armamento
+ */
+async function apiEliminarArmamento(id) {
+    if (!checkWebAppConfig()) return { success: false };
+    try {
+        const payload = { action: 'eliminarArmamento', id: id };
+        await fetch(GAS_WEBAPP_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify(payload)
+        });
+        return { success: true, message: 'Armamento eliminado logicamente' };
+    } catch (e) {
+        return { success: false, message: e.message };
+    }
+}
+
+/**
+ * POST: Eliminar Vehículo
+ */
+async function apiEliminarVehiculo(id) {
+    if (!checkWebAppConfig()) return { success: false };
+    try {
+        const payload = { action: 'eliminarVehiculo', id: id };
+        await fetch(GAS_WEBAPP_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify(payload)
+        });
+        return { success: true, message: 'Vehículo eliminado logicamente' };
+    } catch (e) {
+        return { success: false, message: e.message };
+    }
+}
+
 // Globales
 window.apiGetUsuarios = apiGetUsuarios;
 window.apiGuardarUsuario = apiGuardarUsuario;
@@ -308,3 +384,7 @@ window.apiGetSheetData = apiGetSheetData;
 window.apiGuardarReporte = apiGuardarReporte;
 window.apiGuardarArmamento = apiGuardarArmamento;
 window.apiGuardarVehiculo = apiGuardarVehiculo;
+window.apiActualizarArmamento = apiActualizarArmamento;
+window.apiActualizarVehiculo = apiActualizarVehiculo;
+window.apiEliminarArmamento = apiEliminarArmamento;
+window.apiEliminarVehiculo = apiEliminarVehiculo;

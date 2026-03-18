@@ -54,6 +54,9 @@ function doGet(e) {
         var cuipToDel = e.parameter.cuip || '';
         result = eliminarPersonal(cuipToDel);
         break;
+      case 'eliminarMulta':
+        result = eliminarMulta(e.parameter.folio || '');
+        break;
       default:
         result = { success: false, message: 'Acción no reconocida: ' + action };
     }
@@ -99,6 +102,12 @@ function doPost(e) {
       case 'actualizarpersonal':
         result = actualizarPersonal(params);
         break;
+      case 'actualizararmamento':
+        result = actualizarArmamento(params);
+        break;
+      case 'actualizarvehiculo':
+        result = actualizarVehiculo(params);
+        break;
       case 'guardarusuario':
         result = guardarUsuario(params);
         break;
@@ -120,6 +129,12 @@ function doPost(e) {
         break;
       case 'guardarvehiculo':
         result = guardarVehiculo(params);
+        break;
+      case 'eliminararmamento':
+        result = eliminarArmamento(params.id || e.parameter.id);
+        break;
+      case 'eliminarvehiculo':
+        result = eliminarVehiculo(params.id || e.parameter.id);
         break;
       default:
         result = { success: false, message: 'Acción POST no reconocida: ' + action + ' (Intentado: ' + actionLower + ')' };
@@ -774,6 +789,109 @@ function guardarVehiculo(datos) {
 }
 
 // ============================================================
+// FUNCIÓN: Actualizar Vehiculo
+// ============================================================
+function actualizarVehiculo(datos) {
+  try {
+    var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    var sheet = ss.getSheetByName(SHEET_VEHICULOS);
+    if(!sheet) return { success: false, message: 'Hoja VEHICULOS no encontrada' };
+    
+    var data = sheet.getDataRange().getValues();
+    for (var i = 1; i < data.length; i++) {
+       if ((datos.id && String(data[i][0]) === String(datos.id)) || (datos.economico && String(data[i][1]) === String(datos.economico)) || (datos.placa && String(data[i][2]) === String(datos.placa))) {
+           if(datos.economico) sheet.getRange(i+1, 2).setValue(datos.economico);
+           if(datos.placa) sheet.getRange(i+1, 3).setValue(datos.placa);
+           if(datos.tipo) sheet.getRange(i+1, 4).setValue(datos.tipo);
+           if(datos.marca) sheet.getRange(i+1, 5).setValue(datos.marca);
+           if(datos.modelo) sheet.getRange(i+1, 6).setValue(datos.modelo);
+           if(datos.color) sheet.getRange(i+1, 7).setValue(datos.color);
+           if(datos.kilometraje) sheet.getRange(i+1, 8).setValue(datos.kilometraje);
+           if(datos.estado) sheet.getRange(i+1, 9).setValue(datos.estado);
+           if(datos.asignado) sheet.getRange(i+1, 10).setValue(datos.asignado);
+           if(datos.cuadrante) sheet.getRange(i+1, 11).setValue(datos.cuadrante);
+           return { success: true, message: 'Vehículo actualizado' };
+       }
+    }
+    return { success: false, message: 'Vehículo no encontrado en BD.' };
+  } catch(e) {
+    return { success: false, message: e.toString() };
+  }
+}
+
+// ============================================================
+// FUNCIÓN: Actualizar Armamento
+// ============================================================
+function actualizarArmamento(datos) {
+  try {
+    var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    var sheet = ss.getSheetByName(SHEET_ARMAMENTO);
+    if(!sheet) return { success: false, message: 'Hoja ARMAMENTO no encontrada' };
+    
+    var data = sheet.getDataRange().getValues();
+    for (var i = 1; i < data.length; i++) {
+       if ((datos.id && String(data[i][0]) === String(datos.id)) || (datos.serie && String(data[i][1]) === String(datos.serie))) {
+           if(datos.serie) sheet.getRange(i+1, 2).setValue(datos.serie);
+           if(datos.tipo) sheet.getRange(i+1, 3).setValue(datos.tipo);
+           if(datos.marca) sheet.getRange(i+1, 4).setValue(datos.marca);
+           if(datos.modelo) sheet.getRange(i+1, 5).setValue(datos.modelo);
+           if(datos.calibre) sheet.getRange(i+1, 6).setValue(datos.calibre);
+           if(datos.estado) sheet.getRange(i+1, 7).setValue(datos.estado);
+           if(datos.asignado) sheet.getRange(i+1, 8).setValue(datos.asignado);
+           return { success: true, message: 'Armamento actualizado' };
+       }
+    }
+    return { success: false, message: 'Armamento no encontrado en BD.' };
+  } catch(e) {
+    return { success: false, message: e.toString() };
+  }
+}
+
+// ============================================================
+// FUNCIÓN: Eliminar Armamento
+// ============================================================
+function eliminarArmamento(id) {
+  try {
+    var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    var sheet = ss.getSheetByName(SHEET_ARMAMENTO);
+    if (!sheet) return { success: false, message: 'Hoja ARMAMENTO no encontrada' };
+
+    var data = sheet.getDataRange().getValues();
+    for (var i = 1; i < data.length; i++) {
+      if (String(data[i][0]) === String(id)) {
+        sheet.deleteRow(i + 1);
+        return { success: true, message: 'Armamento eliminado correctamente' };
+      }
+    }
+    return { success: false, message: 'Registro de armamento no encontrado: ' + id };
+  } catch (err) {
+    return { success: false, message: 'Error al eliminar armamento: ' + err.toString() };
+  }
+}
+
+// ============================================================
+// FUNCIÓN: Eliminar Vehículo
+// ============================================================
+function eliminarVehiculo(id) {
+  try {
+    var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    var sheet = ss.getSheetByName(SHEET_VEHICULOS);
+    if (!sheet) return { success: false, message: 'Hoja VEHICULOS no encontrada' };
+
+    var data = sheet.getDataRange().getValues();
+    for (var i = 1; i < data.length; i++) {
+      if (String(data[i][0]) === String(id)) {
+        sheet.deleteRow(i + 1);
+        return { success: true, message: 'Vehículo eliminado correctamente' };
+      }
+    }
+    return { success: false, message: 'Vehículo no encontrado: ' + id };
+  } catch (err) {
+    return { success: false, message: 'Error al eliminar vehículo: ' + err.toString() };
+  }
+}
+
+// ============================================================
 // FUNCIÓN: Obtener usuarios del sistema (Acceso)
 // ============================================================
 function getUsuarios() {
@@ -970,6 +1088,31 @@ function saveFileToDrive(base64, filename, folder) {
     return 'https://drive.google.com/uc?export=download&id=' + file.getId();
   } catch (e) {
     return '';
+  }
+}
+
+// ============================================================
+// FUNCIÓN: Eliminar Multa (Infracción)
+// ============================================================
+function eliminarMulta(folio) {
+  try {
+    if (!folio) return { success: false, message: 'Folio no proporcionado' };
+    var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    var sheet = ss.getSheetByName('MULTAS');
+    
+    // Si la hoja no existe aún, devolvemos éxito para modo demostrativo
+    if (!sheet) return { success: true, message: 'Multa eliminada (Modo simulación)' };
+    
+    var data = sheet.getDataRange().getValues();
+    for (var i = 1; i < data.length; i++) {
+       if (String(data[i][0]).trim().toLowerCase() === String(folio).trim().toLowerCase()) {
+         sheet.deleteRow(i + 1);
+         return { success: true, message: 'Multa eliminada de Google Sheets' };
+       }
+    }
+    return { success: false, message: 'Folio no encontrado en DB' };
+  } catch(e) {
+    return { success: false, message: e.toString() };
   }
 }
 

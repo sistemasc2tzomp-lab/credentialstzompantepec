@@ -175,14 +175,20 @@ function printEnhancedCredential() {
                     font-weight: 800; cursor: pointer; font-family: 'Montserrat', sans-serif; margin-top: 15px;
                 }
                 
+                /* =============================================
+                   TARJETA DE IMPRESIÓN
+                   324 x 504 px (escala 0.9 del preview 360x550)
+                   Ratio: card-print / preview = 0.9 en X, 0.916 en Y
+                   ============================================= */
                 .card-print {
-                    width: 324px; /* Aprox 8.6cm en 96dpi */
-                    height: 504px; /* Aprox 13.3cm */
+                    width: 324px;
+                    height: 504px;
                     border-radius: 15px;
                     position: relative;
                     overflow: hidden;
-                    background-size: cover;
+                    background-size: 100% 100%;
                     background-position: center;
+                    background-repeat: no-repeat;
                     box-shadow: 0 0 1px rgba(0,0,0,0.5);
                     page-break-inside: avoid;
                     margin-bottom: 30px;
@@ -191,35 +197,90 @@ function printEnhancedCredential() {
                 .front-bg { background-image: url('assets/credential_front_bg.jpg'); }
                 .back-bg { background-image: url('assets/credential_back_bg.jpg'); }
 
+                /* --- Valores con posición absoluta (impresos) ---
+                   Proporcionales a 324x504:
+                   NOMBRE:  top 187px  left 148px
+                   CARGO:   top 214px
+                   CUIP:    top 241px
+                   CURP:    top 268px
+                   VIGENCIA:top 295px
+                   FECHA:   top 322px
+                */
                 .val-print-abs {
                     position: absolute;
                     background: transparent;
-                    color: #000;
+                    color: #0f2b5e;
                     font-weight: 800;
-                    white-space: nowrap;
                     z-index: 10;
+                    text-transform: uppercase;
+                    line-height: 1.15;
                 }
-                .p-name { top: 207px; left: 170px; font-size: 0.72rem; color: #1a3a6e; text-transform: uppercase; letter-spacing: 0.2px; width: 135px; max-height: 33px; overflow: hidden; white-space: normal; line-height: 1.1; font-weight: 900; } 
-                .p-cargo{ top: 243px; left: 170px; font-size: 0.7rem; color: #334155; text-transform: uppercase; width: 135px; max-height: 28px; overflow: hidden; white-space: normal; line-height: 1.1;}
-                .p-cuip { top: 278px; left: 170px; font-size: 0.7rem; font-family: monospace; font-weight: 900; }
-                .p-curp { top: 313px; left: 170px; font-size: 0.7rem; font-family: monospace; font-weight: 900; letter-spacing: -0.5px; }
-                .p-vig  { top: 348px; left: 170px; font-size: 0.7rem; font-weight: 800; }
-                .p-exp  { top: 383px; left: 170px; font-size: 0.7rem; font-weight: 800; }
+                .p-name { 
+                    top: 187px; left: 148px; 
+                    font-size: 0.68rem; 
+                    color: #0d2652; 
+                    max-width: 155px; 
+                    max-height: 25px; 
+                    overflow: hidden; 
+                    white-space: normal; 
+                    word-break: break-word;
+                    font-weight: 900; 
+                    line-height: 1.1;
+                } 
+                .p-cargo { 
+                    top: 214px; left: 148px; 
+                    font-size: 0.65rem; 
+                    color: #1e3a6e; 
+                    max-width: 155px; 
+                    max-height: 22px; 
+                    overflow: hidden; 
+                    white-space: normal;
+                    line-height: 1.1;
+                }
+                .p-cuip { 
+                    top: 241px; left: 148px; 
+                    font-size: 0.65rem; 
+                    font-family: 'Courier New', monospace; 
+                    font-weight: 900;
+                    max-width: 155px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                }
+                .p-curp { 
+                    top: 268px; left: 148px; 
+                    font-size: 0.58rem; 
+                    font-family: 'Courier New', monospace; 
+                    font-weight: 900; 
+                    letter-spacing: -0.3px;
+                    max-width: 160px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                }
+                .p-vig  { 
+                    top: 295px; left: 148px; 
+                    font-size: 0.65rem; 
+                    font-weight: 900; 
+                }
+                .p-exp  { 
+                    top: 322px; left: 148px; 
+                    font-size: 0.6rem; 
+                    font-weight: 900; 
+                }
 
+                /* --- Foto del oficial (impresión) --- */
                 .photo-oficial {
                     position: absolute;
-                    top: 200px;
-                    left: 25px;
-                    width: 135px;
-                    height: 165px;
-                    border-radius: 6px;
+                    top: 178px;
+                    left: 20px;
+                    width: 118px;
+                    height: 148px;
+                    border-radius: 5px;
                     overflow: hidden;
-                    background: #f8fafc;
-                    border: 1px solid #cbd5e1;
-                    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+                    background: #f0f2f5;
                 }
                 .photo-oficial img { width: 100%; height: 100%; object-fit: cover; }
 
+                /* --- QR frontal (oculto) --- */
                 .qr-box-print {
                     position: absolute;
                     bottom: 12px;
@@ -232,17 +293,17 @@ function printEnhancedCredential() {
                     justify-content: center;
                     border-radius: 4px;
                     padding: 2px;
-                    border: 1px solid #ddd;
-                    opacity: 0; /* Front QR hidden */
+                    opacity: 0;
                 }
                 .qr-box-print img { width: 100%; height: 100%; }
 
+                /* --- QR trasera --- */
                 .qr-back-print {
                     position: absolute;
                     bottom: 10px;
-                    right: 18px;
-                    width: 100px;
-                    height: 100px;
+                    right: 16px;
+                    width: 95px;
+                    height: 95px;
                     background: white;
                     display: flex;
                     align-items: center;

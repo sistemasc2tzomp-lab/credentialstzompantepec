@@ -1464,6 +1464,11 @@ function getCredencialesSection() {
 
     return `
         <style>
+            /* =============================================
+               CREDENCIAL SIBIM - SISTEMA C2 TZOMPANTEPEC
+               Calibración profesional sobre fondo oficial
+               Tarjeta: 360 x 550 px (ratio 8.6 x 13.3 cm)
+               ============================================= */
             .credencial-tzomp-ui {
                 width: 360px;
                 height: 550px;
@@ -1472,35 +1477,41 @@ function getCredencialesSection() {
                 position: relative;
                 overflow: hidden;
                 box-shadow: 0 15px 40px rgba(0,0,0,0.2);
-                font-family: 'Inter', sans-serif;
+                font-family: 'Inter', 'Arial', sans-serif;
                 flex-shrink: 0;
             }
             .credencial-tzomp-ui.front-side {
-                border: 1px solid #e2e8f0;
+                border: 1px solid #d0d5dd;
                 background-image: url('assets/credential_front_bg.jpg');
-                background-size: cover;
+                background-size: 100% 100%;
                 background-position: center;
+                background-repeat: no-repeat;
             }
             .credencial-tzomp-ui.back-side {
+                border: 1px solid #d0d5dd;
                 background-image: url('assets/credential_back_bg.jpg');
-                background-size: cover;
+                background-size: 100% 100%;
                 background-position: center;
+                background-repeat: no-repeat;
             }
-            
+
+            /* --- FOTO DEL OFICIAL --- 
+               Se ubica sobre el rectángulo gris del fondo.
+               Background: foto inicia aprox 36% desde arriba, 7% desde izq 
+               Dimensiones: ~35% ancho x 29% alto del fondo */
             .photo-frame-dynamic {
                 position: absolute;
-                top: 198px;
-                left: 28px;
-                width: 128px;
-                height: 158px;
-                border-radius: 6px;
-                background: rgba(0,0,0,0.03);
+                top: 195px;   /* 35.5% de 550 */
+                left: 24px;   /* 6.7% de 360 */
+                width: 130px; /* 36% de 360 */
+                height: 160px;/* 29% de 550 */
+                border-radius: 5px;
+                background: rgba(240,242,245,0.5);
                 overflow: hidden;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 z-index: 5;
-                border: 1px solid rgba(0,0,0,0.1);
             }
             .photo-frame-dynamic img { 
                 width: 100%; 
@@ -1510,56 +1521,117 @@ function getCredencialesSection() {
             }
             .photo-frame-dynamic i { font-size: 3.5rem; color: #cbd5e1; }
 
-            /* Posicionamiento para los VALORES - BAJO las etiquetas del fondo */
+            /* --- VALORES ABSOLUTOS ---
+               Las etiquetas (NOMBRE:, CARGO:, etc.) están impresas en el fondo.
+               Los valores se colocan DESPUÉS de cada etiqueta (a la derecha del ":").
+               
+               Mediciones del fondo (proporcionales a 360x550):
+               - "NOMBRE:" label termina en ~55% left
+               - Línea 1 (NOMBRE):   ~37.5% top = 206px
+               - Línea 2 (CARGO):    ~42.7% top = 235px  
+               - Línea 3 (CUIP):     ~48.0% top = 264px
+               - Línea 4 (CURP):     ~53.3% top = 293px
+               - Línea 5 (VIGENCIA): ~58.5% top = 322px
+               - Línea 6 (FECHA EXP):~63.1% top = 347px  (Multiline label)
+               Valores alineados a left ~47% = 170px */
             .info-val-abs {
                 position: absolute;
                 background: transparent;
-                font-weight: 900;
-                color: #1a3a6e;
-                font-size: 0.8rem;
+                font-weight: 800;
+                color: #0f2b5e;
                 padding: 0;
                 z-index: 6;
-                white-space: nowrap;
                 text-align: left;
                 text-transform: uppercase;
-                line-height: 1;
-                letter-spacing: 0.5px;
+                line-height: 1.15;
             }
-            /* Recalibración exacta basada en rediseño de fondo */
-            .name-abs { top: 208px; left: 172px; font-size: 0.75rem; max-width: 145px; max-height: 35px; overflow: hidden; white-space: normal; line-height: 1.1; }
-            .pos-abs  { top: 247px; left: 172px; font-size: 0.7rem; max-width: 155px; max-height: 30px; overflow: hidden; }
-            .cuip-abs { top: 283px; left: 172px; font-family: 'JetBrains Mono', 'Courier New', monospace; letter-spacing: 0; font-size: 0.7rem; }
-            .curp-abs { top: 319px; left: 172px; font-family: 'Courier New', monospace; letter-spacing: -0.5px; font-size: 0.7rem; }
-            .vig-abs  { top: 355px; left: 172px; font-size: 0.7rem; }
-            .exp-abs  { top: 391px; left: 172px; font-size: 0.7rem; }
+
+            .name-abs { 
+                top: 204px; 
+                left: 165px; 
+                font-size: 0.72rem; 
+                max-width: 170px; 
+                white-space: normal;
+                word-break: break-word;
+                overflow: hidden;
+                max-height: 28px;
+                font-weight: 900;
+                color: #0d2652;
+            }
+            .pos-abs  { 
+                top: 234px; 
+                left: 165px; 
+                font-size: 0.68rem; 
+                color: #1e3a6e;
+                max-width: 170px;
+                white-space: normal;
+                overflow: hidden;
+                max-height: 26px;
+            }
+            .cuip-abs { 
+                top: 264px; 
+                left: 165px; 
+                font-family: 'Courier New', monospace; 
+                letter-spacing: 0px; 
+                font-size: 0.68rem;
+                font-weight: 900;
+                max-width: 170px;
+                white-space: nowrap;
+                overflow: hidden;
+            }
+            .curp-abs { 
+                top: 294px; 
+                left: 165px; 
+                font-family: 'Courier New', monospace; 
+                letter-spacing: -0.3px; 
+                font-size: 0.62rem;
+                font-weight: 900;
+                max-width: 175px;
+                white-space: nowrap;
+                overflow: hidden;
+            }
+            .vig-abs  { 
+                top: 324px; 
+                left: 165px; 
+                font-size: 0.7rem; 
+                font-weight: 900;
+            }
+            .exp-abs  { 
+                top: 354px; 
+                left: 165px; 
+                font-size: 0.65rem; 
+                font-weight: 900;
+            }
             
-            /* Ajuste de firma y huella para reposicionamiento */
+            /* --- FIRMA Y HUELLA --- 
+               Según el fondo, "FIRMA DEL TITULAR" está en ~71% top,
+               "HUELLA DACTILAR" a la derecha */
             .signature-box-abs {
                 position: absolute;
-                top: 418px;
-                left: 35px;
-                width: 125px;
-                height: 52px;
+                top: 400px;
+                left: 22px;
+                width: 135px;
+                height: 55px;
                 z-index: 5;
-                background: rgba(255, 255, 255, 0.4);
+                background: transparent;
             }
             .huella-abs {
                 position: absolute;
-                top: 418px;
-                right: 35px;
-                width: 110px;
-                height: 52px;
+                top: 400px;
+                right: 30px;
+                width: 120px;
+                height: 55px;
                 z-index: 5;
-                background: rgba(255, 255, 255, 0.4);
+                background: transparent;
             }
 
-            /* QR a la derecha inferior según nueva imagen */
+            /* --- QR FRONTAL (oculto, el fondo no lo necesita) --- */
             .qr-frontal-pos {
                 position: absolute;
                 bottom: 12px;
-                left: 48px; /* Cambiado a izquierda/centro debido a rediseño */
-                width: 60px;
-                height: 60px;
+                left: 48px;
+                width: 55px;
+                height: 55px;
                 background: white;
                 padding: 2px;
                 border-radius: 4px;
@@ -1567,17 +1639,19 @@ function getCredencialesSection() {
                 align-items: center;
                 justify-content: center;
                 z-index: 10;
-                opacity: 0; /* Oculto porque la imagen frontal no lleva QR en SIBIM nuevo según requerimiento o lleva uno muy pequeño */
+                opacity: 0;
             }
 
+            /* --- QR TRASERA --- 
+               Se ubica en la esquina inferior derecha del reverso */
             .qr-trasera-pos {
                 position: absolute;
-                bottom: 14px;
-                right: 22px;
-                width: 110px;
-                height: 110px;
+                bottom: 12px;
+                right: 18px;
+                width: 105px;
+                height: 105px;
                 background: white;
-                padding: 4px;
+                padding: 3px;
                 border-radius: 6px;
                 display: flex;
                 align-items: center;

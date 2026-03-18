@@ -199,23 +199,24 @@ function printEnhancedCredential() {
                     white-space: nowrap;
                     z-index: 10;
                 }
-                .p-name { top: 197px; left: 165px; font-size: 0.78rem; color: #1a3a6e; text-transform: uppercase; letter-spacing: 0.3px; } 
-                .p-cargo{ top: 230px; left: 165px; font-size: 0.72rem; color: #334155; text-transform: uppercase; }
-                .p-cuip { top: 262px; left: 165px; font-size: 0.72rem; font-family: monospace; font-weight: 900; }
-                .p-curp { top: 294px; left: 165px; font-size: 0.72rem; font-family: monospace; font-weight: 900; }
-                .p-vig  { top: 326px; left: 165px; font-size: 0.72rem; }
-                .p-exp  { top: 358px; left: 165px; font-size: 0.72rem; }
+                .p-name { top: 207px; left: 170px; font-size: 0.82rem; color: #1a3a6e; text-transform: uppercase; letter-spacing: 0.3px; width: 140px; white-space: normal; line-height: 1.1; font-weight: 900; } 
+                .p-cargo{ top: 243px; left: 170px; font-size: 0.75rem; color: #334155; text-transform: uppercase; }
+                .p-cuip { top: 278px; left: 170px; font-size: 0.75rem; font-family: monospace; font-weight: 900; }
+                .p-curp { top: 313px; left: 170px; font-size: 0.75rem; font-family: monospace; font-weight: 900; }
+                .p-vig  { top: 348px; left: 170px; font-size: 0.75rem; font-weight: 800; }
+                .p-exp  { top: 383px; left: 170px; font-size: 0.75rem; font-weight: 800; }
 
                 .photo-oficial {
                     position: absolute;
-                    top: 182px;
+                    top: 200px;
                     left: 25px;
-                    width: 120px;
-                    height: 155px;
-                    border-radius: 4px;
+                    width: 135px;
+                    height: 165px;
+                    border-radius: 6px;
                     overflow: hidden;
-                    background: transparent;
-                    border: 0.5px solid #ccc;
+                    background: #f8fafc;
+                    border: 1px solid #cbd5e1;
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
                 }
                 .photo-oficial img { width: 100%; height: 100%; object-fit: cover; }
 

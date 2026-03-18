@@ -115,6 +115,12 @@ function doPost(e) {
       case 'guardarreporte':
         result = guardarReporte(params);
         break;
+      case 'guardararmamento':
+        result = guardarArmamento(params);
+        break;
+      case 'guardarvehiculo':
+        result = guardarVehiculo(params);
+        break;
       default:
         result = { success: false, message: 'Acción POST no reconocida: ' + action + ' (Intentado: ' + actionLower + ')' };
     }
@@ -709,6 +715,61 @@ function guardarReporte(datos) {
     return { success: true, message: 'Reporte registrado en la bitácora.' };
   } catch (err) {
     return { success: false, message: 'Error al reportar: ' + err.toString() };
+  }
+}
+
+// ============================================================
+// FUNCIÓN: Guardar registro de Armamento
+// ============================================================
+function guardarArmamento(datos) {
+  try {
+    var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    var sheet = ss.getSheetByName(SHEET_ARMAMENTO);
+    if (!sheet) return { success: false, message: 'Hoja ARMAMENTO no encontrada' };
+
+    var row = [
+      'ARM-' + (sheet.getLastRow() + 1), // ID autogenerado
+      datos.serie || '',
+      datos.tipo || '',
+      datos.marca || '',
+      datos.modelo || '',
+      datos.calibre || 'N/A',
+      datos.estado || 'Operativo',
+      datos.asignado || 'Arsenal'
+    ];
+    
+    sheet.appendRow(row);
+    return { success: true, message: 'Armamento registrado correctamente' };
+  } catch (err) {
+    return { success: false, message: 'Error al guardar armamento: ' + err.toString() };
+  }
+}
+
+// ============================================================
+// FUNCIÓN: Guardar registro de Vehículo
+// ============================================================
+function guardarVehiculo(datos) {
+  try {
+    var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    var sheet = ss.getSheetByName(SHEET_VEHICULOS);
+    if (!sheet) return { success: false, message: 'Hoja VEHICULOS no encontrada' };
+
+    var row = [
+      datos.economico || 'V-' + (sheet.getLastRow() + 1), // ID / No. Eco
+      datos.placa || '',
+      datos.tipo || '',
+      datos.marca || '',
+      datos.modelo || '',
+      datos.color || 'Oficial',
+      datos.kilometraje || '0',
+      datos.estado || 'Activo',
+      datos.cuadrante || 'Base'
+    ];
+    
+    sheet.appendRow(row);
+    return { success: true, message: 'Vehículo registrado correctamente' };
+  } catch (err) {
+    return { success: false, message: 'Error al guardar vehículo: ' + err.toString() };
   }
 }
 

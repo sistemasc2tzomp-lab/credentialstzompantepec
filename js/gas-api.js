@@ -257,6 +257,44 @@ async function apiGuardarReporte(datos) {
     }
 }
 
+/**
+ * POST: Guardar Armamento
+ */
+async function apiGuardarArmamento(datos) {
+    if (!checkWebAppConfig()) return { success: false };
+    try {
+        const payload = { action: 'guardarArmamento', ...datos };
+        await fetch(GAS_WEBAPP_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify(payload)
+        });
+        return { success: true, message: 'Registro de armamento enviado' };
+    } catch (e) {
+        return { success: false, message: e.message };
+    }
+}
+
+/**
+ * POST: Guardar Vehículo
+ */
+async function apiGuardarVehiculo(datos) {
+    if (!checkWebAppConfig()) return { success: false };
+    try {
+        const payload = { action: 'guardarVehiculo', ...datos };
+        await fetch(GAS_WEBAPP_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify(payload)
+        });
+        return { success: true, message: 'Registro de vehículo enviado' };
+    } catch (e) {
+        return { success: false, message: e.message };
+    }
+}
+
 // Globales
 window.apiGetUsuarios = apiGetUsuarios;
 window.apiGuardarUsuario = apiGuardarUsuario;
@@ -268,3 +306,5 @@ window.apiActualizarEstado = apiActualizarEstado;
 window.apiDeletePersonal = apiDeletePersonal;
 window.apiGetSheetData = apiGetSheetData;
 window.apiGuardarReporte = apiGuardarReporte;
+window.apiGuardarArmamento = apiGuardarArmamento;
+window.apiGuardarVehiculo = apiGuardarVehiculo;

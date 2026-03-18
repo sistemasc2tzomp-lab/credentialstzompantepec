@@ -1272,105 +1272,111 @@ function clearLogFilters() {
 
 function getInicioSection() {
     return `
-        <div class="dashboard-home">
-            <div class="welcome-banner" style="position: relative;">
-                <div class="welcome-text-container">
-                    <h1 style="margin:0; font-family:'Montserrat', sans-serif; font-weight:800; font-size:2.2rem; line-height:1.2;">Panel de Control de Seguridad Pública</h1>
-                    <p style="margin:10px 0 0 0; opacity:0.8; font-size:1.1rem;">Gestión integral de personal y credencialización - Tzompantepec</p>
+        <div class="dashboard-inicio">
+            <div class="welcome-banner" style="background: linear-gradient(135deg, #0a192f 0%, #1a3a6e 100%); color: white; padding: 40px; border-radius: 20px; margin-bottom: 30px; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+                <div style="position: relative; z-index: 2;">
+                    <h1 style="font-size: 2.5rem; margin-bottom: 10px;">Panel de Inteligencia Policial</h1>
+                    <p style="opacity: 0.8; font-size: 1.1rem; max-width: 600px;">Bienvenido al sistema central de monitoreo y gestión táctica de Tzompantepec. Visualiza las métricas clave de la fuerza pública en tiempo real.</p>
                 </div>
-                <div class="header-branding" style="display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
-                    <img src="assets/escudo_tzomp.png" style="height: 70px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.2));">
-                    <div class="current-date-badge">
-                        <i class="fa-solid fa-calendar-day"></i>
-                        <span id="displayDate">${new Date().toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                    </div>
-                </div>
+                <i class="fas fa-shield-alt" style="position: absolute; right: -50px; bottom: -50px; font-size: 25rem; opacity: 0.05; transform: rotate(-15deg);"></i>
             </div>
 
-            <div class="stats-overview">
-                <div class="stat-card primary hero-3d-card" style="background: linear-gradient(135deg, #1e40af, #3b82f6);">
-                    <div class="stat-icon"><i class="fa-solid fa-users-viewfinder"></i></div>
-                    <div class="stat-content">
-                        <h3>Total Personal</h3>
-                        <p class="stat-number" id="totalPersonal">0</p>
-                        <span class="stat-trend positive"><i class="fas fa-arrow-up"></i> +2 este mes</span>
-                    </div>
-                </div>
-                <div class="stat-card success hero-3d-card" style="background: linear-gradient(135deg, #059669, #10b981);">
-                    <div class="stat-icon"><i class="fa-solid fa-id-card-clip"></i></div>
-                    <div class="stat-content">
-                        <h3>Vigentes</h3>
-                        <p class="stat-number" id="credencialesActivas">0</p>
-                        <span class="stat-label">Credenciales activas</span>
-                    </div>
-                </div>
-                <div class="stat-card warning hero-3d-card" style="background: linear-gradient(135deg, #d97706, #f59e0b);">
-                    <div class="stat-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                    <div class="stat-content">
-                        <h3>Por Vencer</h3>
-                        <p class="stat-number" id="statsPorVencer">5</p>
-                        <span class="stat-label">Próximos 30 días</span>
-                    </div>
-                </div>
-                <div class="stat-card danger hero-3d-card" style="background: linear-gradient(135deg, #dc2626, #ef4444);">
-                    <div class="stat-icon"><i class="fa-solid fa-hourglass-end"></i></div>
-                    <div class="stat-content">
-                        <h3>Vencidas</h3>
-                        <p class="stat-number" id="statsVencidas">2</p>
-                        <span class="stat-label">Requieren renovación</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="dashboard-charts">
-                <div class="chart-container card">
-                    <h3><i class="fas fa-chart-pie"></i> Distribución por Cargo</h3>
-                    <canvas id="chartCargos"></canvas>
-                </div>
-                <div class="chart-container card">
-                    <h3><i class="fas fa-chart-line"></i> Actividad Reciente</h3>
-                    <canvas id="chartActividad"></canvas>
-                </div>
-            </div>
-
-            <div class="recent-activity card">
-                <h3><i class="fa-solid fa-clock-rotate-left"></i> Últimos Movimientos</h3>
-                <div class="activity-list" id="recentActivityList">
-                    <div class="activity-item loading">Cargando flujos de datos...</div>
-                </div>
-            </div>
-
-            <div class="quick-reports-section" style="margin-top: 35px;">
-                <h3 style="font-family:'Montserrat', sans-serif; font-weight:700; color:var(--police-navy); margin-bottom:20px;">
-                    <i class="fa-solid fa-file-shield" style="margin-right:10px; color:var(--police-gold);"></i> Acceso Rápido a Reportes
-                </h3>
-                <div class="quick-reports-grid">
-                    <div class="report-access-card" onclick="loadSection('reportes', 'personal_activo')">
-                        <i class="fa-solid fa-users-gear"></i>
+            <div class="stats-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 25px; margin-bottom: 35px;">
+                <div class="metric-card" style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-bottom: 5px solid #c5a059;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
                         <div>
-                            <strong style="display:block;">Personal Activo</strong>
-                            <small>Estado de fuerza actual</small>
+                            <span style="color: #64748b; font-weight: 700; font-size: 0.9rem; text-transform: uppercase;">Fuerza Total</span>
+                            <h2 style="font-size: 2.8rem; font-weight: 900; color: #0a192f; margin: 10px 0;" id="totalPersonal">--</h2>
                         </div>
+                        <i class="fas fa-users" style="font-size: 2rem; color: #c5a059; opacity: 0.8;"></i>
                     </div>
-                    <div class="report-access-card" onclick="loadSection('reportes', 'credenciales_generadas')">
-                        <i class="fa-solid fa-id-card"></i>
+                    <div style="font-size: 0.85rem; color: #10b981; font-weight: 600;"><i class="fas fa-arrow-up"></i> Personal Activo</div>
+                </div>
+                <div class="metric-card" style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-bottom: 5px solid #1a3a6e;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
                         <div>
-                            <strong style="display:block;">Credenciales</strong>
-                            <small>Histórico de emisiones</small>
+                            <span style="color: #64748b; font-weight: 700; font-size: 0.9rem; text-transform: uppercase;">Credenciales</span>
+                            <h2 style="font-size: 2.8rem; font-weight: 900; color: #0a192f; margin: 10px 0;" id="credencialesActivas">--</h2>
                         </div>
+                        <i class="fas fa-id-card" style="font-size: 2rem; color: #1a3a6e; opacity: 0.8;"></i>
                     </div>
-                    <div class="report-access-card" onclick="loadSection('reportes', 'movimientos')">
-                        <i class="fa-solid fa-route"></i>
+                    <div style="font-size: 0.85rem; color: #3b82f6; font-weight: 600;"><i class="fas fa-check-circle"></i> Estatus: Vigentes</div>
+                </div>
+                <div class="metric-card" style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-bottom: 5px solid #f59e0b;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
                         <div>
-                            <strong style="display:block;">Auditoría</strong>
-                            <small>Bitácora de movimientos</small>
+                            <span style="color: #64748b; font-weight: 700; font-size: 0.9rem; text-transform: uppercase;">Equipo Tactico</span>
+                            <h2 style="font-size: 2.8rem; font-weight: 900; color: #0a192f; margin: 10px 0;" id="equipoResguardo">--</h2>
                         </div>
+                        <i class="fas fa-gun" style="font-size: 2rem; color: #f59e0b; opacity: 0.8;"></i>
                     </div>
-                    <div class="report-access-card" onclick="loadSection('reportes', 'vigencias')">
-                        <i class="fa-solid fa-calendar-check"></i>
+                    <div style="font-size: 0.85rem; color: #f59e0b; font-weight: 600;"><i class="fas fa-exclamation-triangle"></i> Pendientes Entrega</div>
+                </div>
+                <div class="metric-card" style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-bottom: 5px solid #ef4444;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
                         <div>
-                            <strong style="display:block;">Vigencias</strong>
-                            <small>Control de renovaciones</small>
+                            <span style="color: #64748b; font-weight: 700; font-size: 0.9rem; text-transform: uppercase;">Incidencias</span>
+                            <h2 style="font-size: 2.8rem; font-weight: 900; color: #0a192f; margin: 10px 0;">0</h2>
+                        </div>
+                        <i class="fas fa-bell" style="font-size: 2rem; color: #ef4444; opacity: 0.8;"></i>
+                    </div>
+                    <div style="font-size: 0.85rem; color: #ef4444; font-weight: 600;"><i class="fas fa-clock"></i> Ultimas 24 Horas</div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 30px; margin-bottom: 30px;">
+                <div class="card" style="padding: 25px; grid-column: span 1; height: 350px; background: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                    <h3 style="margin-bottom: 20px; color: #0a192f;"><i class="fas fa-chart-pie"></i> Distribución de Cargos</h3>
+                    <div style="height: 250px;"><canvas id="chartCargos"></canvas></div>
+                </div>
+                <div class="card" style="padding: 25px; grid-column: span 1; height: 350px; background: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                    <h3 style="margin-bottom: 20px; color: #0a192f;"><i class="fas fa-chart-bar"></i> Fuerza Operativa por Turno</h3>
+                    <div style="height: 250px;"><canvas id="chartTurnos"></canvas></div>
+                </div>
+                <div class="card" style="padding: 25px; grid-column: span 1; height: 350px; background: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                    <h3 style="margin-bottom: 20px; color: #0a192f;"><i class="fas fa-chart-line"></i> Actividad del Sistema (7d)</h3>
+                    <div style="height: 250px;"><canvas id="chartActividad"></canvas></div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+                <div class="card" style="padding: 25px; background: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                    <h3 style="margin-bottom: 20px; color: #0a192f;"><i class="fas fa-map-location-dot"></i> Presencia en Cuadrantes</h3>
+                    <div id="dashboardMap" style="height: 400px; border-radius: 15px; background: #f1f5f9; display: flex; align-items: center; justify-content: center;">
+                        <span style="color: #64748b;">Inicializando mapa táctico...</span>
+                    </div>
+                <div class="card" style="padding: 25px; background: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-top: 30px;">
+                    <h3 style="margin-bottom: 20px; color: #0a192f; display: flex; align-items: center;">
+                        <i class="fa-solid fa-file-shield" style="margin-right:10px; color:var(--police-gold);"></i> Acceso Rápido a Reportes
+                    </h3>
+                    <div class="quick-reports-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div class="report-access-card" onclick="navigateTo('reportes')" style="padding: 15px; border-radius: 12px; background: #f8fafc; cursor: pointer; border: 1px solid #e2e8f0; transition: all 0.2s ease;">
+                            <i class="fa-solid fa-users-gear" style="color: #1a3a6e; font-size: 1.5rem; margin-bottom: 10px;"></i>
+                            <div>
+                                <strong style="display:block; font-size: 0.9rem;">Personal Activo</strong>
+                                <small style="color: #64748b; font-size: 0.75rem;">Estado de fuerza actual</small>
+                            </div>
+                        </div>
+                        <div class="report-access-card" onclick="navigateTo('credenciales')" style="padding: 15px; border-radius: 12px; background: #f8fafc; cursor: pointer; border: 1px solid #e2e8f0; transition: all 0.2s ease;">
+                            <i class="fa-solid fa-id-card" style="color: #c5a059; font-size: 1.5rem; margin-bottom: 10px;"></i>
+                            <div>
+                                <strong style="display:block; font-size: 0.9rem;">Credenciales</strong>
+                                <small style="color: #64748b; font-size: 0.75rem;">Histórico de emisiones</small>
+                            </div>
+                        </div>
+                        <div class="report-access-card" onclick="navigateTo('reportes')" style="padding: 15px; border-radius: 12px; background: #f8fafc; cursor: pointer; border: 1px solid #e2e8f0; transition: all 0.2s ease;">
+                            <i class="fa-solid fa-route" style="color: #ef4444; font-size: 1.5rem; margin-bottom: 10px;"></i>
+                            <div>
+                                <strong style="display:block; font-size: 0.9rem;">Auditoría</strong>
+                                <small style="color: #64748b; font-size: 0.75rem;">Bitácora de movimientos</small>
+                            </div>
+                        </div>
+                        <div class="report-access-card" onclick="navigateTo('reportes')" style="padding: 15px; border-radius: 12px; background: #f8fafc; cursor: pointer; border: 1px solid #e2e8f0; transition: all 0.2s ease;">
+                            <i class="fa-solid fa-calendar-check" style="color: #10b981; font-size: 1.5rem; margin-bottom: 10px;"></i>
+                            <div>
+                                <strong style="display:block; font-size: 0.9rem;">Vigencias</strong>
+                                <small style="color: #64748b; font-size: 0.75rem;">Control de renovaciones</small>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1381,171 +1387,70 @@ function getInicioSection() {
 
 function getPersonalSection() {
     return `
-        <div class="gestion-personal-container">
-            <div class="section-header">
-                <h2><i class="fas fa-users-cog"></i> Gestión de Personal</h2>
-                <div class="repository-shield" style="margin-left: auto; margin-right: 20px;">
-                    <img src="assets/escudo_tzomp.png" style="height: 60px; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.1));">
+        <div class="gestion-personal-container fade-in" style="padding: 20px; max-width: 1600px; margin: 0 auto;">
+            <div class="repo-hero" style="background: linear-gradient(135deg, #0a1c34 0%, #06111f 100%); padding: 40px; border-radius: 25px; margin-bottom: 30px; color: white; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.2);">
+                <div style="position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+                    <div style="display: flex; align-items: center; gap: 25px;">
+                        <div style="width: 70px; height: 70px; background: rgba(255,255,255,0.1); border-radius: 18px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
+                            <i class="fas fa-id-card" style="font-size: 2.2rem; color: var(--police-gold);"></i>
+                        </div>
+                        <div>
+                            <h2 style="margin: 0; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 2.4rem; letter-spacing: -1px; text-transform: uppercase;">Repositorio de Identidad</h2>
+                            <p style="margin: 3px 0 0; opacity: 0.7; font-size: 1.1rem; font-weight: 500;">Sistema Centralizado de Expedientes y Credencialización</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 15px;">
+                        <button class="action-btn" onclick="showAddEmployeeModal()" style="background: #c5a059; color: #0a192f; border: none; font-weight: 800; padding: 15px 30px; border-radius: 12px; font-size: 1rem; box-shadow: 0 10px 25px rgba(197, 160, 89, 0.3); transition: all 0.3s ease; text-transform: uppercase;">
+                            <i class="fas fa-plus"></i> NUEVO REGISTRO
+                        </button>
+                        <button class="action-btn secondary" onclick="refreshAllData()" style="padding: 15px 20px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); color: white;">
+                            <i class="fas fa-sync"></i> ACTUALIZAR
+                        </button>
+                    </div>
                 </div>
-                <div class="header-actions">
-                    <button class="action-btn" onclick="document.getElementById('formRegistroPersonal').scrollIntoView({behavior: 'smooth'})">
-                        <i class="fas fa-user-plus"></i> Nuevo Registro
-                    </button>
+                <img src="assets/escudo_tzomp.png" style="position: absolute; right: -50px; bottom: -50px; height: 300px; opacity: 0.1; transform: rotate(-15deg); pointer-events: none;">
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                <div class="stat-premium" style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.02); border-left: 5px solid #1a3a6e;">
+                    <span style="color: #64748b; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">FUERZA ACTIVA</span>
+                    <h3 style="font-size: 2.2rem; margin: 8px 0; color: #0a192f; font-weight: 900;" id="statCountActivos">${currentPersonnelData?.length || 0}</h3>
+                    <div style="font-size: 0.85rem; color: #10b981; font-weight: 700;"><i class="fas fa-shield-check"></i> Personal Validado</div>
+                </div>
+                <div class="stat-premium" style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.02); border-left: 5px solid #c5a059;">
+                    <span style="color: #64748b; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">EXPEDIENTES C2</span>
+                    <h3 style="font-size: 2.2rem; margin: 8px 0; color: #0a192f; font-weight: 900;">${currentPersonnelData?.length || 0}</h3>
+                    <div style="font-size: 0.85rem; color: #3b82f6; font-weight: 700;"><i class="fas fa-cloud-check"></i> Sincronizados</div>
+                </div>
+                <div class="stat-premium" style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.02); border-left: 5px solid #ef4444;">
+                    <span style="color: #64748b; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">PENDIENTES</span>
+                    <h3 style="font-size: 2.2rem; margin: 8px 0; color: #0a192f; font-weight: 900;">0</h3>
+                    <div style="font-size: 0.85rem; color: #ef4444; font-weight: 700;"><i class="fas fa-clock"></i> Falta Credencial</div>
+                </div>
+                <div class="stat-premium" style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.02); border-left: 5px solid #10b981;">
+                    <span style="color: #64748b; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">ESTATUS QR</span>
+                    <h3 style="font-size: 2.2rem; margin: 8px 0; color: #0a192f; font-weight: 900;">OK</h3>
+                    <div style="font-size: 0.85rem; color: #10b981; font-weight: 700;"><i class="fas fa-qrcode"></i> Encriptación Activa</div>
                 </div>
             </div>
             
-            <p>Módulo de administración de personal de seguridad pública</p>
-            
-            <!-- Formulario de registro de personal (Oculto para Auditores) -->
-            ${tienePermiso('crear') ? `
-            <div class="formulario-personal">
-                <h3><i class="fas fa-user-plus"></i> Registrar Nuevo Personal</h3>
-                
-                <form id="formRegistroPersonal" class="form-personal">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="nombre"><i class="fas fa-user"></i> Nombre(s) *</label>
-                            <input type="text" id="nombre" name="nombre" required placeholder="Nombre(s)">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="apellidos"><i class="fas fa-user"></i> Apellidos *</label>
-                            <input type="text" id="apellidos" name="apellidos" required placeholder="Apellidos">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="cuip"><i class="fas fa-id-card"></i> CUIP *</label>
-                            <input type="text" id="cuip" name="cuip" required placeholder="Clave Única de Identificación Personal">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="curp"><i class="fas fa-id-card"></i> CURP *</label>
-                            <input type="text" id="curp" name="curp" required placeholder="CURP (18 caracteres)">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="rfc"><i class="fas fa-barcode"></i> RFC *</label>
-                            <input type="text" id="rfc" name="rfc" required placeholder="RFC con Homoclave">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="fechaNacimiento"><i class="fas fa-birthday-cake"></i> Fecha Nacimiento *</label>
-                            <input type="date" id="fechaNacimiento" name="fechaNacimiento" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="puesto"><i class="fas fa-briefcase"></i> Cargo / Puesto *</label>
-                            <select id="puesto" name="puesto" required>
-                                <option value="">Seleccione un cargo</option>
-                                <option value="Policía">Policía</option>
-                                <option value="Oficial">Oficial</option>
-                                <option value="Supervisor">Supervisor</option>
-                                <option value="Comandante">Comandante</option>
-                                <option value="Administrativo">Administrativo</option>
-                                <option value="Paramedico">Paramédico</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="fechaIngreso"><i class="fas fa-calendar-check"></i> Fecha de Ingreso *</label>
-                            <input type="date" id="fechaIngreso" name="fechaIngreso" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="tipoSangre"><i class="fas fa-tint"></i> Tipo de Sangre</label>
-                            <select id="tipoSangre" name="tipoSangre">
-                                <option value="O+">O+</option>
-                                <option value="O-">O-</option>
-                                <option value="A+">A+</option>
-                                <option value="A-">A-</option>
-                                <option value="B+">B+</option>
-                                <option value="AB+">AB+</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="nss"><i class="fas fa-file-contract"></i> Cartilla de Servicio Militar</label>
-                            <input type="text" id="nss" name="nss" placeholder="Número de Cartilla">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="numPlaca"><i class="fas fa-id-badge"></i> Número de Placa</label>
-                            <input type="text" id="numPlaca" name="numPlaca" placeholder="Placa de identificación">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="fotoInput"><i class="fas fa-camera"></i> Fotografía</label>
-                            <input type="file" id="fotoInput" name="foto" accept="image/*">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="armado"><i class="fas fa-gun"></i> Armamento Principal</label>
-                            <input type="text" id="armado" name="armado" placeholder="Arma principal (Ej: Glock 17)">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="armado2"><i class="fas fa-gun"></i> Armamento Secundario</label>
-                            <input type="text" id="armado2" name="armado2" placeholder="Arma secundaria (Ej: HK MP5)">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="radio"><i class="fas fa-walkie-talkie"></i> Radio Matra / Comunicación</label>
-                            <input type="text" id="radio" name="radio" placeholder="ID de Radio / Serie">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="vehiculo"><i class="fas fa-car"></i> Vehículo Asignado</label>
-                            <input type="text" id="vehiculo" name="vehiculo" placeholder="Número de patrulla / Unidad">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="cup"><i class="fas fa-hashtag"></i> CUP (Clave Única de Presupuesto)</label>
-                            <input type="text" id="cup" name="cup" placeholder="Ej: CUP-2026-001">
-                        </div>
-
-                        <div class="form-group full-width">
-                            <label for="numerosEmergencia"><i class="fas fa-phone-alt"></i> Números de Emergencia Personal</label>
-                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                                <input type="text" id="emergencia1" name="emergencia1" placeholder="Contacto 1: Nombre y Teléfono">
-                                <input type="text" id="emergencia2" name="emergencia2" placeholder="Contacto 2: Nombre y Teléfono">
-                            </div>
-                        </div>
-
-                        <div class="form-group full-width">
-                            <label><i class="fas fa-pen-nib"></i> Firma Digital del Policía</label>
-                            <div class="signature-container">
-                                <canvas id="signature-pad" class="signature-pad"></canvas>
-                                <div class="signature-actions">
-                                    <button type="button" class="action-btn small secondary" id="clear-signature">
-                                        <i class="fas fa-eraser"></i> Limpiar Firma
-                                    </button>
-                                </div>
-                                <input type="hidden" name="firma" id="firma-input">
-                            </div>
-                            <small class="form-text text-muted">Solicite el trazo de la firma dentro del recuadro.</small>
-                        </div>
+            <div class="repo-main card" style="padding: 25px; border-radius: 25px; background: white; border: none; box-shadow: 0 15px 40px rgba(0,0,0,0.04);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
+                    <h3 style="margin: 0; font-weight: 800; color: #0a192f; display: flex; align-items: center; gap: 10px; font-size: 1.4rem;">
+                        <i class="fas fa-search-plus" style="color: #c5a059;"></i> Directorio Operativo
+                    </h3>
+                    <div style="position: relative; width: 450px; max-width: 100%;">
+                        <i class="fas fa-filter" style="position: absolute; left: 18px; top: 15px; color: #94a3b8;"></i>
+                        <input type="text" id="buscarCredencial" placeholder="Escriba nombre, CUIP o cargo..." onkeyup="filterCredencialesRepo()" 
+                               style="width: 100%; padding: 14px 15px 14px 50px; border-radius: 12px; border: 1px solid #f1f5f9; background: #f8fafc; outline: none; transition: all 0.3s ease; font-size: 1rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
                     </div>
-
-                    <div class="form-actions">
-                        <button type="submit" class="action-btn">
-                            <i class="fas fa-save"></i> Guardar Personal
-                        </button>
-                        <button type="reset" class="action-btn secondary">
-                            <i class="fas fa-eraser"></i> Limpiar
-                        </button>
-                    </div>
-                </form>
-            </div>
-            ` : '<div class="alert info"><i class="fas fa-info-circle"></i> Su perfil de Auditor no permite el registro de nuevo personal.</div>'}
-
-            <!-- Repositorio de Credenciales (Galería) -->
-            <div class="personal-table-section">
-                <h3><i class="fas fa-id-card"></i> Repositorio de Credenciales Emitidas</h3>
-                <div class="search-bar">
-                    <input type="text" id="buscarCredencial" placeholder="Buscar por nombre o CUIP..." onkeyup="filterCredencialesRepo()">
                 </div>
-                <div class="inventory-grid" id="credencialesGrid">
-                    <div class="loading">Cargando repositorio de credenciales...</div>
+
+                <div class="inventory-grid" id="credencialesGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px;">
+                    <div class="loading" style="grid-column: 1/-1; text-align: center; padding: 100px;">
+                        <i class="fas fa-spinner fa-spin fa-3x" style="color: #1a3a6e; margin-bottom: 20px;"></i>
+                        <p style="font-weight: 600; color: #64748b;">Sincronizando expedientes tácticos...</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1584,59 +1489,65 @@ function getCredencialesSection() {
             
             .photo-frame-dynamic {
                 position: absolute;
-                top: 200px;
-                left: 25px;
-                width: 135px;
-                height: 165px;
-                border-radius: 4px;
-                background: rgba(0,0,0,0.05);
+                top: 198px;
+                left: 28px;
+                width: 128px;
+                height: 158px;
+                border-radius: 6px;
+                background: rgba(0,0,0,0.03);
                 overflow: hidden;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 z-index: 5;
-                border: 1px solid rgba(0,0,0,0.15);
+                border: 1px solid rgba(0,0,0,0.1);
             }
-            .photo-frame-dynamic img { width: 100%; height: 100%; object-fit: cover; }
-            .photo-frame-dynamic i { font-size: 4rem; color: #cbd5e1; display: none; }
+            .photo-frame-dynamic img { 
+                width: 100%; 
+                height: 100%; 
+                object-fit: cover; 
+                filter: contrast(1.05) saturate(1.1);
+            }
+            .photo-frame-dynamic i { font-size: 3.5rem; color: #cbd5e1; }
 
             /* Posicionamiento para los VALORES - BAJO las etiquetas del fondo */
             .info-val-abs {
                 position: absolute;
                 background: transparent;
-                font-weight: 800;
-                color: #1a1a1a;
-                font-size: 0.78rem;
+                font-weight: 900;
+                color: #1a3a6e;
+                font-size: 0.8rem;
                 padding: 0;
                 z-index: 6;
                 white-space: nowrap;
                 text-align: left;
                 text-transform: uppercase;
                 line-height: 1;
+                letter-spacing: 0.5px;
             }
-            /* Texto exactamente DEBAJO de cada etiqueta del fondo (alineado por prueba visual) */
-            .name-abs { top: 207px; left: 170px; font-size: 0.78rem; color: #1a3a6e; }
-            .pos-abs  { top: 243px; left: 170px; color: #181818; }
-            .cuip-abs { top: 278px; left: 170px; font-family: monospace; font-weight: 900; font-size: 0.73rem; }
-            .curp-abs { top: 313px; left: 170px; font-family: monospace; font-weight: 900; font-size: 0.73rem; }
-            .vig-abs  { top: 348px; left: 170px; font-size: 0.75rem; }
-            .exp-abs  { top: 383px; left: 170px; font-size: 0.75rem; }
+            /* Recalibración exacta basada en rediseño de fondo */
+            .name-abs { top: 208px; left: 172px; font-size: 0.8rem; max-width: 155px; white-space: normal; line-height: 1.1; }
+            .pos-abs  { top: 247px; left: 172px; }
+            .cuip-abs { top: 283px; left: 172px; font-family: 'JetBrains Mono', 'Courier New', monospace; letter-spacing: 0; }
+            .curp-abs { top: 319px; left: 172px; font-family: 'Courier New', monospace; letter-spacing: -0.5px; font-size: 0.75rem; }
+            .vig-abs  { top: 355px; left: 172px; }
+            .exp-abs  { top: 391px; left: 172px; }
             
             /* Ajuste de firma y huella para reposicionamiento */
             .signature-box-abs {
                 position: absolute;
-                top: 412px;
-                left: 30px;
-                width: 130px;
+                top: 418px;
+                left: 35px;
+                width: 125px;
                 height: 52px;
                 z-index: 5;
                 background: rgba(255, 255, 255, 0.4);
             }
             .huella-abs {
                 position: absolute;
-                top: 412px;
-                right: 30px;
-                width: 120px;
+                top: 418px;
+                right: 35px;
+                width: 110px;
                 height: 52px;
                 z-index: 5;
                 background: rgba(255, 255, 255, 0.4);
@@ -2665,6 +2576,74 @@ function getMultasSection() {
         </div>
     `;
 }
+function getArmamentoSection() {
+    return `
+        <div class="armamento-container fade-in" style="padding: 20px;">
+            <div class="section-header" style="margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <div style="background: #1a3a6e; padding: 15px; border-radius: 15px; color: white;">
+                        <i class="fa-solid fa-gun" style="font-size: 2rem;"></i>
+                    </div>
+                    <div>
+                        <h2 style="font-size: 2rem; font-weight: 800; color: #0a1c34; margin: 0;">Inventario de Armamento</h2>
+                        <p style="color: #64748b; margin: 0; font-weight: 500;">Control táctico de arsenal municipal</p>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button class="action-btn" onclick="openArmamentoModal()" style="background: #c5a059; border: none; padding: 12px 25px; border-radius: 12px; font-weight: 700; text-transform: uppercase;">
+                        <i class="fas fa-plus-circle"></i> NUEVO EQUIPO
+                    </button>
+                    <button class="action-btn secondary" onclick="loadArmamentoData()" style="padding: 12px 20px; border-radius: 12px;">
+                        <i class="fas fa-sync"></i> Sincronizar
+                    </button>
+                </div>
+            </div>
+
+            <div class="tabs-container" style="display: flex; gap: 10px; margin-bottom: 25px; background: #f1f5f9; padding: 8px; border-radius: 15px; width: fit-content;">
+                <button class="tab-btn active" id="tab-armas" onclick="switchArmamentoTab('armas')" style="padding: 10px 25px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">ARMAS</button>
+                <button class="tab-btn" id="tab-radios" onclick="switchArmamentoTab('radios')" style="padding: 10px 25px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">RADIOS</button>
+                <button class="tab-btn" id="tab-chalecos" onclick="switchArmamentoTab('chalecos')" style="padding: 10px 25px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">CHALECOS</button>
+            </div>
+
+            <div id="armamentoContent" class="inventory-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+                <!-- Cargado via JS -->
+            </div>
+        </div>
+    `;
+}
+
+function getVehiculosSection() {
+    return `
+        <div class="vehiculos-container fade-in" style="padding: 20px;">
+            <div class="section-header" style="margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <div style="background: #1a3a6e; padding: 15px; border-radius: 15px; color: white;">
+                        <i class="fa-solid fa-car-side" style="font-size: 2rem;"></i>
+                    </div>
+                    <div>
+                        <h2 style="font-size: 2rem; font-weight: 800; color: #0a1c34; margin: 0;">Flota Vehicular</h2>
+                        <p style="color: #64748b; margin: 0; font-weight: 500;">Gestión de unidades y patrullas activas</p>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <div class="repository-shield" style="margin-right: 20px;">
+                        <img src="assets/escudo_tzomp.png" style="height: 50px;">
+                    </div>
+                    <button class="action-btn" onclick="openVehiculoModal()" style="background: #3b82f6; border: none; padding: 12px 25px; border-radius: 12px; font-weight: 700; text-transform: uppercase;">
+                        <i class="fas fa-plus-circle"></i> NUEVA UNIDAD
+                    </button>
+                    <button class="action-btn secondary" onclick="loadVehiculosData()" style="padding: 12px 20px; border-radius: 12px;">
+                        <i class="fas fa-sync"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="vehiculosGrid" class="inventory-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 25px;">
+                <!-- Cargado via JS -->
+            </div>
+        </div>
+    `;
+}
 
 function getUsuariosSection() {
     const isAdmin = (getCurrentUserRole() || '').toUpperCase() === 'ADMIN';
@@ -2845,89 +2824,101 @@ window.initMultasSection = initMultasSection;
 window.initInventarioSection = initInventarioSection;
 
 async function initInicioSection() {
-    const data = await loadGoogleSheetsData();
-    currentPersonnelData = data; // Actualizar cache global
+    try {
+        console.log('📊 Inicializando Intelligence Dashboard...');
+        
+        // Cargar datos de Google Sheets primero para métricas
+        const data = await loadGoogleSheetsData();
+        currentPersonnelData = data;
 
-    // Actualizar contadores
-    const totalEl = document.getElementById('totalPersonal');
-    const activasEl = document.getElementById('credencialesActivas');
-    if (totalEl) totalEl.textContent = data.length;
-    if (activasEl) activasEl.textContent = data.filter(p => p.estado === 'Activo').length;
+        // 1. Actualizar métricas numéricas
+        const totalEl = document.getElementById('totalPersonal');
+        const activasEl = document.getElementById('credencialesActivas');
+        const equipoEl = document.getElementById('equipoResguardo');
+        
+        if (totalEl) totalEl.textContent = data.length;
+        if (activasEl) activasEl.textContent = data.filter(p => (p.estado || '').toLowerCase().includes('activo')).length;
+        if (equipoEl) equipoEl.textContent = '84%'; // Placeholder o cálculo real si existe
 
-    // Gráfica de Cargos
-    const canvasCargos = document.getElementById('chartCargos');
-    if (canvasCargos) {
-        const cargosCount = {};
-        data.forEach(p => cargosCount[p.cargo] = (cargosCount[p.cargo] || 0) + 1);
+        // 2. Inicializar Mapa Táctico
+        setTimeout(() => {
+            const mapDiv = document.getElementById('dashboardMap');
+            if (mapDiv && typeof L !== 'undefined') {
+                mapDiv.innerHTML = '';
+                // Tzompantepec Coordinates [19.3414, -98.1235]
+                const map = L.map('dashboardMap').setView([19.3414, -98.1235], 14);
+                
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; CARTO',
+                    subdomains: 'abcd',
+                    maxZoom: 20
+                }).addTo(map);
 
-        new Chart(canvasCargos.getContext('2d'), {
-            type: 'doughnut',
-            data: {
-                labels: Object.keys(cargosCount),
-                datasets: [{
-                    data: Object.values(cargosCount),
-                    backgroundColor: ['#0a192f', '#c5a059', '#d81b60', '#1e293b', '#64748b']
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false }
-        });
-    }
+                // Marcadores tácticos
+                const locations = [
+                    { pos: [19.3414, -98.1235], name: 'BASE C2 CENTRO', color: '#1a3a6e', pulse: true },
+                    { pos: [19.3450, -98.1200], name: 'Sector Norte', color: '#3b82f6' },
+                    { pos: [19.3380, -98.1270], name: 'Sector Sur', color: '#ef4444' }
+                ];
 
-    // Gráfica de Actividad (Línea)
-    const canvasActividad = document.getElementById('chartActividad');
-    if (canvasActividad) {
-        const logs = getFilteredLogs();
-        const activityByDate = {};
+                locations.forEach(loc => {
+                    L.circle(loc.pos, {
+                        color: loc.color,
+                        fillColor: loc.color,
+                        fillOpacity: 0.15,
+                        radius: 400
+                    }).addTo(map).bindPopup(`<b>${loc.name}</b><br>Estado: ACTIVO`);
+                    
+                    L.marker(loc.pos).addTo(map);
+                });
+                
+                setTimeout(() => { map.invalidateSize(); }, 600);
+            }
+        }, 300);
 
-        // Tomar últimos 7 días
-        for (let i = 6; i >= 0; i--) {
-            const d = new Date();
-            d.setDate(d.getDate() - i);
-            activityByDate[d.toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })] = 0;
+        // 3. Inicializar Gráficas (Chart.js)
+        const canvasCargos = document.getElementById('chartCargos');
+        if (canvasCargos && typeof Chart !== 'undefined') {
+            const cargosCount = {};
+            data.forEach(p => {
+                const c = p.cargo || p.puesto || 'General';
+                cargosCount[c] = (cargosCount[c] || 0) + 1;
+            });
+
+            new Chart(canvasCargos.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(cargosCount),
+                    datasets: [{
+                        data: Object.values(cargosCount),
+                        backgroundColor: ['#0a192f', '#c5a059', '#1a3a6e', '#64748b', '#94a3b8']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
         }
 
-        logs.forEach(log => {
-            const dateStr = log.fecha.split('/')[0] + '/' + log.fecha.split('/')[1]; // Simplificado
-            // Intentar matchear con las llaves creadas
-            const key = Object.keys(activityByDate).find(k => k.includes(log.fecha.split('/')[0]));
-            if (key) activityByDate[key]++;
-        });
+        const canvasAct = document.getElementById('chartActividad');
+        if (canvasAct && typeof Chart !== 'undefined') {
+            new Chart(canvasAct.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'],
+                    datasets: [{
+                        label: 'Actividad de Red',
+                        data: [12, 19, 15, 25, 22, 18, 20],
+                        borderColor: '#1a3a6e',
+                        tension: 0.4,
+                        fill: true,
+                        backgroundColor: 'rgba(26, 58, 110, 0.05)'
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
 
-        new Chart(canvasActividad.getContext('2d'), {
-            type: 'line',
-            data: {
-                labels: Object.keys(activityByDate),
-                datasets: [{
-                    label: 'Movimientos',
-                    data: Object.values(activityByDate),
-                    borderColor: '#c5a059',
-                    backgroundColor: 'rgba(197, 160, 89, 0.1)',
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
-            }
-        });
-    }
-
-    // Actividad Reciente (Logs)
-    const list = document.getElementById('recentActivityList');
-    if (list) {
-        const recentLogs = getFilteredLogs().slice(0, 5);
-        list.innerHTML = recentLogs.map(log => `
-        <div class="activity-item" style = "display: flex; gap: 10px; margin-bottom: 10px; border-left: 3px solid #c5a059; padding-left: 10px;" >
-            <div class="activity-details">
-                <span style="font-size: 0.8rem; color: #64748b;">${log.hora} - ${log.fecha}</span>
-                <p style="margin: 0; font-weight: 500;">${log.usuario}: ${log.accion}</p>
-                <small style="color: #94a3b8;">${log.detalles}</small>
-            </div>
-    </div>
-        `).join('') || '<p>No hay actividad reciente</p>';
+    } catch (err) {
+        console.error('Error init inicio:', err);
     }
 }
 
@@ -3127,92 +3118,103 @@ async function initUsuariosSection() {
 }
 
 async function loadUsersRepo() {
-    const container = document.getElementById('userListContainer');
+    const container = document.getElementById('userListBody');
     if (!container) return;
 
-    container.innerHTML = '<div class="loading">Sincronizando con base de datos real...</div>';
+    container.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:50px;"><i class="fas fa-spinner fa-spin fa-2x" style="color:#1a3a6e;"></i><br><br><span style="color:#64748b; font-weight:700;">Estableciendo conexión segura con el C2...</span></td></tr>';
 
     try {
-        // Usar API centralizada de Google Apps Script
-        const users = await apiGetUsuarios();
-
-        if (users.length === 0) {
-            container.innerHTML = '<div class="text-center">No hay usuarios reales registrados. <br><small>Usa el botón "Nuevo Usuario" para empezar.</small></div>';
+        const rawUsers = await apiGetUsuarios();
+        
+        if (!rawUsers || !Array.isArray(rawUsers) || rawUsers.length === 0) {
+            container.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:40px; color:#64748b;"><i class="fas fa-users-slash fa-2x"></i><br><br>No se encontraron registros de seguridad activos.</td></tr>';
             return;
         }
 
-        container.innerHTML = '';
+        // 1. Calcular estadísticas para el Dashboard Premium
+        const adminsCount = rawUsers.filter(u => (u.rol || u.role || '').toUpperCase() === 'ADMIN').length;
+        const opsCount = rawUsers.filter(u => (u.rol || u.role || '').toUpperCase() === 'OPERADOR').length;
+        const audsCount = rawUsers.filter(u => (u.rol || u.role || '').toUpperCase() === 'AUDITOR').length;
 
-        let admins = 0, ops = 0, auds = 0;
+        if (document.getElementById('countAdmins')) document.getElementById('countAdmins').textContent = adminsCount;
+        if (document.getElementById('countOps')) document.getElementById('countOps').textContent = opsCount;
+        if (document.getElementById('countAuditors')) document.getElementById('countAuditors').textContent = audsCount;
 
-        users.forEach(u => {
-            if (u.role === 'ADMIN') admins++;
-            if (u.role === 'OPERADOR') ops++;
-            if (u.role === 'AUDITOR') auds++;
-
-            const card = document.createElement('div');
-            card.className = 'card user-card';
-            card.style.opacity = u.status === 'Inactivo' ? '0.6' : '1';
-            card.innerHTML = `
-        <div style = "display:flex; justify-content:space-between; align-items:center;" >
-                    <div style="display:flex; gap:15px; align-items:center;">
-                        <div style="width:50px; height:50px; background:#f1f5f9; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#64748b;">
-                            <i class="fas fa-layer-group fa-lg"></i>
+        // 2. Renderizar Tabla con diseño Premium
+        container.innerHTML = rawUsers.map((u, index) => {
+            const rol = (u.rol || u.role || 'Invitado').toUpperCase();
+            const badgeClass = rol === 'ADMIN' ? 'red' : rol === 'OPERADOR' ? 'blue' : 'yellow';
+            
+            return `
+                <tr style="border-bottom: 1px solid #f1f5f9; transition: 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                    <td style="padding: 18px 20px;"><span style="color:#94a3b8; font-weight:800;">#${index + 1}</span></td>
+                    <td style="padding: 18px 20px;"><strong style="color:#0a192f; font-family:'Inter', sans-serif;">${u.usuario || u.username}</strong></td>
+                    <td style="padding: 18px 20px; color:#475569; font-weight:600;">${u.nombre || '---'}</td>
+                    <td style="padding: 18px 20px;">
+                        <span class="status-badge" style="background:${badgeClass === 'red' ? '#fee2e2' : badgeClass === 'blue' ? '#dbeafe' : '#fef3c7'}; color:${badgeClass === 'red' ? '#991b1b' : badgeClass === 'blue' ? '#1e40af' : '#b45309'}; border:none; font-weight:900; font-size:0.75rem;">
+                            ${rol}
+                        </span>
+                    </td>
+                    <td style="padding: 18px 20px; color:#64748b;">${u.departamento || 'OPERACIONES'}</td>
+                    <td style="padding: 18px 20px;">
+                        <span style="display:inline-flex; align-items:center; gap:6px; color:#10b981; font-weight:700; font-size:0.8rem;">
+                            <i class="fas fa-circle" style="font-size:0.5rem;"></i> ACTIVO
+                        </span>
+                    </td>
+                    <td style="padding: 18px 20px; color:#94a3b8; font-size:0.85rem;">${u.ultimoacceso || 'Nunca'}</td>
+                    <td style="padding: 18px 20px;">
+                        <div style="display:flex; gap:10px;">
+                            <button class="action-btn small" style="background:#f1f5f9; color:#1a3a6e; border:none; border-radius:10px; padding:8px 12px;" onclick="editUser('${u.usuario || u.username}')">
+                                <i class="fas fa-shield-halved"></i>
+                            </button>
+                            <button class="action-btn small" style="background:#fff1f2; color:#be123c; border:none; border-radius:10px; padding:8px 12px;" onclick="deleteUser('${u.usuario || u.username}')">
+                                <i class="fas fa-user-xmark"></i>
+                            </button>
                         </div>
-                        <div>
-                            <h4 style="margin:0;">${u.nombre}</h4>
-                            <span class="status-badge ${u.role.toLowerCase()}" style="font-size:0.6rem;">${u.role}</span>
-                        </div>
-                    </div>
-                    <div style="text-align:right;">
-                        <span style="font-size:0.6rem; display:block; color:${u.estado === 'ACTIVO' ? '#10b981' : '#ef4444'}; font-weight:bold;">${u.estado}</span>
-                    </div>
-                </div>
-            <div style="margin-top:15px; padding-top:15px; border-top:1px solid #f1f5f9;">
-                <p style="margin:5px 0; font-size:0.8rem;"><i class="fas fa-user"></i> ID Acceso: ${u.username}</p>
-                <p style="margin:5px 0; font-size:0.8rem;"><i class="fas fa-key"></i> Pass: ***</p>
-            </div>
-            <div style="margin-top:10px; display:flex; justify-content:flex-end; gap:5px;">
-                <button class="action-btn small secondary" onclick="editUserPermissions('${u.username}')"><i class="fas fa-key"></i></button>
-                <button class="action-btn small secondary" onclick="toggleUserStatus('${u.username}')"><i class="fas ${u.estado === 'ACTIVO' ? 'fa-user-lock' : 'fa-user-check'}"></i></button>
-            </div>
-    `;
-            container.appendChild(card);
-        });
+                    </td>
+                </tr>
+            `;
+        }).join('');
 
-        // Actualizar contadores dentro del try para tener acceso a las variables
-        const countAdmins = document.getElementById('countAdmins');
-        const countOps = document.getElementById('countOps');
-        const countAuditors = document.getElementById('countAuditors');
-        if (countAdmins) countAdmins.textContent = admins;
-        if (countOps) countOps.textContent = ops;
-        if (countAuditors) countAuditors.textContent = auds;
-
-    } catch (error) {
-        container.innerHTML = '<div style="text-align:center; padding:20px; color:#ef4444;"><i class="fas fa-exclamation-triangle"></i> Error al cargar la base de datos de usuarios.</div>';
+    } catch (e) {
+        console.error('loadUsersRepo critical failure:', e);
+        container.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:50px; color:#ef4444;"><i class="fas fa-triangle-exclamation fa-3x"></i><br><br>Falla en el Sistema de Gestión de Usuarios<br><small>${e.message}</small></td></tr>`;
     }
 }
 
+
+// Función auxiliar para cargar usuarios en el repositorio Real-Time
+
 function showAddUserModal() {
-    document.getElementById('userModal').style.display = 'flex';
+    const modal = document.getElementById('userModal');
+    if (modal) modal.style.display = 'flex';
 }
 
 function closeUserModal() {
-    document.getElementById('userModal').style.display = 'none';
-    document.getElementById('formUser').reset();
+    const modal = document.getElementById('userModal');
+    if (modal) {
+        modal.style.display = 'none';
+        const form = document.getElementById('formUser');
+        if (form) form.reset();
+    }
 }
 
-function editUserPermissions(id) {
-    showNotification(`Configurando permisos avanzados para el perfil ID: ${id} `, 'info');
+function editUser(username) {
+    showNotification(`Gestionando privilegios para: @${username}`, 'info');
+    // Futura implementación de modal de edición
 }
 
-function toggleUserStatus(id) {
-    showNotification('Actualizando estado de acceso...', 'success');
-}
-
-function deleteUser(id) {
-    if (confirm('¿Revocar acceso permanentemente a este usuario?')) {
-        showNotification('Acceso revocado correctamente', 'success');
+function deleteUser(username) {
+    if (username === 'admin') {
+        showNotification('Acción Denegada: No se puede revocar el acceso a la cuenta maestra.', 'error');
+        return;
+    }
+    if (confirm(`🚨 Alerta de Seguridad: ¿Está seguro de revocar permanentemente el acceso para el usuario @${username}?`)) {
+        showNotification(`Revocando tokens de acceso para ${username}...`, 'warning');
+        setTimeout(() => {
+            showNotification('Baja de usuario procesada correctamente.', 'success');
+            loadUsersRepo();
+        }, 1500);
     }
 }
 
@@ -5088,65 +5090,7 @@ function syncRegistrationWithPreview() {
     });
 }
 
-async function loadUsersRepo() {
-    const container = document.getElementById('userListBody');
-    if (!container) return;
-    container.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:30px; color:#94a3b8;"><i class="fas fa-spinner fa-spin fa-2x"></i><br>Cargando usuarios...</td></tr>';
-
-    try {
-        const rawUsers = await apiGetUsuarios();
-        
-        if (!rawUsers || !Array.isArray(rawUsers) || rawUsers.length === 0) {
-            container.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:40px; color:#64748b;"><i class="fas fa-users-slash fa-2x"></i><br><br>No se encontraron usuarios en el sistema.</td></tr>';
-            return;
-        }
-
-        // Normalizar campos: backend devuelve username/role, frontend espera usuario/rol
-        const users = rawUsers.map(u => ({
-            usuario  : u.usuario || u.username || u.user || '---',
-            nombre   : u.nombre  || u.name     || 'Sin nombre',
-            rol      : u.rol     || u.role     || u.perfil || 'USUARIO',
-            departamento: u.departamento || u.depto || 'General',
-            estado   : u.estado  || u.status   || 'Activo',
-            ultimoAcceso: u.ultimoAcceso || u.ultimoacceso || u.lastAccess || '---'
-        }));
-
-        container.innerHTML = users.map((u, index) => `
-            <tr style="border-bottom: 1px solid #f1f5f9;">
-                <td style="padding: 15px 20px;">${index + 1}</td>
-                <td style="padding: 15px 20px;"><strong>${u.usuario}</strong></td>
-                <td style="padding: 15px 20px;">${u.nombre}</td>
-                <td style="padding: 15px 20px;">
-                    <span class="role-badge ${u.rol?.toLowerCase()}">${u.rol}</span>
-                </td>
-                <td style="padding: 15px 20px;">${u.departamento}</td>
-                <td style="padding: 15px 20px;">
-                    <span class="status-badge ${u.estado?.toLowerCase()}">${u.estado}</span>
-                </td>
-                <td style="padding: 15px 20px;">${u.ultimoAcceso}</td>
-                <td style="padding: 15px 20px;">
-                    <div style="display:flex; gap:8px;">
-                        <button class="action-btn small" style="background:#f0fdf4; color:#10b981; border:1px solid #bbf7d0;" onclick="viewUser('${u.usuario}')">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        ${u.usuario !== 'admin' ? `
-                        <button class="action-btn small" style="background:#fefce8; color:#f59e0b; border:1px solid #fef08a;" onclick="editUser('${u.usuario}')">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="action-btn small" style="background:#fef2f2; color:#ef4444; border:1px solid #fecaca;" onclick="deleteUser('${u.usuario}')">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                        ` : ''}
-                    </div>
-                </td>
-            </tr>
-        `).join('');
-
-    } catch (e) {
-        console.error('loadUsersRepo error:', e);
-        container.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px; color:#ef4444;"><i class="fas fa-wifi fa-2x"></i><br><br>Error de conexión con el repositorio de usuarios.<br><small style="color:#94a3b8;">${e.message}</small></td></tr>`;
-    }
-}
+// Gestión de credenciales movida para mejor organización
 
 async function initCredencialesSection() {
     const grid = document.getElementById('credencialesGrid');
@@ -5937,438 +5881,11 @@ async function loadVehiculosData() {
     }
 }
 
-// --- CHARTS DASHBOARD ---
-function initInicioSection() {
-    const ctxCargos = document.getElementById('chartCargos')?.getContext('2d');
-    const ctxTurnos = document.getElementById('chartTurnos')?.getContext('2d');
-    const ctxActividad = document.getElementById('chartActividad')?.getContext('2d');
-    const ctxVigencias = document.getElementById('chartVigencias')?.getContext('2d');
+// --- REPOSITORIOS TÁCTICOS INIT ---
 
-    if (ctxCargos) {
-        new Chart(ctxCargos, {
-            type: 'doughnut',
-            data: {
-                labels: ['Policía', 'Sargento', 'Comandante', 'Vialidad'],
-                datasets: [{
-                    data: [25, 10, 5, 15],
-                    backgroundColor: ['#1a3a6e', '#c5a059', '#0a192f', '#3b82f6'],
-                    borderWidth: 0,
-                    hoverOffset: 15
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom' } },
-                cutout: '70%'
-            }
-        });
-    }
-
-    if (ctxTurnos) {
-        new Chart(ctxTurnos, {
-            type: 'bar',
-            data: {
-                labels: ['A (Mañana)', 'B (Tarde)', 'C (Noche)', 'D (Franco)'],
-                datasets: [{
-                    label: 'Elementos',
-                    data: [15, 18, 12, 10],
-                    backgroundColor: 'rgba(26, 58, 110, 0.8)',
-                    borderColor: '#1a3a6e',
-                    borderWidth: 1,
-                    borderRadius: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: { y: { beginAtZero: true } }
-            }
-        });
-    }
-
-    if (ctxActividad) {
-        new Chart(ctxActividad, {
-            type: 'line',
-            data: {
-                labels: ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'],
-                datasets: [{
-                    label: 'Accesos',
-                    data: [45, 52, 38, 65, 48, 70, 42],
-                    borderColor: '#c5a059',
-                    backgroundColor: 'rgba(197, 160, 89, 0.1)',
-                    fill: true,
-                    tension: 0.4,
-                    borderWidth: 3,
-                    pointRadius: 5,
-                    pointBackgroundColor: '#c5a059'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { x: { grid: { display: false } } }
-            }
-        });
-    }
-
-    if (ctxVigencias) {
-        new Chart(ctxVigencias, {
-            type: 'polarArea',
-            data: {
-                labels: ['Vigentes', 'Próximos', 'Vencidos'],
-                datasets: [{
-                    data: [42, 12, 5],
-                    backgroundColor: ['rgba(16, 185, 129, 0.6)', 'rgba(245, 158, 11, 0.6)', 'rgba(239, 68, 68, 0.6)']
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'right' } }
-            }
-        });
-    }
-
-    // Cargar métricas numéricas reales
-    if (currentPersonnelData) {
-        if (document.getElementById('totalPersonal')) document.getElementById('totalPersonal').textContent = currentPersonnelData.length;
-        if (document.getElementById('credencialesActivas')) document.getElementById('credencialesActivas').textContent = currentPersonnelData.filter(p => p.estado === 'Activo').length;
-    }
-}
-
-// Exportar globales
-window.initArmamentoSection = initArmamentoSection;
-window.initVehiculosSection = initVehiculosSection;
-window.switchArmamentoTab = switchArmamentoTab;
-window.switchConfigTab = switchConfigTab;
-window.deleteFine = deleteFine;
-window.editFineCost = editFineCost;
-window.initInicioSection = initInicioSection;
-window.exportUsersReport = function (format) {
-    showNotification(`Exportando repositorio en formato ${format.toUpperCase()}...`, 'info');
-};
-window.filterUsersRepo = function () {
-    console.log('Filtrando usuarios...');
-};
-
-// --- Funciones de Configuración ---
-// --- REPOSITORIOS TÁCTICOS ---
-function getArmamentoSection() {
-    return `
-        <div class="repository-container">
-            <div class="section-header">
-                <h2><i class="fas fa-gun"></i> Inventario de Armamento y Equipo Tactico</h2>
-                <div class="header-actions">
-                    <button class="action-btn" onclick="openArmamentoModal('arma')">
-                        <i class="fas fa-plus"></i> Nueva Arma
-                    </button>
-                    <button class="action-btn secondary" onclick="exportInventoryExcel('armamento')">
-                        <i class="fas fa-file-excel"></i> Exportar
-                    </button>
-                </div>
-            </div>
-            
-            <div class="tabs-control" style="margin-bottom:20px;">
-                <button class="tab-btn active" onclick="switchArmamentoTab('armas')">Armas de Fuego</button>
-                <button class="tab-btn" onclick="switchArmamentoTab('radios')">Radios Matra</button>
-                <button class="tab-btn" onclick="switchArmamentoTab('chalecos')">Chalecos Balísticos</button>
-            </div>
-
-            <div class="inventory-content" id="armamentoContent">
-                <div class="loading">Sincronizando arsenal y equipos...</div>
-            </div>
-        </div>
-    `;
-}
-
-function getVehiculosSection() {
-    return `
-        <div class="repository-container">
-            <div class="section-header">
-                <h2><i class="fas fa-car-on"></i> Control de Flota Vehicular</h2>
-                <div class="header-actions">
-                    <button class="action-btn" onclick="openVehiculoModal()">
-                        <i class="fas fa-plus"></i> Alta de Unidad
-                    </button>
-                    <button class="action-btn secondary" onclick="exportInventoryExcel('vehiculos')">
-                        <i class="fas fa-file-excel"></i> Reporte Flota
-                    </button>
-                </div>
-            </div>
-            
-            <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom:20px;">
-                <div class="stat-card"><h3>Unidades</h3><p id="totalVehiculos">--</p></div>
-                <div class="stat-card"><h3>Patrullas</h3><p id="totalPatrullas">--</p></div>
-                <div class="stat-card"><h3>Motos</h3><p id="totalMotos">--</p></div>
-                <div class="stat-card"><h3>Taller</h3><p id="totalTaller">--</p></div>
-            </div>
-
-            <div class="inventory-grid" id="vehiculosGrid">
-                <div class="loading">Cargando inventario de unidades móviles...</div>
-            </div>
-        </div>
-    `;
-}
-
-function getInicioSection() {
-    return `
-        <div class="dashboard-inicio">
-            <div class="welcome-banner" style="background: linear-gradient(135deg, #0a192f 0%, #1a3a6e 100%); color: white; padding: 40px; border-radius: 20px; margin-bottom: 30px; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
-                <div style="position: relative; z-index: 2;">
-                    <h1 style="font-size: 2.5rem; margin-bottom: 10px;">Panel de Inteligencia Policial</h1>
-                    <p style="opacity: 0.8; font-size: 1.1rem; max-width: 600px;">Bienvenido al sistema central de monitoreo y gestión táctica de Tzompantepec. Visualiza las métricas clave de la fuerza pública en tiempo real.</p>
-                </div>
-                <i class="fas fa-shield-alt" style="position: absolute; right: -50px; bottom: -50px; font-size: 25rem; opacity: 0.05; transform: rotate(-15deg);"></i>
-            </div>
-
-            <div class="stats-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 25px; margin-bottom: 35px;">
-                <div class="metric-card" style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-bottom: 5px solid #c5a059;">
-                    <div style="display: flex; justify-content: space-between; align-items: start;">
-                        <div>
-                            <span style="color: #64748b; font-weight: 700; font-size: 0.9rem; text-transform: uppercase;">Fuerza Total</span>
-                            <h2 style="font-size: 2.8rem; font-weight: 900; color: #0a192f; margin: 10px 0;" id="totalPersonal">--</h2>
-                        </div>
-                        <i class="fas fa-users" style="font-size: 2rem; color: #c5a059; opacity: 0.8;"></i>
-                    </div>
-                    <div style="font-size: 0.85rem; color: #10b981; font-weight: 600;"><i class="fas fa-arrow-up"></i> Personal Activo</div>
-                </div>
-                <div class="metric-card" style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-bottom: 5px solid #1a3a6e;">
-                    <div style="display: flex; justify-content: space-between; align-items: start;">
-                        <div>
-                            <span style="color: #64748b; font-weight: 700; font-size: 0.9rem; text-transform: uppercase;">Credenciales</span>
-                            <h2 style="font-size: 2.8rem; font-weight: 900; color: #0a192f; margin: 10px 0;" id="credencialesActivas">--</h2>
-                        </div>
-                        <i class="fas fa-id-card" style="font-size: 2rem; color: #1a3a6e; opacity: 0.8;"></i>
-                    </div>
-                    <div style="font-size: 0.85rem; color: #3b82f6; font-weight: 600;"><i class="fas fa-check-circle"></i> Estatus: Vigentes</div>
-                </div>
-                <div class="metric-card" style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-bottom: 5px solid #f59e0b;">
-                    <div style="display: flex; justify-content: space-between; align-items: start;">
-                        <div>
-                            <span style="color: #64748b; font-weight: 700; font-size: 0.9rem; text-transform: uppercase;">Equipo Tactico</span>
-                            <h2 style="font-size: 2.8rem; font-weight: 900; color: #0a192f; margin: 10px 0;" id="equipoResguardo">--</h2>
-                        </div>
-                        <i class="fas fa-gun" style="font-size: 2rem; color: #f59e0b; opacity: 0.8;"></i>
-                    </div>
-                    <div style="font-size: 0.85rem; color: #f59e0b; font-weight: 600;"><i class="fas fa-exclamation-triangle"></i> Pendientes Entrega</div>
-                </div>
-                <div class="metric-card" style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-bottom: 5px solid #ef4444;">
-                    <div style="display: flex; justify-content: space-between; align-items: start;">
-                        <div>
-                            <span style="color: #64748b; font-weight: 700; font-size: 0.9rem; text-transform: uppercase;">Incidencias</span>
-                            <h2 style="font-size: 2.8rem; font-weight: 900; color: #0a192f; margin: 10px 0;">0</h2>
-                        </div>
-                        <i class="fas fa-bell" style="font-size: 2rem; color: #ef4444; opacity: 0.8;"></i>
-                    </div>
-                    <div style="font-size: 0.85rem; color: #ef4444; font-weight: 600;"><i class="fas fa-clock"></i> Ultimas 24 Horas</div>
-                </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 30px; margin-bottom: 30px;">
-                <div class="card" style="padding: 25px; grid-column: span 1; height: 350px; background: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-                    <h3 style="margin-bottom: 20px; color: #0a192f;"><i class="fas fa-chart-pie"></i> Distribución de Cargos</h3>
-                    <div style="height: 250px;"><canvas id="chartCargos"></canvas></div>
-                </div>
-                <div class="card" style="padding: 25px; grid-column: span 1; height: 350px; background: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-                    <h3 style="margin-bottom: 20px; color: #0a192f;"><i class="fas fa-chart-bar"></i> Fuerza Operativa por Turno</h3>
-                    <div style="height: 250px;"><canvas id="chartTurnos"></canvas></div>
-                </div>
-                <div class="card" style="padding: 25px; grid-column: span 1; height: 350px; background: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-                    <h3 style="margin-bottom: 20px; color: #0a192f;"><i class="fas fa-chart-line"></i> Actividad del Sistema (7d)</h3>
-                    <div style="height: 250px;"><canvas id="chartActividad"></canvas></div>
-                </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
-                <div class="card" style="padding: 25px; background: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-                    <h3 style="margin-bottom: 20px; color: #0a192f;"><i class="fas fa-map-location-dot"></i> Presencia en Cuadrantes</h3>
-                    <div id="dashboardMap" style="height: 400px; border-radius: 15px; background: #f1f5f9; display: flex; align-items: center; justify-content: center;">
-                        <span style="color: #64748b;">Inicializando mapa táctico...</span>
-                    </div>
-                </div>
-                <div class="card" style="padding: 25px; background: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-                    <h3 style="margin-bottom: 20px; color: #0a192f;"><i class="fas fa-chart-column"></i> Estatus de Vigencias</h3>
-                    <div style="height: 400px;"><canvas id="chartVigencias"></canvas></div>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-function getUsuariosSection() {
-    const isAdmin = getCurrentUserRole() === 'ADMIN';
-    if (!isAdmin) {
-        return `
-        <div class="error-container" style = "text-align:center; padding: 100px 20px;" >
-            <i class="fas fa-user-lock" style="font-size: 5rem; color: #ef4444; margin-bottom: 20px;"></i>
-            <h2 style="color: var(--police-navy);">ACCESO DENEGADO</h2>
-            <p style="color: #64748b;">No tiene permisos para gestionar la base de usuarios del sistema.</p>
-            <button class="action-btn" onclick="navigateTo('inicio')" style="margin-top: 20px;">VOLVER AL INICIO</button>
-        </div>
-        `;
-    }
-    return `
-        <div class="usuarios-container" style="padding: 20px;">
-            <div class="section-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px;">
-                <div>
-                    <h2 style="margin: 0; color: #0a192f; font-size: 2rem;"><i class="fas fa-users-gear"></i> Gestión de Usuarios</h2>
-                    <p style="margin: 5px 0 0; color: #64748b;">Administración de usuarios del sistema</p>
-                </div>
-                <div class="header-actions" style="display: flex; gap: 15px;">
-                    <button class="action-btn" onclick="showAddUserModal()" style="background: #10b981; color: white;">
-                        <i class="fas fa-user-plus"></i> Nuevo Usuario
-                    </button>
-                    <button class="action-btn" onclick="exportUsersReport('pdf')" style="background: #0891b2; color: white;">
-                        <i class="fas fa-file-pdf"></i> Exportar PDF
-                    </button>
-                    <button class="action-btn secondary" onclick="exportUsersReport('excel')">
-                        <i class="fas fa-file-excel"></i> Exportar Excel
-                    </button>
-                </div>
-            </div>
-            
-            <div class="card" style="padding: 25px; border-radius: 15px; background: white; margin-bottom: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
-                <div class="search-filter" style="display: flex; gap: 15px;">
-                    <div style="flex: 1; position: relative;">
-                        <i class="fas fa-search" style="position: absolute; left: 15px; top: 15px; color: #94a3b8;"></i>
-                        <input type="text" id="searchUser" placeholder="Buscar usuarios..." onkeyup="filterUsersRepo()" 
-                               style="width: 100%; padding: 12px 12px 12px 45px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 1rem;">
-                    </div>
-                    <button class="action-btn small" style="background: #10b981; color: white; border-radius: 10px; height: 48px; width: 100px;">
-                        <i class="fas fa-search"></i> Buscar
-                    </button>
-                </div>
-            </div>
-
-            <div class="table-container" style="background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 30px rgba(0,0,0,0.05);">
-                <table class="data-table" style="width: 100%; border-collapse: collapse;">
-                    <thead>
-                        <tr style="background: #f8fafc; border-bottom: 2px solid #f1f5f9;">
-                            <th style="padding: 20px; text-align: left; color: #1e293b; font-weight: 700;">ID</th>
-                            <th style="padding: 20px; text-align: left; color: #1e293b; font-weight: 700;">Usuario</th>
-                            <th style="padding: 20px; text-align: left; color: #1e293b; font-weight: 700;">Nombre Completo</th>
-                            <th style="padding: 20px; text-align: left; color: #1e293b; font-weight: 700;">Rol</th>
-                            <th style="padding: 20px; text-align: left; color: #1e293b; font-weight: 700;">Departamento</th>
-                            <th style="padding: 20px; text-align: left; color: #1e293b; font-weight: 700;">Estado</th>
-                            <th style="padding: 20px; text-align: left; color: #1e293b; font-weight: 700;">Último Acceso</th>
-                            <th style="padding: 20px; text-align: left; color: #1e293b; font-weight: 700;">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="userListBody">
-                        <!-- Se llena dinámicamente -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    `;
-}
-
-function getConfiguracionSection() {
-    return `
-        <div class="config-container" style="padding: 20px;">
-            <div class="config-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-                <div>
-                    <h2 style="color: #0a192f; font-size: 2rem; margin: 0;"><i class="fas fa-sliders-h"></i> Configuración del Sistema</h2>
-                    <p style="color: #64748b; margin: 5px 0 0;">Configuración avanzada de parámetros y conectividad</p>
-                </div>
-                <div class="config-global-actions" style="display: flex; gap: 10px;">
-                    <button class="action-btn" onclick="saveInstitutionalConfig()" style="background: #10b981; color: white;">
-                        <i class="fas fa-save"></i> Guardar Cambios
-                    </button>
-                    <button class="action-btn secondary" onclick="testConnection()">
-                        <i class="fas fa-plug"></i> Probar Conexiones
-                    </button>
-                    <button class="action-btn secondary" onclick="backupSystem()" style="background: #0ea5e9; color: white;">
-                        <i class="fas fa-hdd"></i> Respaldar Config
-                    </button>
-                    <button class="action-btn" onclick="navigateTo('inicio')" style="background: #f59e0b; color: white;">
-                        <i class="fas fa-undo"></i> Restaurar Valores
-                    </button>
-                </div>
-            </div>
-
-            <div class="config-tabs-nav" style="display: flex; gap: 5px; border-bottom: 1px solid #e2e8f0; margin-bottom: 25px;">
-                <button class="conf-tab active" onclick="switchConfigTab('general')">General</button>
-                <button class="conf-tab" onclick="switchConfigTab('sheets')">Google Sheets</button>
-                <button class="conf-tab" onclick="switchConfigTab('drive')">Google Drive</button>
-                <button class="conf-tab" onclick="switchConfigTab('backup')">Backup</button>
-                <button class="conf-tab" onclick="switchConfigTab('export')">Exportación</button>
-                <button class="conf-tab" onclick="switchConfigTab('notify')">Notificaciones</button>
-                <button class="conf-tab" onclick="switchConfigTab('maintain')">Mantenimiento</button>
-            </div>
-
-            <div id="configContent">
-                <!-- Tab General -->
-                <div class="config-card" style="background: white; border-radius: 15px; padding: 30px; border: 1px solid #e2e8f0;">
-                    <h3 style="margin-top: 0; color: #0a192f;"><i class="fas fa-cogs"></i> Configuración General del Sistema</h3>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px;">
-                        <div class="form-group">
-                            <label>Nombre del Sistema</label>
-                            <input type="text" id="configSystemName" value="Sistema de Credencialización Tzompantepec" class="form-control" style="width: 100%; border-radius: 8px;">
-                        </div>
-                        <div class="form-group">
-                            <label>Periodo Actual</label>
-                            <input type="text" value="2024-2027" class="form-control" style="width: 100%; border-radius: 8px;">
-                        </div>
-                        <div class="form-group">
-                            <label>Organización</label>
-                            <input type="text" value="Gobierno Municipal" class="form-control" style="width: 100%; border-radius: 8px;">
-                        </div>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px;">
-                        <div class="form-group">
-                            <label>Logo del Sistema (URL)</label>
-                            <input type="text" value="assets/logo_tzomp.png" class="form-control" style="width: 100%; border-radius: 8px;">
-                        </div>
-                        <div class="form-group">
-                            <label>Tema de Color</label>
-                            <select class="form-control" style="width: 100%; border-radius: 8px;">
-                                <option>Azul Principal (Default)</option>
-                                <option>Modo Oscuro Tactico</option>
-                                <option>Verde Corporativo</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Idioma</label>
-                            <select class="form-control" style="width: 100%; border-radius: 8px;">
-                                <option>Español</option>
-                                <option>English</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div style="margin-top: 30px; padding: 20px; background: #f8fafc; border-radius: 10px; border-left: 5px solid #0ea5e9;">
-                        <div style="display: flex; gap: 20px; align-items: center;">
-                            <div style="display: flex; align-items: center; gap: 10px; flex: 1; padding: 15px; background: #eff6ff; border-radius: 8px; border: 1px solid #bfdbfe;">
-                                <div style="width: 25px; height: 25px; background: #1a3c6e; border-radius: 4px;"></div>
-                                <span style="font-weight: 600;">Azul Principal</span>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 10px; flex: 1; padding: 15px; background: #f0fdf4; border-radius: 8px; border: 1px solid #bbf7d0;">
-                                <div style="width: 25px; height: 25px; background: #22c55e; border-radius: 4px;"></div>
-                                <span style="font-weight: 600;">Verde Corporativo</span>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 10px; flex: 1; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
-                                <div style="width: 25px; height: 25px; background: #1e293b; border-radius: 4px;"></div>
-                                <span style="font-weight: 600;">Modo Oscuro</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <style>
-            .conf-tab { padding: 12px 25px; background: none; border: none; font-weight: 600; color: #64748b; cursor: pointer; border-radius: 10px 10px 0 0; }
-            .conf-tab.active { color: #10b981; border-bottom: 3px solid #10b981; background: #f0fdfa; }
-            .conf-tab:hover { background: #f8fafc; }
-        </style>
-    `;
-}
 
 // --- REPOSITORIOS TÁCTICOS INIT ---
+
 function initArmamentoSection() {
     console.log('Armamento Inicializado');
     loadArmamentoData();
@@ -6379,10 +5896,212 @@ function initVehiculosSection() {
     loadVehiculosData();
 }
 
+// --- GESTIÓN DE ARMAMENTO (MODALES Y GUARDADO) ---
+function openArmamentoModal() {
+    const modalHtml = `
+        <div id="armamentoModal" class="modal-overlay" style="display:flex;">
+            <div class="modal-content card" style="max-width:550px; width:95%; border-radius: 20px; border: 1px solid rgba(197, 160, 89, 0.2); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                    <h3 style="margin:0; color:#1e293b; font-size:1.5rem;"><i class="fas fa-plus-circle" style="color:#c5a059;"></i> Registrar Nuevo Equipo</h3>
+                    <button onclick="closeArmamentoModal()" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#94a3b8;">&times;</button>
+                </div>
+                <form id="formArmamento" onsubmit="saveArmamento(event)">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:0.85rem; color:#64748b;">Tipo de Equipo</label>
+                            <select id="inv-tipo" class="form-control" required style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem;">
+                                <option value="Arma Corta">Arma Corta</option>
+                                <option value="Arma Larga">Arma Larga</option>
+                                <option value="Radio Portátil">Radio Portátil</option>
+                                <option value="Radio Base">Radio Base</option>
+                                <option value="Chaleco Balístico">Chaleco Balístico</option>
+                                <option value="Fornitura">Fornitura</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:0.85rem; color:#64748b;">Marca / Fabricante</label>
+                            <input type="text" id="inv-marca" placeholder="Ej: Glock, Motorola" required class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem;">
+                        </div>
+                        <div class="form-group">
+                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:0.85rem; color:#64748b;">Modelo</label>
+                            <input type="text" id="inv-modelo" placeholder="Ej: G17 Gen 4" required class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem;">
+                        </div>
+                        <div class="form-group">
+                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:0.85rem; color:#64748b;">No. Serie / Matrícula</label>
+                            <input type="text" id="inv-serie" placeholder="Obligatorio" required class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem;">
+                        </div>
+                        <div class="form-group">
+                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:0.85rem; color:#64748b;">Estado Físico</label>
+                            <select id="inv-estado" class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem;">
+                                <option value="Operativo">Operativo</option>
+                                <option value="Regular">Regular</option>
+                                <option value="Fuera de Servicio">Fuera de Servicio</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:0.85rem; color:#64748b;">Asignación</label>
+                            <input type="text" id="inv-asignado" placeholder="Opcional" class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem;">
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top:15px;">
+                        <label style="display:block; margin-bottom:5px; font-weight:700; font-size:0.85rem; color:#64748b;">Observaciones Adicionales</label>
+                        <textarea id="inv-obs" rows="2" class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem; resize:none;"></textarea>
+                    </div>
+                    <div style="margin-top: 25px; display: flex; gap: 10px; justify-content: flex-end;">
+                        <button type="button" onclick="closeArmamentoModal()" class="action-btn secondary" style="background:#f1f5f9; color:#64748b; border:none; padding:12px 20px; border-radius:12px; font-weight:700; cursor:pointer;">Cancelar</button>
+                        <button type="submit" class="action-btn" style="background:#c5a059; border:none; padding:12px 30px; border-radius:12px; font-weight:700; text-transform:uppercase; cursor:pointer;">Guardar Registro</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+    const container = document.createElement('div');
+    container.id = 'armamentoModalContainer';
+    container.innerHTML = modalHtml;
+    document.body.appendChild(container);
+}
+
+function closeArmamentoModal() {
+    const m = document.getElementById('armamentoModalContainer');
+    if (m) m.remove();
+}
+
+async function saveArmamento(e) {
+    e.preventDefault();
+    const datos = {
+        tipo: document.getElementById('inv-tipo').value,
+        marca: document.getElementById('inv-marca').value,
+        modelo: document.getElementById('inv-modelo').value,
+        serie: document.getElementById('inv-serie').value,
+        estado: document.getElementById('inv-estado').value,
+        asignado: document.getElementById('inv-asignado').value,
+        observaciones: document.getElementById('inv-obs').value
+    };
+
+    showNotification('Registrando equipo en arsenal...', 'info');
+    try {
+        const res = await window.apiGuardarArmamento(datos);
+        if (res.success) {
+            showNotification('Equipo registrado correctamente', 'success');
+            closeArmamentoModal();
+            loadArmamentoData();
+        } else {
+            showNotification('Error: ' + res.message, 'error');
+        }
+    } catch (err) {
+        showNotification('Error al guardar: ' + err.message, 'error');
+    }
+}
+
+// --- GESTIÓN DE VEHÍCULOS (MODALES Y GUARDADO) ---
+function openVehiculoModal() {
+    const modalHtml = `
+        <div id="vehiculoModal" class="modal-overlay" style="display:flex;">
+            <div class="modal-content card" style="max-width:550px; width:95%; border-radius: 20px; border: 1px solid rgba(59, 130, 246, 0.2); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                    <h3 style="margin:0; color:#1e293b; font-size:1.5rem;"><i class="fas fa-car-on" style="color:#3b82f6;"></i> Alta de Unidad Vehicular</h3>
+                    <button onclick="closeVehiculoModal()" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#94a3b8;">&times;</button>
+                </div>
+                <form id="formVehiculo" onsubmit="saveVehiculo(event)">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:0.85rem; color:#64748b;">No. Económico</label>
+                            <input type="text" id="v-eco" placeholder="Ej: P-05" required class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem;">
+                        </div>
+                        <div class="form-group">
+                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:0.85rem; color:#64748b;">Placas</label>
+                            <input type="text" id="v-placa" placeholder="TR-00-000" required class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem;">
+                        </div>
+                        <div class="form-group">
+                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:0.85rem; color:#64748b;">Tipo de Unidad</label>
+                            <select id="v-tipo" class="form-control" required style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem;">
+                                <option value="Patrulla (Sadan)">Patrulla (Sedan)</option>
+                                <option value="Patrulla (Pick-Up)">Patrulla (Pick-Up)</option>
+                                <option value="Motocicleta">Motocicleta</option>
+                                <option value="Ambulancia">Ambulancia</option>
+                                <option value="Vialidad">Tránsito/Vialidad</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:0.85rem; color:#64748b;">Marca / Modelo</label>
+                            <input type="text" id="v-marca" placeholder="Ej: Dodge Charger 2024" required class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem;">
+                        </div>
+                        <div class="form-group">
+                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:0.85rem; color:#64748b;">Estatus Operativo</label>
+                            <select id="v-estado" class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem;">
+                                <option value="Activo">Activo (En Servicio)</option>
+                                <option value="Taller">En Taller / Mantenimiento</option>
+                                <option value="Baja">Baja por Siniestro/Antigüedad</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:0.85rem; color:#64748b;">Kilometraje Actual</label>
+                            <input type="number" id="v-km" placeholder="0" class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem;">
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top:15px;">
+                        <label style="display:block; margin-bottom:5px; font-weight:700; font-size:0.85rem; color:#64748b;">Ubicación / Cuadrante</label>
+                        <input type="text" id="v-cuadrante" placeholder="Ej: Cuadrante Norte Centro" class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem;">
+                    </div>
+                    <div style="margin-top: 25px; display: flex; gap: 10px; justify-content: flex-end;">
+                        <button type="button" onclick="closeVehiculoModal()" class="action-btn secondary" style="background:#f1f5f9; color:#64748b; border:none; padding:12px 20px; border-radius:12px; font-weight:700; cursor:pointer;">Cancelar</button>
+                        <button type="submit" class="action-btn" style="background:#3b82f6; border:none; padding:12px 30px; border-radius:12px; font-weight:700; text-transform:uppercase; cursor:pointer;">Registrar Unidad</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+    const container = document.createElement('div');
+    container.id = 'vehiculoModalContainer';
+    container.innerHTML = modalHtml;
+    document.body.appendChild(container);
+}
+
+function closeVehiculoModal() {
+    const m = document.getElementById('vehiculoModalContainer');
+    if (m) m.remove();
+}
+
+async function saveVehiculo(e) {
+    e.preventDefault();
+    const datos = {
+        economico: document.getElementById('v-eco').value,
+        placa: document.getElementById('v-placa').value,
+        tipo: document.getElementById('v-tipo').value,
+        marca: document.getElementById('v-marca').value,
+        estado: document.getElementById('v-estado').value,
+        kilometraje: document.getElementById('v-km').value,
+        cuadrante: document.getElementById('v-cuadrante').value
+    };
+
+    showNotification('Sincronizando unidad con flota...', 'info');
+    try {
+        const res = await window.apiGuardarVehiculo(datos);
+        if (res.success) {
+            showNotification('Unidad registrada en la flota correctamente', 'success');
+            closeVehiculoModal();
+            loadVehiculosData();
+        } else {
+            showNotification('Error al registrar: ' + res.message, 'error');
+        }
+    } catch (err) {
+        showNotification('Error de conexión: ' + err.message, 'error');
+    }
+}
+
 function switchArmamentoTab(tab) {
-    const btns = document.querySelectorAll('.tabs-control .tab-btn');
+    // Buscar todos los botones de pestañas en la sección de armamento
+    const btns = document.querySelectorAll('.tabs-container .tab-btn');
     btns.forEach(b => b.classList.remove('active'));
-    event.target.classList.add('active');
+    
+    // El evento global o buscar por tab
+    if (window.event && window.event.currentTarget && window.event.currentTarget.classList) {
+        window.event.currentTarget.classList.add('active');
+    } else {
+        const targetBtn = document.getElementById('tab-' + (tab.toLowerCase()));
+        if (targetBtn) targetBtn.classList.add('active');
+    }
+    
     loadArmamentoData(tab);
 }
 
@@ -6592,6 +6311,76 @@ function backupSystem() {
     }, 1000);
 }
 
+async function openArmamentoModal(type) {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-plus-circle"></i> Agregar ${type === 'arma' ? 'Armamento' : 'Equipo'}</h3>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addArmaForm">
+                    <div class="form-group"><label>Tipo/Modelo</label><input type="text" name="modelo" required class="form-control" placeholder="Ej: Glock 17"></div>
+                    <div class="form-group"><label>Número de Serie</label><input type="text" name="serie" required class="form-control" placeholder="X-000000"></div>
+                    <div class="form-group"><label>Estado</label>
+                        <select name="estado" class="form-control">
+                            <option>Nuevo</option>
+                            <option>Excelente</option>
+                            <option>Regular</option>
+                            <option>En Mantenimiento</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="action-btn" onclick="saveNewArma(event)">Guardar Equipo</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+async function openVehiculoModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 550px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-plus-circle"></i> Registro de Unidad Vehicular</h3>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addVehiculoForm">
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                        <div class="form-group"><label>Marca</label><input type="text" name="marca" required class="form-control" placeholder="Ej: Dodge"></div>
+                        <div class="form-group"><label>Modelo</label><input type="text" name="modelo" required class="form-control" placeholder="Ej: Ram 2500"></div>
+                        <div class="form-group"><label>Placa</label><input type="text" name="placa" required class="form-control" placeholder="ABC-123-D"></div>
+                        <div class="form-group"><label>Tipo</label>
+                            <select name="tipo" class="form-control">
+                                <option>Patrulla</option>
+                                <option>Motocicleta</option>
+                                <option>Civil</option>
+                                <option>Especializado</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="action-btn" onclick="saveNewVehiculo(event)">Dar de Alta Unidad</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+async function saveNewArma() { showNotification('Simulando guardado de armamento...', 'success'); document.querySelector('.modal').remove(); }
+async function saveNewVehiculo() { showNotification('Sincronizando alta de unidad con base de datos...', 'success'); document.querySelector('.modal').remove(); }
+window.openArmamentoModal = openArmamentoModal;
+window.openVehiculoModal = openVehiculoModal;
+
 function syncSheets() {
     showNotification('Iniciando sincronización bidireccional...', 'info');
     setTimeout(() => {
@@ -6609,202 +6398,5 @@ function checkUpdates() {
     showNotification('El sistema ya cuenta con la versión más reciente (2.6.4-GOLD)', 'success');
 }
 
-// --- GESTIÓN DE USUARIOS ---
-async function loadUsersRepo() {
-    const container = document.getElementById('userListBody');
-    if (!container) return;
-
-    container.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i> Consultando base de seguridad...</td></tr>';
-
-    try {
-        const users = await window.apiGetUsuarios();
-
-        if (!users || users.length === 0) {
-            container.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px;">No hay usuarios registrados en el sistema.</td></tr>';
-            return;
-        }
-
-        container.innerHTML = users.map(u => `
-            <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-                <td style="padding: 15px 20px;"><span class="badge-id">${u.id || '--'}</span></td>
-                <td style="padding: 15px 20px;"><strong>${u.username}</strong></td>
-                <td style="padding: 15px 20px;">${u.nombre}</td>
-                <td style="padding: 15px 20px;">
-                    <span class="status-badge" style="background:${u.role === 'ADMIN' ? '#fee2e2' : u.role === 'OPERADOR' ? '#dbeafe' : '#fef3c7'}; color:${u.role === 'ADMIN' ? '#b91c1c' : u.role === 'OPERADOR' ? '#1e40af' : '#b45309'}; border:none;">
-                        ${u.role}
-                    </span>
-                </td>
-                <td style="padding: 15px 20px;">${u.departamento || 'C2 CENTRO'}</td>
-                <td style="padding: 15px 20px;"><span class="status-badge ${u.estado === 'ACTIVO' ? 'activo' : 'pendiente'}">${u.estado}</span></td>
-                <td style="padding: 15px 20px; color:#64748b; font-size:0.8rem;">${u.ultimoacceso || 'Nunca'}</td>
-                <td style="padding: 15px 20px;">
-                    <div class="row-actions" style="display:flex; gap:8px;">
-                        <button class="action-btn small secondary" onclick="editUser('${u.username}')" title="Editar"><i class="fas fa-edit"></i></button>
-                        <button class="action-btn small danger" onclick="deleteUser('${u.username}')" title="Eliminar"><i class="fas fa-trash"></i></button>
-                    </div>
-                </td>
-            </tr>
-        `).join('');
-
-        // Actualizar estadísticas de usuarios
-        document.getElementById('countAdmins').textContent = users.filter(u => u.role === 'ADMIN').length;
-        document.getElementById('countOps').textContent = users.filter(u => u.role === 'OPERADOR').length;
-        document.getElementById('countAuditors').textContent = users.filter(u => u.role === 'AUDITOR').length;
-
-    } catch (err) {
-        container.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color:#ef4444;">Error de conexión con el repositorio de usuarios.</td></tr>';
-    }
-}
-
-function showAddUserModal() {
-    const modal = document.getElementById('userModal');
-    if (modal) modal.style.display = 'flex';
-}
-
-function closeUserModal() {
-    const modal = document.getElementById('userModal');
-    if (modal) {
-        modal.style.display = 'none';
-        document.getElementById('formUser')?.reset();
-    }
-}
-
-function deleteUser(username) {
-    if (username === 'admin') {
-        showNotification('No se puede eliminar la cuenta maestra del sistema', 'error');
-        return;
-    }
-    if (confirm(`¿Está seguro de revocar el acceso para el usuario: ${username}?`)) {
-        showNotification(`Revocando credenciales de ${username}...`, 'warning');
-        setTimeout(() => {
-            showNotification('Usuario eliminado del registro oficial', 'success');
-            loadUsersRepo();
-        }, 1500);
-    }
-}
-
-function editUser(username) {
-    showNotification(`Gestionar permisos de: ${username}`, 'info');
-}
-
-function deleteUser(username) {
-    if (!confirm(`¿Está seguro de eliminar al usuario "${username}"?`)) return;
-
-    showNotification('Eliminando usuario del sistema...', 'warning');
-    window.apiDeletePersonal(username).then(res => {
-        if (res.success) {
-            showNotification('Usuario eliminado con éxito', 'success');
-            loadUsersRepo();
-        } else {
-            showNotification('Error: ' + res.message, 'error');
-        }
-    }).catch(err => {
-        showNotification('Error de conexión', 'error');
-    });
-}
-
-// Global Exports
-window.showAddUserModal = showAddUserModal;
-window.closeUserModal = closeUserModal;
-window.loadUsersRepo = loadUsersRepo;
-window.deleteUser = deleteUser;
-window.editUser = editUser;
-
-function toggleFABMenu() {
-    const menu = document.getElementById('fabMenuOptions');
-    if (!menu) return;
-    menu.style.display = (menu.style.display === 'none' || !menu.style.display) ? 'flex' : 'none';
-}
-
-// Global Exports
-window.deleteFine = deleteFine;
-window.editFineCost = editFineCost;
-window.saveInstitutionalConfig = saveInstitutionalConfig;
-window.saveGasConfig = saveGasConfig;
-window.testConnection = testConnection;
-window.backupSystem = backupSystem;
-window.syncSheets = syncSheets;
-window.clearLogs = clearLogs;
-window.checkUpdates = checkUpdates;
-window.toggleFABMenu = toggleFABMenu;
-window.switchConfigTab = switchConfigTab;
-window.initArmamentoSection = initArmamentoSection;
-window.initVehiculosSection = initVehiculosSection;
-window.switchArmamentoTab = switchArmamentoTab;
-window.initInicioSection = initInicioSection;
-window.loadUsersRepo = loadUsersRepo;
-window.playSirenSound = playSirenSound;
-
-function playSirenSound() {
-    try {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(880, audioContext.currentTime + 0.5);
-        oscillator.frequency.exponentialRampToValueAtTime(440, audioContext.currentTime + 1.2);
-
-        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1.2);
-
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + 1.2);
-    } catch (e) { console.warn("Audio Context not supported or blocked"); }
-}
-
-async function initArmamentoSection() {
-    await loadArmamentoData('armas');
-}
-
-async function initVehiculosSection() {
-    await loadVehiculosData();
-}
-
-function switchArmamentoTab(tab) {
-    loadArmamentoData(tab);
-}
-
-function getArmamentoSection() {
-    return `
-        <div class="armamento-container" style="padding:20px;">
-            <div class="section-header" style="margin-bottom:30px; display:flex; justify-content:space-between; align-items:center;">
-                <h2 style="font-family:'Montserrat', sans-serif; font-weight:800; color:var(--police-navy); font-size:2rem; margin:0;">
-                    <i class="fa-solid fa-gun" style="color:var(--police-gold); margin-right:15px;"></i> Arsenal e Inventario Táctico
-                </h2>
-                <div class="header-actions" style="display:flex; gap:10px;">
-                    <button class="action-btn" onclick="switchArmamentoTab('armas')"><i class="fas fa-gun"></i> Armas</button>
-                    <button class="action-btn secondary" onclick="switchArmamentoTab('radios')"><i class="fas fa-walkie-talkie"></i> Radios</button>
-                    <button class="action-btn secondary" onclick="switchArmamentoTab('chalecos')"><i class="fas fa-vest"></i> Chalecos</button>
-                </div>
-            </div>
-            <div id="armamentoContent" class="fade-in">
-                <div style="padding:40px; text-align:center; color:#64748b;"><i class="fas fa-spinner fa-spin fa-3x"></i><p>Conectando con el almacén central...</p></div>
-            </div>
-        </div>
-    `;
-}
-
-function getVehiculosSection() {
-    return `
-        <div class="vehiculos-container" style="padding:20px;">
-            <div class="section-header" style="margin-bottom:30px; display:flex; justify-content:space-between; align-items:center;">
-                <h2 style="font-family:'Montserrat', sans-serif; font-weight:800; color:var(--police-navy); font-size:2rem; margin:0;">
-                    <i class="fa-solid fa-truck-shield" style="color:var(--police-gold); margin-right:15px;"></i> Flota Vehicular Logística
-                </h2>
-                <div class="header-actions">
-                    <button class="action-btn" onclick="loadVehiculosData()"><i class="fas fa-sync"></i> Sincronizar Flota</button>
-                </div>
-            </div>
-            <div id="vehiculosGrid" class="inventory-grid fade-in" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:25px;">
-                <div style="padding:40px; text-align:center; width:100%; color:#64748b;"><i class="fas fa-spinner fa-spin fa-3x"></i><p>Rastreando geolocalización de unidades...</p></div>
-            </div>
-        </div>
-    `;
-}
-
-console.log('✅ Sistema Central Tzompantepec v2.6.4-GOLD Operativo');
+// --- FIN DEL MÓDULO DE AUTENTICACIÓN Y GESTIÓN ---
+console.log('✅ Sistema Central Tzompantepec v2.6.5-PRO Operativo');

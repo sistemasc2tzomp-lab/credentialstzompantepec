@@ -107,14 +107,14 @@ function updateEnhancedCredential(data) {
         if (container) {
             container.innerHTML = '';
             const qrCanvas = document.createElement('canvas');
-            // QR de la parte trasera mucho más grande
-            const size = container.id === 'backQR' ? 58 : 80; 
+            // QR de la parte trasera con tamaño óptimo y margen para lectura rápida
+            const size = container.id === 'backQR' ? 75 : 80; 
 
             if (typeof QRCode !== 'undefined' && typeof QRCode.toCanvas === 'function') {
                 QRCode.toCanvas(qrCanvas, validationUrl, {
                     width: size,
-                    margin: 1,
-                    errorCorrectionLevel: 'H',
+                    margin: 2,
+                    errorCorrectionLevel: 'M',
                     color: {
                         dark: '#000000',
                         light: '#ffffff'
@@ -216,7 +216,7 @@ function printEnhancedCredential() {
                     line-height: 1.15;
                 }
                 .p-name { 
-                    top: 178px; left: 148px; 
+                    top: 218px; left: 148px; 
                     font-size: 0.62rem; 
                     color: #0d2652; 
                     max-width: 155px; 
@@ -228,7 +228,7 @@ function printEnhancedCredential() {
                     line-height: 1.0;
                 } 
                 .p-cargo { 
-                    top: 207px; left: 148px; 
+                    top: 247px; left: 148px; 
                     font-size: 0.60rem; 
                     color: #1e3a6e; 
                     max-width: 155px; 
@@ -238,7 +238,7 @@ function printEnhancedCredential() {
                     line-height: 1.0;
                 }
                 .p-cuip { 
-                    top: 235px; left: 148px; 
+                    top: 275px; left: 148px; 
                     font-size: 0.60rem; 
                     font-family: 'Courier New', monospace; 
                     font-weight: 900;
@@ -247,7 +247,7 @@ function printEnhancedCredential() {
                     overflow: hidden;
                 }
                 .p-curp { 
-                    top: 263px; left: 148px; 
+                    top: 303px; left: 148px; 
                     font-size: 0.58rem; 
                     font-family: 'Courier New', monospace; 
                     font-weight: 900; 
@@ -257,12 +257,12 @@ function printEnhancedCredential() {
                     overflow: hidden;
                 }
                 .p-vig  { 
-                    top: 292px; left: 148px; 
+                    top: 332px; left: 148px; 
                     font-size: 0.62rem; 
                     font-weight: 900; 
                 }
                 .p-exp  { 
-                    top: 319px; left: 148px; 
+                    top: 359px; left: 148px; 
                     font-size: 0.58rem; 
                     font-weight: 900; 
                 }
@@ -270,7 +270,7 @@ function printEnhancedCredential() {
                 /* --- Foto del oficial (impresión) --- */
                 .photo-oficial {
                     position: absolute;
-                    top: 178px;
+                    top: 218px;
                     left: 20px;
                     width: 118px;
                     height: 148px;
@@ -300,10 +300,10 @@ function printEnhancedCredential() {
                 /* --- QR trasera --- */
                 .qr-back-print {
                     position: absolute;
-                    bottom: 15px;
-                    right: 20px;
-                    width: 58px;
-                    height: 58px;
+                    bottom: 12px;
+                    right: 25px;
+                    width: 75px;
+                    height: 75px;
                     background: white;
                     display: flex;
                     align-items: center;

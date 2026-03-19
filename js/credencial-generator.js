@@ -108,7 +108,7 @@ function updateEnhancedCredential(data) {
             container.innerHTML = '';
             const qrCanvas = document.createElement('canvas');
             // QR de la parte trasera mucho más grande
-            const size = container.id === 'backQR' ? 120 : 80; 
+            const size = container.id === 'backQR' ? 58 : 80; 
 
             if (typeof QRCode !== 'undefined' && typeof QRCode.toCanvas === 'function') {
                 QRCode.toCanvas(qrCanvas, validationUrl, {
@@ -216,30 +216,30 @@ function printEnhancedCredential() {
                     line-height: 1.15;
                 }
                 .p-name { 
-                    top: 187px; left: 148px; 
-                    font-size: 0.68rem; 
+                    top: 178px; left: 148px; 
+                    font-size: 0.62rem; 
                     color: #0d2652; 
                     max-width: 155px; 
-                    max-height: 25px; 
+                    max-height: 20px; 
                     overflow: hidden; 
                     white-space: normal; 
                     word-break: break-word;
                     font-weight: 900; 
-                    line-height: 1.1;
+                    line-height: 1.0;
                 } 
                 .p-cargo { 
-                    top: 214px; left: 148px; 
-                    font-size: 0.65rem; 
+                    top: 207px; left: 148px; 
+                    font-size: 0.60rem; 
                     color: #1e3a6e; 
                     max-width: 155px; 
-                    max-height: 22px; 
+                    max-height: 18px; 
                     overflow: hidden; 
                     white-space: normal;
-                    line-height: 1.1;
+                    line-height: 1.0;
                 }
                 .p-cuip { 
-                    top: 241px; left: 148px; 
-                    font-size: 0.65rem; 
+                    top: 235px; left: 148px; 
+                    font-size: 0.60rem; 
                     font-family: 'Courier New', monospace; 
                     font-weight: 900;
                     max-width: 155px;
@@ -247,7 +247,7 @@ function printEnhancedCredential() {
                     overflow: hidden;
                 }
                 .p-curp { 
-                    top: 268px; left: 148px; 
+                    top: 263px; left: 148px; 
                     font-size: 0.58rem; 
                     font-family: 'Courier New', monospace; 
                     font-weight: 900; 
@@ -257,13 +257,13 @@ function printEnhancedCredential() {
                     overflow: hidden;
                 }
                 .p-vig  { 
-                    top: 295px; left: 148px; 
-                    font-size: 0.65rem; 
+                    top: 292px; left: 148px; 
+                    font-size: 0.62rem; 
                     font-weight: 900; 
                 }
                 .p-exp  { 
-                    top: 322px; left: 148px; 
-                    font-size: 0.6rem; 
+                    top: 319px; left: 148px; 
+                    font-size: 0.58rem; 
                     font-weight: 900; 
                 }
 
@@ -300,10 +300,10 @@ function printEnhancedCredential() {
                 /* --- QR trasera --- */
                 .qr-back-print {
                     position: absolute;
-                    bottom: 10px;
-                    right: 16px;
-                    width: 95px;
-                    height: 95px;
+                    bottom: 15px;
+                    right: 20px;
+                    width: 58px;
+                    height: 58px;
                     background: white;
                     display: flex;
                     align-items: center;
@@ -311,7 +311,7 @@ function printEnhancedCredential() {
                     border-radius: 6px;
                     padding: 3px;
                 }
-                .qr-back-print img { width: 100%; height: 100%; }
+                .qr-back-print img, .qr-back-print canvas { width: 100% !important; height: 100% !important; }
 
                 @media print {
                     @page { margin: 0; }

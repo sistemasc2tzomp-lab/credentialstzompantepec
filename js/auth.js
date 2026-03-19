@@ -641,19 +641,27 @@ function getMovimientosSection() {
 
     return `
         <div class="employees-section">
-            <div class="section-header">
-                <h2><i class="fas fa-users-shield"></i> Repositorio de Personal Policial</h2>
-                <div class="repository-shield" style="margin-left: auto; margin-right: 20px;">
-                    <img src="assets/escudo_tzomp.png" style="height: 60px; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.1));">
+            <div class="repo-hero" style="background: linear-gradient(135deg, #0a1c34 0%, #06111f 100%); padding: 40px; border-radius: 25px; margin-bottom: 30px; color: white; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.2);">
+                <div style="position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+                    <div style="display: flex; align-items: center; gap: 25px;">
+                        <div style="width: 70px; height: 70px; background: rgba(255,255,255,0.1); border-radius: 18px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
+                            <i class="fas fa-users-shield" style="font-size: 2.2rem; color: var(--police-gold);"></i>
+                        </div>
+                        <div>
+                            <h2 style="margin: 0; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 2.4rem; letter-spacing: -1px; text-transform: uppercase;">Repositorio de Personal Policial</h2>
+                            <p style="margin: 3px 0 0; opacity: 0.7; font-size: 1.1rem; font-weight: 500;">Histórico integral de registros y movimientos</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 15px; align-items: center;">
+                        <button class="action-btn" onclick="showAddEmployeeModal()" style="background: #c5a059; color: #0a192f; border: none; font-weight: 800; padding: 15px 30px; border-radius: 12px; font-size: 1rem; box-shadow: 0 10px 25px rgba(197, 160, 89, 0.3); transition: all 0.3s ease; text-transform: uppercase;">
+                            <i class="fas fa-user-plus"></i> Alta de Personal
+                        </button>
+                        <button class="action-btn secondary" onclick="exportPersonnelData()" style="padding: 15px 20px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); color: white;">
+                            <i class="fas fa-file-export"></i> Exportar
+                        </button>
+                    </div>
                 </div>
-                <div class="header-actions">
-                    <button class="action-btn" onclick="showAddEmployeeModal()">
-                        <i class="fas fa-user-plus"></i> Alta de Personal
-                    </button>
-                    <button class="action-btn secondary" onclick="exportPersonnelData()">
-                        <i class="fas fa-file-export"></i> Exportar
-                    </button>
-                </div>
+                <img src="assets/escudo_tzomp.png" style="position: absolute; right: -50px; bottom: -50px; height: 300px; opacity: 0.1; transform: rotate(-15deg); pointer-events: none;">
             </div>
             
             <div class="filters-card">
@@ -733,23 +741,19 @@ function generateLogsRows(logs) {
 function getReportesSection() {
     return `
         <div class="reportes-modern-container" style="padding: 20px; animation: fadeIn 0.5s ease-out;">
-            <!-- Header Section -->
-            <div class="reports-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px;">
-                <div>
-                    <h1 style="margin: 0; font-family: 'Montserrat', sans-serif; font-weight: 800; color: var(--police-navy); font-size: 2.2rem;">Centro de Inteligencia y Reportes</h1>
-                    <p style="margin: 10px 0 0 0; color: #64748b; font-size: 1.1rem; font-weight: 500;">Análisis detallado de fuerza, vigencia y logística operativa</p>
+            <div class="repo-hero" style="background: linear-gradient(135deg, #0a1c34 0%, #06111f 100%); padding: 40px; border-radius: 25px; margin-bottom: 30px; color: white; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.2);">
+                <div style="position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+                    <div style="display: flex; align-items: center; gap: 25px;">
+                        <div style="width: 70px; height: 70px; background: rgba(255,255,255,0.1); border-radius: 18px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
+                            <i class="fas fa-chart-line" style="font-size: 2.2rem; color: var(--police-gold);"></i>
+                        </div>
+                        <div>
+                            <h2 style="margin: 0; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 2.4rem; letter-spacing: -1px; text-transform: uppercase;">Módulo de Reportes</h2>
+                            <p style="margin: 3px 0 0; opacity: 0.7; font-size: 1.1rem; font-weight: 500;">Análisis ejecutivo de la fuerza operativa en tiempo real</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="quick-actions-row" style="display: flex; gap: 15px;">
-                    <button class="report-action-btn" onclick="exportarReporte('personal_activo', 'pdf')" style="background: #1e40af; color: white; border: none; padding: 12px 25px; border-radius: 12px; font-weight: 700; display: flex; align-items: center; gap: 10px; cursor: pointer; box-shadow: 0 4px 15px rgba(30,64,175, 0.2);">
-                        <i class="fas fa-users-shield"></i> Estado de Fuerza PDF
-                    </button>
-                    <button class="report-action-btn" onclick="exportarReporte('personal_activo', 'excel')" style="background: #f1f5f9; color: #1e293b; border: none; padding: 12px 25px; border-radius: 12px; font-weight: 700; display: flex; align-items: center; gap: 10px; cursor: pointer; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);">
-                        <i class="fas fa-file-excel"></i> Estado de Fuerza Excel
-                    </button>
-                    <button class="report-action-btn" onclick="window.print()" style="background: #0f172a; color: white; border: none; padding: 12px 25px; border-radius: 12px; font-weight: 700; display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                        <i class="fas fa-print"></i> Imprimir Vista
-                    </button>
-                </div>
+                <img src="assets/escudo_tzomp.png" style="position: absolute; right: -50px; bottom: -50px; height: 300px; opacity: 0.1; transform: rotate(-15deg); pointer-events: none;">
             </div>
 
             <!-- Reports Grid -->
@@ -882,16 +886,19 @@ function toggleSidebar() {
 function getDocumentacionSection() {
     return `
         <div class="documentacion-container">
-            <div class="section-header">
-                <h2><i class="fas fa-folder-open"></i> Repositorio Central de Documentación</h2>
-                <div class="repository-shield" style="margin-left: auto; margin-right: 20px;">
-                    <img src="assets/escudo_tzomp.png" style="height: 60px; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.1));">
+            <div class="repo-hero" style="background: linear-gradient(135deg, #0a1c34 0%, #06111f 100%); padding: 40px; border-radius: 25px; margin-bottom: 30px; color: white; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.2);">
+                <div style="position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+                    <div style="display: flex; align-items: center; gap: 25px;">
+                        <div style="width: 70px; height: 70px; background: rgba(255,255,255,0.1); border-radius: 18px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
+                            <i class="fas fa-folder-tree" style="font-size: 2.2rem; color: var(--police-gold);"></i>
+                        </div>
+                        <div>
+                            <h2 style="margin: 0; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 2.4rem; letter-spacing: -1px; text-transform: uppercase;">Expedientes Digitales</h2>
+                            <p style="margin: 3px 0 0; opacity: 0.7; font-size: 1.1rem; font-weight: 500;">Repositorio Central de Documentación SIBIM</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="header-actions">
-                    <button class="action-btn" onclick="showUploadDocModal()">
-                        <i class="fas fa-upload"></i> Cargar Documento
-                    </button>
-                </div>
+                <img src="assets/escudo_tzomp.png" style="position: absolute; right: -50px; bottom: -50px; height: 300px; opacity: 0.1; transform: rotate(-15deg); pointer-events: none;">
             </div>
 
             <div class="card" style="margin-bottom: 25px;">
@@ -1648,8 +1655,8 @@ function getCredencialesSection() {
                 position: absolute;
                 bottom: 12px;
                 right: 18px;
-                width: 105px;
-                height: 105px;
+                width: 65px;
+                height: 65px;
                 background: white;
                 padding: 3px;
                 border-radius: 6px;
@@ -2668,24 +2675,27 @@ function getMultasSection() {
 function getArmamentoSection() {
     return `
         <div class="armamento-container fade-in" style="padding: 20px;">
-            <div class="section-header" style="margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
-                <div style="display: flex; align-items: center; gap: 20px;">
-                    <div style="background: #1a3a6e; padding: 15px; border-radius: 15px; color: white;">
-                        <i class="fa-solid fa-gun" style="font-size: 2rem;"></i>
+            <div class="repo-hero" style="background: linear-gradient(135deg, #0a1c34 0%, #06111f 100%); padding: 40px; border-radius: 25px; margin-bottom: 30px; color: white; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.2);">
+                <div style="position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+                    <div style="display: flex; align-items: center; gap: 25px;">
+                        <div style="width: 70px; height: 70px; background: rgba(255,255,255,0.1); border-radius: 18px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
+                            <i class="fa-solid fa-gun" style="font-size: 2.2rem; color: var(--police-gold);"></i>
+                        </div>
+                        <div>
+                            <h2 style="margin: 0; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 2.4rem; letter-spacing: -1px; text-transform: uppercase;">Inventario de Armamento</h2>
+                            <p style="margin: 3px 0 0; opacity: 0.7; font-size: 1.1rem; font-weight: 500;">Control táctico de arsenal municipal</p>
+                        </div>
                     </div>
-                    <div>
-                        <h2 style="font-size: 2rem; font-weight: 800; color: #0a1c34; margin: 0;">Inventario de Armamento</h2>
-                        <p style="color: #64748b; margin: 0; font-weight: 500;">Control táctico de arsenal municipal</p>
+                    <div style="display: flex; gap: 15px; align-items: center;">
+                        <button class="action-btn" onclick="openArmamentoModal()" style="background: #c5a059; color: #0a192f; border: none; font-weight: 800; padding: 15px 30px; border-radius: 12px; font-size: 1rem; box-shadow: 0 10px 25px rgba(197, 160, 89, 0.3); transition: all 0.3s ease; text-transform: uppercase;">
+                            <i class="fas fa-plus-circle"></i> NUEVO EQUIPO
+                        </button>
+                        <button class="action-btn secondary" onclick="loadArmamentoData()" style="padding: 15px 20px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); color: white;">
+                            <i class="fas fa-sync"></i> Sincronizar
+                        </button>
                     </div>
                 </div>
-                <div style="display: flex; gap: 12px;">
-                    <button class="action-btn" onclick="openArmamentoModal()" style="background: #c5a059; border: none; padding: 12px 25px; border-radius: 12px; font-weight: 700; text-transform: uppercase;">
-                        <i class="fas fa-plus-circle"></i> NUEVO EQUIPO
-                    </button>
-                    <button class="action-btn secondary" onclick="loadArmamentoData()" style="padding: 12px 20px; border-radius: 12px;">
-                        <i class="fas fa-sync"></i> Sincronizar
-                    </button>
-                </div>
+                <img src="assets/escudo_tzomp.png" style="position: absolute; right: -50px; bottom: -50px; height: 300px; opacity: 0.1; transform: rotate(-15deg); pointer-events: none;">
             </div>
 
             <div class="tabs-container" style="display: flex; gap: 10px; margin-bottom: 25px; background: #f1f5f9; padding: 8px; border-radius: 15px; width: fit-content;">
@@ -2704,27 +2714,27 @@ function getArmamentoSection() {
 function getVehiculosSection() {
     return `
         <div class="vehiculos-container fade-in" style="padding: 20px;">
-            <div class="section-header" style="margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
-                <div style="display: flex; align-items: center; gap: 20px;">
-                    <div style="background: #1a3a6e; padding: 15px; border-radius: 15px; color: white;">
-                        <i class="fa-solid fa-car-side" style="font-size: 2rem;"></i>
+            <div class="repo-hero" style="background: linear-gradient(135deg, #0a1c34 0%, #06111f 100%); padding: 40px; border-radius: 25px; margin-bottom: 30px; color: white; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.2);">
+                <div style="position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+                    <div style="display: flex; align-items: center; gap: 25px;">
+                        <div style="width: 70px; height: 70px; background: rgba(255,255,255,0.1); border-radius: 18px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
+                            <i class="fa-solid fa-car-side" style="font-size: 2.2rem; color: var(--police-gold);"></i>
+                        </div>
+                        <div>
+                            <h2 style="margin: 0; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 2.4rem; letter-spacing: -1px; text-transform: uppercase;">Flota Vehicular</h2>
+                            <p style="margin: 3px 0 0; opacity: 0.7; font-size: 1.1rem; font-weight: 500;">Gestión de unidades y patrullas activas</p>
+                        </div>
                     </div>
-                    <div>
-                        <h2 style="font-size: 2rem; font-weight: 800; color: #0a1c34; margin: 0;">Flota Vehicular</h2>
-                        <p style="color: #64748b; margin: 0; font-weight: 500;">Gestión de unidades y patrullas activas</p>
+                    <div style="display: flex; gap: 15px; align-items: center;">
+                        <button class="action-btn" onclick="openVehiculoModal()" style="background: #c5a059; color: #0a192f; border: none; font-weight: 800; padding: 15px 30px; border-radius: 12px; font-size: 1rem; box-shadow: 0 10px 25px rgba(197, 160, 89, 0.3); transition: all 0.3s ease; text-transform: uppercase;">
+                            <i class="fas fa-plus-circle"></i> NUEVA UNIDAD
+                        </button>
+                        <button class="action-btn secondary" onclick="loadVehiculosData()" style="padding: 15px 20px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); color: white;">
+                            <i class="fas fa-sync"></i>
+                        </button>
                     </div>
                 </div>
-                <div style="display: flex; gap: 12px; align-items: center;">
-                    <div class="repository-shield" style="margin-right: 20px;">
-                        <img src="assets/escudo_tzomp.png" style="height: 50px;">
-                    </div>
-                    <button class="action-btn" onclick="openVehiculoModal()" style="background: #3b82f6; border: none; padding: 12px 25px; border-radius: 12px; font-weight: 700; text-transform: uppercase;">
-                        <i class="fas fa-plus-circle"></i> NUEVA UNIDAD
-                    </button>
-                    <button class="action-btn secondary" onclick="loadVehiculosData()" style="padding: 12px 20px; border-radius: 12px;">
-                        <i class="fas fa-sync"></i>
-                    </button>
-                </div>
+                <img src="assets/escudo_tzomp.png" style="position: absolute; right: -50px; bottom: -50px; height: 300px; opacity: 0.1; transform: rotate(-15deg); pointer-events: none;">
             </div>
 
             <div id="vehiculosGrid" class="inventory-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 25px;">

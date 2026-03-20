@@ -1553,61 +1553,46 @@ function getCredencialesSection() {
                 line-height: 1.15;
             }
 
-            .name-abs { 
-                top: 204px; 
-                left: 280px; 
-                font-size: 0.65rem; 
-                max-width: 70px; 
-                white-space: normal;
-                word-break: break-word;
-                overflow: hidden;
-                max-height: 28px;
-                font-weight: 900;
-                color: #0d2652;
+            /* --- Contenedor de Datos Dashboard (Stacked) --- */
+            .preview-data-column {
+                position: absolute;
+                top: 200px;
+                left: 155px;
+                width: 185px;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                background: rgba(255, 255, 255, 0.95);
+                padding: 10px;
+                border-radius: 8px;
+                z-index: 10;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             }
-            .pos-abs  { 
-                top: 234px; 
-                left: 280px; 
-                font-size: 0.62rem; 
+
+            .preview-field-group {
+                display: flex;
+                flex-direction: column;
+                line-height: 1.1;
+            }
+
+            .preview-field-label {
+                font-family: 'Montserrat', sans-serif;
+                font-size: 0.65rem;
+                font-weight: 800;
                 color: #1e3a6e;
-                max-width: 70px;
-                white-space: normal;
-                overflow: hidden;
-                max-height: 26px;
+                text-transform: uppercase;
+                margin-bottom: 2px;
             }
-            .cuip-abs { 
-                top: 264px; 
-                left: 280px; 
-                font-family: 'Courier New', monospace; 
-                letter-spacing: 0px; 
-                font-size: 0.60rem;
-                font-weight: 900;
-                max-width: 70px;
+
+            .preview-field-value {
+                font-family: 'Inter', sans-serif;
+                font-size: 0.75rem;
+                font-weight: 700;
+                color: #000;
+                text-transform: uppercase;
                 white-space: nowrap;
                 overflow: hidden;
-            }
-            .curp-abs { 
-                top: 294px; 
-                left: 280px; 
-                font-family: 'Courier New', monospace; 
-                letter-spacing: -0.3px; 
-                font-size: 0.55rem;
-                font-weight: 900;
-                max-width: 70px;
-                white-space: nowrap;
-                overflow: hidden;
-            }
-            .vig-abs  { 
-                top: 324px; 
-                left: 280px; 
-                font-size: 0.62rem; 
-                font-weight: 900;
-            }
-            .exp-abs  { 
-                top: 354px; 
-                left: 280px; 
-                font-size: 0.60rem; 
-                font-weight: 900;
+                text-overflow: ellipsis;
             }
             
             /* --- FIRMA Y HUELLA --- 
@@ -1710,12 +1695,29 @@ function getCredencialesSection() {
                             <i class="fas fa-user"></i>
                         </div>
                         
-                        <span class="info-val-abs name-abs" id="previewName">---</span>
-                        <span class="info-val-abs pos-abs" id="previewPosition">---</span>
-                        <span class="info-val-abs cuip-abs" id="previewCUIP">---</span>
-                        <span class="info-val-abs curp-abs" id="previewCURP">---</span>
-                        <span class="info-val-abs vig-abs" id="previewVigencia">---</span>
-                        <span class="info-val-abs exp-abs" id="previewExpedicion">---</span>
+                        <!-- Bloque de Datos Dashboard Corregido (Stacked) -->
+                        <div class="preview-data-column">
+                            <div class="preview-field-group">
+                                <span class="preview-field-label">Nombre</span>
+                                <span class="preview-field-value" id="previewName">---</span>
+                            </div>
+                            <div class="preview-field-group">
+                                <span class="preview-field-label">Cargo</span>
+                                <span class="preview-field-value" id="previewPosition">---</span>
+                            </div>
+                            <div class="preview-field-group">
+                                <span class="preview-field-label">CUIP</span>
+                                <span class="preview-field-value" id="previewCUIP">---</span>
+                            </div>
+                            <div class="preview-field-group">
+                                <span class="preview-field-label">Vigencia SIBIM</span>
+                                <span class="preview-field-value" id="previewVigencia">---</span>
+                            </div>
+                            <div class="preview-field-group">
+                                <span class="preview-field-label">Expedición</span>
+                                <span class="preview-field-value" id="previewExpedicion">---</span>
+                            </div>
+                        </div>
 
                         <div class="signature-box-abs" id="previewSignature"></div>
                         <div class="huella-abs" id="previewHuella"></div>

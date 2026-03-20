@@ -206,77 +206,59 @@ function printEnhancedCredential() {
                    VIGENCIA:top 295px
                    FECHA:   top 322px
                 */
-                .val-print-abs {
+                /* --- Contenedor de Datos (Stacked) --- */
+                .data-column {
                     position: absolute;
-                    background: transparent;
-                    color: #0f2b5e;
-                    font-weight: 800;
+                    top: 212px;
+                    left: 140px; /* Margen tras la foto */
+                    width: 170px;
+                    height: 170px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px; /* Espaciado entre campos */
+                    background: rgba(255, 255, 255, 0.96); /* Cubre etiquetas del fondo */
+                    padding: 8px;
+                    border-radius: 6px;
                     z-index: 10;
+                }
+
+                .field-group {
+                    display: flex;
+                    flex-direction: column;
+                    line-height: 1.1;
+                }
+
+                .field-label {
+                    font-family: 'Montserrat', sans-serif;
+                    font-size: 7.5pt;
+                    font-weight: 800;
+                    color: #1e3a6e;
                     text-transform: uppercase;
-                    line-height: 1.15;
+                    margin-bottom: 2px;
                 }
-                .p-name { 
-                    top: 218px; left: 265px; 
-                    font-size: 0.58rem; 
-                    color: #0d2652; 
-                    max-width: 55px; 
-                    max-height: 20px; 
-                    overflow: hidden; 
-                    white-space: normal; 
-                    word-break: break-word;
-                    font-weight: 900; 
-                    line-height: 0.9;
-                } 
-                .p-cargo { 
-                    top: 247px; left: 265px; 
-                    font-size: 0.58rem; 
-                    color: #1e3a6e; 
-                    max-width: 55px; 
-                    max-height: 18px; 
-                    overflow: hidden; 
-                    white-space: normal;
-                    line-height: 0.9;
-                }
-                .p-cuip { 
-                    top: 275px; left: 265px; 
-                    font-size: 0.55rem; 
-                    font-family: 'Courier New', monospace; 
-                    font-weight: 900;
-                    max-width: 55px;
+
+                .field-value {
+                    font-family: 'Inter', sans-serif;
+                    font-size: 8.5pt;
+                    font-weight: 600;
+                    color: #000;
+                    text-transform: uppercase;
                     white-space: nowrap;
                     overflow: hidden;
-                }
-                .p-curp { 
-                    top: 303px; left: 265px; 
-                    font-size: 0.52rem; 
-                    font-family: 'Courier New', monospace; 
-                    font-weight: 900; 
-                    letter-spacing: -0.4px;
-                    max-width: 55px;
-                    white-space: nowrap;
-                    overflow: hidden;
-                }
-                .p-vig  { 
-                    top: 332px; left: 265px; 
-                    font-size: 0.58rem; 
-                    font-weight: 900; 
-                }
-                .p-exp  { 
-                    top: 359px; left: 265px; 
-                    font-size: 0.55rem; 
-                    font-weight: 900; 
+                    text-overflow: ellipsis;
                 }
 
                 /* --- Foto del oficial (impresión) --- */
                 .photo-oficial {
                     position: absolute;
-                    top: 218px;
+                    top: 212px;
                     left: 20px;
-                    width: 118px;
-                    height: 148px;
-                    border-radius: 5px;
+                    width: 110px;  /* ~2.5cm proporcionales */
+                    height: 140px; /* ~3.0cm proporcionales */
+                    border-radius: 4px;
                     overflow: hidden;
                     background: #f0f2f5;
+                    border: 1px solid #ddd;
                 }
                 .photo-oficial img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -334,13 +316,29 @@ function printEnhancedCredential() {
                          onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(data.nombre)}&background=0a192f&color=fff&size=200'">
                 </div>
                 
-                <!-- Campos con posición absoluta recalculada para cubrir los labels del fondo -->
-                <span class="val-print-abs p-name">${data.nombre}</span>
-                <span class="val-print-abs p-cargo">${data.cargo}</span>
-                <span class="val-print-abs p-cuip">${data.cuip || 'ADMINISTRATIVO'}</span>
-                <span class="val-print-abs p-curp">${data.curp}</span>
-                <span class="val-print-abs p-vig">${data.vigencia || '1 AÑO'}</span>
-                <span class="val-print-abs p-exp">${data.fechaExpedicion || fechaExp}</span>
+                <!-- Bloque de Datos Corregido (Stacked) -->
+                <div class="data-column">
+                    <div class="field-group">
+                        <span class="field-label">Nombre</span>
+                        <span class="field-value">${data.nombre}</span>
+                    </div>
+                    <div class="field-group">
+                        <span class="field-label">Cargo</span>
+                        <span class="field-value">${data.cargo}</span>
+                    </div>
+                    <div class="field-group">
+                        <span class="field-label">CUIP</span>
+                        <span class="field-value">${data.cuip || '---'}</span>
+                    </div>
+                    <div class="field-group">
+                        <span class="field-label">Vigencia SIBIM</span>
+                        <span class="field-value">${data.vigencia || 'OFICIAL'}</span>
+                    </div>
+                    <div class="field-group">
+                        <span class="field-label">Expedición</span>
+                        <span class="field-value">${data.fechaExpedicion || fechaExp}</span>
+                    </div>
+                </div>
 
                 <div class="qr-box-print">
                     <img src="${qrDataUrl}">

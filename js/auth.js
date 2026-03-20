@@ -1553,59 +1553,83 @@ function getCredencialesSection() {
                 line-height: 1.15;
             }
 
-            /* --- Contenedor de Datos Dashboard (Stacked) --- */
+            /* --- Contenedor de Datos Dashboard (Transparente v2.4.0) --- */
             .preview-data-column {
                 position: absolute;
                 top: 200px;
                 left: 155px;
                 width: 185px;
+                max-height: 190px; /* 5 grupos × 38px — NO cubre firma ni huella (top:400px) */
+                overflow: hidden;  /* Evita desbordamiento hacia zona de firma/huella */
                 display: flex;
                 flex-direction: column;
-                gap: 12px;
-                background: rgba(255, 255, 255, 0.95);
-                padding: 10px;
-                border-radius: 8px;
+                gap: 0;
+                background: transparent !important; /* Fondo totalmente transparente */
+                background-color: transparent !important;
+                padding: 0;
                 z-index: 10;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             }
 
             .preview-field-group {
-                display: flex;
-                flex-direction: column;
-                line-height: 1.1;
+                position: relative;
+                height: 38px; /* Alto exacto, no más */
+                width: 100%;
+                background: transparent !important;
+                background-color: transparent !important;
             }
 
             .preview-field-label {
+                position: absolute;
+                top: 0;
+                left: 0;
                 font-family: 'Montserrat', sans-serif;
                 font-size: 0.65rem;
                 font-weight: 800;
                 color: #1e3a6e;
                 text-transform: uppercase;
-                margin-bottom: 2px;
+                background: transparent !important;
+                background-color: transparent !important;
+                border: none !important;
+                padding: 0;
+                margin: 0;
             }
 
             .preview-field-value {
+                position: absolute;
+                top: 16px; /* Offset 16px desde la etiqueta */
+                left: 0;
+                width: 100%;
                 font-family: 'Inter', sans-serif;
                 font-size: 0.75rem;
                 font-weight: 700;
-                color: #000;
+                color: #1a1a2e; /* Negro oscuro — contraste sobre fondo azul */
                 text-transform: uppercase;
+                background: transparent !important; /* SIN FONDO BLANCO */
+                background-color: transparent !important;
+                border: none !important; /* SIN BORDE */
+                outline: none;
+                box-shadow: none;
+                padding: 0;
+                margin: 0;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
             }
             
-            /* --- FIRMA Y HUELLA --- 
-               Según el fondo, "FIRMA DEL TITULAR" está en ~71% top,
-               "HUELLA DACTILAR" a la derecha */
+            /* --- FIRMA Y HUELLA ---
+               "FIRMA DEL TITULAR" impresa en el fondo a ~71% top (≈390px).
+               "HUELLA DACTILAR" a la derecha. Ambas zonas SIEMPRE visibles.
+               NINGÚN campo de texto debe tener fondo ni cubrir estas áreas. */
             .signature-box-abs {
                 position: absolute;
                 top: 400px;
                 left: 22px;
                 width: 135px;
                 height: 55px;
-                z-index: 5;
-                background: transparent;
+                z-index: 15; /* Por encima de cualquier campo de texto */
+                background: transparent !important;
+                background-color: transparent !important;
+                border: none !important;
             }
             .huella-abs {
                 position: absolute;
@@ -1613,8 +1637,10 @@ function getCredencialesSection() {
                 right: 30px;
                 width: 120px;
                 height: 55px;
-                z-index: 5;
-                background: transparent;
+                z-index: 15; /* Por encima de cualquier campo de texto */
+                background: transparent !important;
+                background-color: transparent !important;
+                border: none !important;
             }
 
             /* --- QR FRONTAL (oculto, el fondo no lo necesita) --- */

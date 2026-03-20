@@ -207,48 +207,70 @@ function printEnhancedCredential() {
                    FECHA:   top 322px
                 */
                 /* --- Contenedor de Datos (Stacked) --- */
+                /* --- Contenedor de Datos (Transparente v2.4.0) --- */
                 .data-column {
                     position: absolute;
                     top: 212px;
-                    left: 140px; /* Margen tras la foto */
-                    width: 170px;
-                    height: 170px;
+                    left: 140px;
+                    width: 175px;
+                    max-height: 185px; /* 5 grupos x 37px: no cubre firma/huella */
+                    overflow: hidden;
                     display: flex;
                     flex-direction: column;
-                    gap: 12px; /* Espaciado entre campos */
-                    background: rgba(255, 255, 255, 0.96); /* Cubre etiquetas del fondo */
-                    padding: 8px;
-                    border-radius: 6px;
+                    gap: 0;
+                    background: transparent !important;
+                    background-color: transparent !important;
+                    padding: 0;
                     z-index: 10;
                 }
 
                 .field-group {
-                    display: flex;
-                    flex-direction: column;
-                    line-height: 1.1;
+                    position: relative;
+                    height: 37px; /* Step obligatorio v2.3.1 */
+                    width: 100%;
+                    background: transparent !important;
+                    background-color: transparent !important;
                 }
 
                 .field-label {
+                    position: absolute;
+                    top: 0; /* Y etiqueta */
+                    left: 0;
                     font-family: 'Montserrat', sans-serif;
                     font-size: 7.5pt;
                     font-weight: 800;
                     color: #1e3a6e;
                     text-transform: uppercase;
-                    margin-bottom: 2px;
+                    background: transparent !important;
+                    background-color: transparent !important;
+                    border: none !important;
+                    padding: 0;
+                    margin: 0;
                 }
 
                 .field-value {
+                    position: absolute;
+                    top: 16px;
+                    left: 0;
+                    width: 100%;
                     font-family: 'Inter', sans-serif;
                     font-size: 8.5pt;
-                    font-weight: 600;
-                    color: #000;
+                    font-weight: 700;
+                    color: #1a1a2e; /* Negro oscuro para contraste */
                     text-transform: uppercase;
+                    background: transparent !important; /* SIN FONDO BLANCO */
+                    background-color: transparent !important;
+                    border: none !important; /* SIN BORDE */
+                    outline: none;
+                    box-shadow: none;
+                    padding: 0;
+                    margin: 0;
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
                 }
 
-                /* --- Foto del oficial (impresión) --- */
+                /* --- Foto del oficial (impresion) --- */
                 .photo-oficial {
                     position: absolute;
                     top: 212px;
@@ -257,8 +279,8 @@ function printEnhancedCredential() {
                     height: 140px; /* ~3.0cm proporcionales */
                     border-radius: 4px;
                     overflow: hidden;
-                    background: #f0f2f5;
-                    border: 1px solid #ddd;
+                    background: transparent; /* Sin fondo opaco */
+                    border: none; /* Sin borde visible */
                 }
                 .photo-oficial img { width: 100%; height: 100%; object-fit: cover; }
 

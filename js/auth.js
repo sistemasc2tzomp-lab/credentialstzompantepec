@@ -1555,9 +1555,9 @@ function getCredencialesSection() {
 
             .name-abs { 
                 top: 204px; 
-                left: 165px; 
-                font-size: 0.72rem; 
-                max-width: 170px; 
+                left: 280px; 
+                font-size: 0.65rem; 
+                max-width: 70px; 
                 white-space: normal;
                 word-break: break-word;
                 overflow: hidden;
@@ -1567,46 +1567,46 @@ function getCredencialesSection() {
             }
             .pos-abs  { 
                 top: 234px; 
-                left: 165px; 
-                font-size: 0.68rem; 
+                left: 280px; 
+                font-size: 0.62rem; 
                 color: #1e3a6e;
-                max-width: 170px;
+                max-width: 70px;
                 white-space: normal;
                 overflow: hidden;
                 max-height: 26px;
             }
             .cuip-abs { 
                 top: 264px; 
-                left: 165px; 
+                left: 280px; 
                 font-family: 'Courier New', monospace; 
                 letter-spacing: 0px; 
-                font-size: 0.68rem;
+                font-size: 0.60rem;
                 font-weight: 900;
-                max-width: 170px;
+                max-width: 70px;
                 white-space: nowrap;
                 overflow: hidden;
             }
             .curp-abs { 
                 top: 294px; 
-                left: 165px; 
+                left: 280px; 
                 font-family: 'Courier New', monospace; 
                 letter-spacing: -0.3px; 
-                font-size: 0.62rem;
+                font-size: 0.55rem;
                 font-weight: 900;
-                max-width: 175px;
+                max-width: 70px;
                 white-space: nowrap;
                 overflow: hidden;
             }
             .vig-abs  { 
                 top: 324px; 
-                left: 165px; 
-                font-size: 0.7rem; 
+                left: 280px; 
+                font-size: 0.62rem; 
                 font-weight: 900;
             }
             .exp-abs  { 
                 top: 354px; 
-                left: 165px; 
-                font-size: 0.65rem; 
+                left: 280px; 
+                font-size: 0.60rem; 
                 font-weight: 900;
             }
             

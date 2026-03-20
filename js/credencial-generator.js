@@ -216,54 +216,54 @@ function printEnhancedCredential() {
                     line-height: 1.15;
                 }
                 .p-name { 
-                    top: 218px; left: 148px; 
-                    font-size: 0.62rem; 
+                    top: 218px; left: 265px; 
+                    font-size: 0.58rem; 
                     color: #0d2652; 
-                    max-width: 155px; 
+                    max-width: 55px; 
                     max-height: 20px; 
                     overflow: hidden; 
                     white-space: normal; 
                     word-break: break-word;
                     font-weight: 900; 
-                    line-height: 1.0;
+                    line-height: 0.9;
                 } 
                 .p-cargo { 
-                    top: 247px; left: 148px; 
-                    font-size: 0.60rem; 
+                    top: 247px; left: 265px; 
+                    font-size: 0.58rem; 
                     color: #1e3a6e; 
-                    max-width: 155px; 
+                    max-width: 55px; 
                     max-height: 18px; 
                     overflow: hidden; 
                     white-space: normal;
-                    line-height: 1.0;
+                    line-height: 0.9;
                 }
                 .p-cuip { 
-                    top: 275px; left: 148px; 
-                    font-size: 0.60rem; 
+                    top: 275px; left: 265px; 
+                    font-size: 0.55rem; 
                     font-family: 'Courier New', monospace; 
                     font-weight: 900;
-                    max-width: 155px;
+                    max-width: 55px;
                     white-space: nowrap;
                     overflow: hidden;
                 }
                 .p-curp { 
-                    top: 303px; left: 148px; 
-                    font-size: 0.58rem; 
+                    top: 303px; left: 265px; 
+                    font-size: 0.52rem; 
                     font-family: 'Courier New', monospace; 
                     font-weight: 900; 
-                    letter-spacing: -0.3px;
-                    max-width: 160px;
+                    letter-spacing: -0.4px;
+                    max-width: 55px;
                     white-space: nowrap;
                     overflow: hidden;
                 }
                 .p-vig  { 
-                    top: 332px; left: 148px; 
-                    font-size: 0.62rem; 
+                    top: 332px; left: 265px; 
+                    font-size: 0.58rem; 
                     font-weight: 900; 
                 }
                 .p-exp  { 
-                    top: 359px; left: 148px; 
-                    font-size: 0.58rem; 
+                    top: 359px; left: 265px; 
+                    font-size: 0.55rem; 
                     font-weight: 900; 
                 }
 

@@ -206,14 +206,13 @@ function printEnhancedCredential() {
                    VIGENCIA:top 295px
                    FECHA:   top 322px
                 */
-                /* --- Contenedor de Datos (Stacked) --- */
                 /* --- Contenedor de Datos (Transparente v2.4.0) --- */
                 .data-column {
                     position: absolute;
                     top: 212px;
                     left: 140px;
                     width: 175px;
-                    max-height: 185px; /* 5 grupos x 37px: no cubre firma/huella */
+                    max-height: 180px; /* 5 grupos x 35px: garantiza no cubrir firma/huellar */
                     overflow: hidden;
                     display: flex;
                     flex-direction: column;
@@ -226,15 +225,16 @@ function printEnhancedCredential() {
 
                 .field-group {
                     position: relative;
-                    height: 37px; /* Step obligatorio v2.3.1 */
+                    height: 35px; /* Reducido para mayor margen con zona de firma */
                     width: 100%;
                     background: transparent !important;
                     background-color: transparent !important;
+                    border: none !important;
                 }
 
                 .field-label {
                     position: absolute;
-                    top: 0; /* Y etiqueta */
+                    top: 0;
                     left: 0;
                     font-family: 'Montserrat', sans-serif;
                     font-size: 7.5pt;
@@ -243,26 +243,23 @@ function printEnhancedCredential() {
                     text-transform: uppercase;
                     background: transparent !important;
                     background-color: transparent !important;
-                    border: none !important;
                     padding: 0;
                     margin: 0;
                 }
 
                 .field-value {
                     position: absolute;
-                    top: 16px;
+                    top: 16px; /* Offset 16px desde la etiqueta */
                     left: 0;
                     width: 100%;
                     font-family: 'Inter', sans-serif;
                     font-size: 8.5pt;
                     font-weight: 700;
-                    color: #1a1a2e; /* Negro oscuro para contraste */
+                    color: #1a1a2e;
                     text-transform: uppercase;
-                    background: transparent !important; /* SIN FONDO BLANCO */
+                    background: transparent !important;
                     background-color: transparent !important;
-                    border: none !important; /* SIN BORDE */
-                    outline: none;
-                    box-shadow: none;
+                    border: none !important;
                     padding: 0;
                     margin: 0;
                     white-space: nowrap;
@@ -275,13 +272,14 @@ function printEnhancedCredential() {
                     position: absolute;
                     top: 212px;
                     left: 20px;
-                    width: 110px;  /* ~2.5cm proporcionales */
-                    height: 140px; /* ~3.0cm proporcionales */
+                    width: 110px;
+                    height: 140px;
                     border-radius: 4px;
                     overflow: hidden;
-                    background: transparent; /* Sin fondo opaco */
-                    border: none; /* Sin borde visible */
+                    background: transparent !important;
+                    border: none !important;
                 }
+
                 .photo-oficial img { width: 100%; height: 100%; object-fit: cover; }
 
                 /* --- QR frontal (oculto) --- */

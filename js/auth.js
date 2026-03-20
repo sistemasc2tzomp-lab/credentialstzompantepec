@@ -168,6 +168,23 @@ function getCurrentUserRole() {
     return currentUser ? currentUser.role : 'invitado';
 }
 
+/**
+ * Genera el encabezado estándar para todos los módulos
+ * Point 9 del Overhaul 2026
+ */
+function getStandardHeaderHTML(title, subtitle) {
+    return `
+        <div class="standard-header">
+            <img src="assets/escudo_tzomp.png" class="header-logo" alt="Escudo Tzompantepec">
+            <div class="header-center">
+                <h1>${title}</h1>
+                <p>${subtitle}</p>
+            </div>
+            <img src="assets/c2_logo.png" class="header-logo" alt="Logo C2">
+        </div>
+    `;
+}
+
 // Comprobar si tiene permiso para una acción específica
 function tienePermiso(accion) {
     const rol = (getCurrentUserRole() || '').toUpperCase();
@@ -451,12 +468,34 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Menu toggle
+    // Menu toggle (Mobile)
     const menuToggle = document.getElementById('menuToggle');
     if (menuToggle) {
         menuToggle.addEventListener('click', function () {
             document.querySelector('.sidebar').classList.toggle('active');
         });
+    }
+
+    // Sidebar toggle (Desktop Collapse)
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('collapsed');
+            
+            // Trigger chart resize if exists
+            if (window.myCharts) {
+                Object.values(window.myCharts).forEach(chart => chart.resize());
+            }
+            
+            // Save state
+            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+        });
+        
+        // Restore state
+        if (localStorage.getItem('sidebarCollapsed') === 'true') {
+            document.getElementById('sidebar').classList.add('collapsed');
+        }
     }
 
     // Navigation
@@ -640,29 +679,8 @@ function getMovimientosSection() {
     const logs = getFilteredLogs();
 
     return `
-        <div class="employees-section">
-            <div class="repo-hero" style="background: linear-gradient(135deg, #0a1c34 0%, #06111f 100%); padding: 40px; border-radius: 25px; margin-bottom: 30px; color: white; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.2);">
-                <div style="position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
-                    <div style="display: flex; align-items: center; gap: 25px;">
-                        <div style="width: 70px; height: 70px; background: rgba(255,255,255,0.1); border-radius: 18px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
-                            <i class="fas fa-users-shield" style="font-size: 2.2rem; color: var(--police-gold);"></i>
-                        </div>
-                        <div>
-                            <h2 style="margin: 0; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 2.4rem; letter-spacing: -1px; text-transform: uppercase;">Repositorio de Personal Policial</h2>
-                            <p style="margin: 3px 0 0; opacity: 0.7; font-size: 1.1rem; font-weight: 500;">Histórico integral de registros y movimientos</p>
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 15px; align-items: center;">
-                        <button class="action-btn" onclick="showAddEmployeeModal()" style="background: #c5a059; color: #0a192f; border: none; font-weight: 800; padding: 15px 30px; border-radius: 12px; font-size: 1rem; box-shadow: 0 10px 25px rgba(197, 160, 89, 0.3); transition: all 0.3s ease; text-transform: uppercase;">
-                            <i class="fas fa-user-plus"></i> Alta de Personal
-                        </button>
-                        <button class="action-btn secondary" onclick="exportPersonnelData()" style="padding: 15px 20px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); color: white;">
-                            <i class="fas fa-file-export"></i> Exportar
-                        </button>
-                    </div>
-                </div>
-                <img src="assets/escudo_tzomp.png" style="position: absolute; right: -50px; bottom: -50px; height: 300px; opacity: 0.1; transform: rotate(-15deg); pointer-events: none;">
-            </div>
+        <div class="movimientos-section fade-in">
+
             
             <div class="filters-card">
                 <h3>Filtros</h3>
@@ -740,21 +758,8 @@ function generateLogsRows(logs) {
 // Sección de Reportes
 function getReportesSection() {
     return `
-        <div class="reportes-modern-container" style="padding: 20px; animation: fadeIn 0.5s ease-out;">
-            <div class="repo-hero" style="background: linear-gradient(135deg, #0a1c34 0%, #06111f 100%); padding: 40px; border-radius: 25px; margin-bottom: 30px; color: white; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.2);">
-                <div style="position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
-                    <div style="display: flex; align-items: center; gap: 25px;">
-                        <div style="width: 70px; height: 70px; background: rgba(255,255,255,0.1); border-radius: 18px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
-                            <i class="fas fa-chart-line" style="font-size: 2.2rem; color: var(--police-gold);"></i>
-                        </div>
-                        <div>
-                            <h2 style="margin: 0; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 2.4rem; letter-spacing: -1px; text-transform: uppercase;">Módulo de Reportes</h2>
-                            <p style="margin: 3px 0 0; opacity: 0.7; font-size: 1.1rem; font-weight: 500;">Análisis ejecutivo de la fuerza operativa en tiempo real</p>
-                        </div>
-                    </div>
-                </div>
-                <img src="assets/escudo_tzomp.png" style="position: absolute; right: -50px; bottom: -50px; height: 300px; opacity: 0.1; transform: rotate(-15deg); pointer-events: none;">
-            </div>
+        <div class="reportes-modern-container fade-in" style="padding: 10px;">
+
 
             <!-- Reports Grid -->
             <div class="reports-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px;">
@@ -885,21 +890,8 @@ function toggleSidebar() {
 
 function getDocumentacionSection() {
     return `
-        <div class="documentacion-container">
-            <div class="repo-hero" style="background: linear-gradient(135deg, #0a1c34 0%, #06111f 100%); padding: 40px; border-radius: 25px; margin-bottom: 30px; color: white; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.2);">
-                <div style="position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
-                    <div style="display: flex; align-items: center; gap: 25px;">
-                        <div style="width: 70px; height: 70px; background: rgba(255,255,255,0.1); border-radius: 18px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
-                            <i class="fas fa-folder-tree" style="font-size: 2.2rem; color: var(--police-gold);"></i>
-                        </div>
-                        <div>
-                            <h2 style="margin: 0; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 2.4rem; letter-spacing: -1px; text-transform: uppercase;">Expedientes Digitales</h2>
-                            <p style="margin: 3px 0 0; opacity: 0.7; font-size: 1.1rem; font-weight: 500;">Repositorio Central de Documentación SIBIM</p>
-                        </div>
-                    </div>
-                </div>
-                <img src="assets/escudo_tzomp.png" style="position: absolute; right: -50px; bottom: -50px; height: 300px; opacity: 0.1; transform: rotate(-15deg); pointer-events: none;">
-            </div>
+        <div class="documentacion-container fade-in" style="padding: 10px;">
+
 
             <div class="card" style="margin-bottom: 25px;">
                 <div class="search-bar" style="margin-bottom: 0;">
@@ -1279,14 +1271,8 @@ function clearLogFilters() {
 
 function getInicioSection() {
     return `
-        <div class="dashboard-inicio">
-            <div class="welcome-banner" style="background: linear-gradient(135deg, #0a192f 0%, #1a3a6e 100%); color: white; padding: 40px; border-radius: 20px; margin-bottom: 30px; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
-                <div style="position: relative; z-index: 2;">
-                    <h1 style="font-size: 2.5rem; margin-bottom: 10px;">Panel de Inteligencia Policial</h1>
-                    <p style="opacity: 0.8; font-size: 1.1rem; max-width: 600px;">Bienvenido al sistema central de monitoreo y gestión táctica de Tzompantepec. Visualiza las métricas clave de la fuerza pública en tiempo real.</p>
-                </div>
-                <i class="fas fa-shield-alt" style="position: absolute; right: -50px; bottom: -50px; font-size: 25rem; opacity: 0.05; transform: rotate(-15deg);"></i>
-            </div>
+        <div class="dashboard-inicio fade-in">
+
 
             <div class="stats-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 25px; margin-bottom: 35px;">
                 <div class="metric-card" style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-bottom: 5px solid #c5a059;">
@@ -1394,29 +1380,8 @@ function getInicioSection() {
 
 function getPersonalSection() {
     return `
-        <div class="gestion-personal-container fade-in" style="padding: 20px; max-width: 1600px; margin: 0 auto;">
-            <div class="repo-hero" style="background: linear-gradient(135deg, #0a1c34 0%, #06111f 100%); padding: 40px; border-radius: 25px; margin-bottom: 30px; color: white; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.2);">
-                <div style="position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
-                    <div style="display: flex; align-items: center; gap: 25px;">
-                        <div style="width: 70px; height: 70px; background: rgba(255,255,255,0.1); border-radius: 18px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
-                            <i class="fas fa-id-card" style="font-size: 2.2rem; color: var(--police-gold);"></i>
-                        </div>
-                        <div>
-                            <h2 style="margin: 0; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 2.4rem; letter-spacing: -1px; text-transform: uppercase;">Repositorio de Identidad</h2>
-                            <p style="margin: 3px 0 0; opacity: 0.7; font-size: 1.1rem; font-weight: 500;">Sistema Centralizado de Expedientes y Credencialización</p>
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 15px;">
-                        <button class="action-btn" onclick="showAddEmployeeModal()" style="background: #c5a059; color: #0a192f; border: none; font-weight: 800; padding: 15px 30px; border-radius: 12px; font-size: 1rem; box-shadow: 0 10px 25px rgba(197, 160, 89, 0.3); transition: all 0.3s ease; text-transform: uppercase;">
-                            <i class="fas fa-plus"></i> NUEVO REGISTRO
-                        </button>
-                        <button class="action-btn secondary" onclick="refreshAllData()" style="padding: 15px 20px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); color: white;">
-                            <i class="fas fa-sync"></i> ACTUALIZAR
-                        </button>
-                    </div>
-                </div>
-                <img src="assets/escudo_tzomp.png" style="position: absolute; right: -50px; bottom: -50px; height: 300px; opacity: 0.1; transform: rotate(-15deg); pointer-events: none;">
-            </div>
+        <div class="gestion-personal-container fade-in" style="padding: 10px;">
+
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px;">
                 <div class="stat-premium" style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.02); border-left: 5px solid #1a3a6e;">
@@ -1617,31 +1582,34 @@ function getCredencialesSection() {
             }
             
             /* --- FIRMA Y HUELLA ---
-               "FIRMA DEL TITULAR" impresa en el fondo a ~71% top (≈390px).
-               "HUELLA DACTILAR" a la derecha. Ambas zonas SIEMPRE visibles.
-               NINGÚN campo de texto debe tener fondo ni cubrir estas áreas. */
+               Zonas críticas que nunca deben ser tapadas.
+               z-index alto y fondos transparentes. */
             .signature-box-abs {
                 position: absolute;
-                top: 400px;
-                left: 22px;
-                width: 135px;
-                height: 55px;
-                z-index: 15; /* Por encima de cualquier campo de texto */
+                top: 405px;
+                left: 30px;
+                width: 130px;
+                height: 60px;
+                z-index: 50; 
                 background: transparent !important;
-                background-color: transparent !important;
-                border: none !important;
+                border: 1.5px dashed rgba(15, 43, 94, 0.2) !important;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
             .huella-abs {
                 position: absolute;
-                top: 400px;
-                right: 30px;
-                width: 120px;
-                height: 55px;
-                z-index: 15; /* Por encima de cualquier campo de texto */
+                top: 405px;
+                right: 35px;
+                width: 110px;
+                height: 60px;
+                z-index: 50;
                 background: transparent !important;
-                background-color: transparent !important;
-                border: none !important;
+                border: 1.5px dashed rgba(15, 43, 94, 0.2) !important;
+                border-radius: 8px;
             }
+
 
             /* --- QR FRONTAL (oculto, el fondo no lo necesita) --- */
             .qr-frontal-pos {
@@ -1689,29 +1657,6 @@ function getCredencialesSection() {
         </style>
 
         <div class="credenciales-section" style="max-width: 1600px; margin: 0 auto;">
-            <div class="repo-hero" style="background: linear-gradient(135deg, #0a1c34 0%, #06111f 100%); padding: 40px; border-radius: 25px; margin-bottom: 30px; color: white; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.2);">
-                <div style="position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
-                    <div style="display: flex; align-items: center; gap: 25px;">
-                        <div style="width: 70px; height: 70px; background: rgba(255,255,255,0.1); border-radius: 18px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
-                            <i class="fas fa-id-card" style="font-size: 2.2rem; color: var(--police-gold);"></i>
-                        </div>
-                        <div>
-                            <h2 style="margin: 0; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 2.4rem; letter-spacing: -1px; text-transform: uppercase;">Emisión de Credenciales SIBIM</h2>
-                            <p style="margin: 3px 0 0; opacity: 0.7; font-size: 1.1rem; font-weight: 500;">Módulo de Impresión y Previsualización Oficial</p>
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 15px;">
-                        <button class="action-btn" onclick="printEnhancedCredential()" style="background: #c5a059; color: #0a192f; border: none; font-weight: 800; padding: 15px 30px; border-radius: 12px; font-size: 1rem; box-shadow: 0 10px 25px rgba(197, 160, 89, 0.3); transition: all 0.3s ease; text-transform: uppercase;">
-                            <i class="fas fa-print"></i> Imprimir
-                        </button>
-                        <button class="action-btn secondary" onclick="downloadCredential()" style="padding: 15px 20px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); color: white;">
-                            <i class="fas fa-download"></i> Digital
-                        </button>
-                    </div>
-                </div>
-                <img src="assets/escudo_tzomp.png" style="position: absolute; right: -50px; bottom: -50px; height: 300px; opacity: 0.1; transform: rotate(-15deg); pointer-events: none;">
-            </div>
-
             <div class="credential-grid" style="display: flex; gap: 30px; justify-content: center; align-items: flex-start; padding: 40px; background: #f1f5f9; border-radius: 24px; overflow-x: auto;">
                 
                 <div class="card-column">
@@ -1781,28 +1726,8 @@ function getRepositorioSection() {
     };
 
     return `
-        <div class="repositorio-completo" >
-            <div class="section-header" style="margin-bottom: 30px;">
-                <h2 style="font-family:'Montserrat', sans-serif; font-weight:800; color:var(--police-navy); font-size:2rem;">
-                    <i class="fa-solid fa-database" style="color:var(--police-gold); margin-right:15px;"></i> Repositorio de Personal
-                </h2>
-                <div class="repository-shield" style="margin-left: auto; margin-right: 20px;">
-                    <img src="assets/escudo_tzomp.png" style="height: 60px; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.1));">
-                </div>
-                <div class="header-actions">
-                    ${tienePermiso('crear') ? `
-                    <button class="action-btn primary" onclick="showAddEmployeeModal()" style="background:var(--police-gold); color:var(--police-navy); font-weight:700;">
-                        <i class="fa-solid fa-user-plus"></i> Nuevo Personal
-                    </button>
-                    ` : ''}
-                    <button class="action-btn" onclick="exportPersonnelData()">
-                        <i class="fa-solid fa-file-export"></i> Exportar
-                    </button>
-                    <button class="action-btn secondary" onclick="refreshPersonnelData()">
-                        <i class="fa-solid fa-rotate"></i> Actualizar
-                    </button>
-                </div>
-            </div>
+        <div class="repositorio-completo fade-in" >
+
 
             <!--Estadísticas rápidas con 3D-->
             <div class="stats-overview" style="margin-bottom: 35px;">
@@ -1953,23 +1878,8 @@ function getC3Section() {
     setTimeout(() => window.initC3Section(), 100);
 
     return `
-        <div class="repositorio-c3" style = "animation: slideInRight 0.5s ease-out;" >
-            <div class="section-header" style="margin-bottom: 30px; border-bottom: 2px solid #3b82f6; padding-bottom: 20px;">
-                <h2 style="font-family:'Montserrat', sans-serif; font-weight:800; color:var(--police-navy); font-size:2.2rem; margin:0;">
-                    <i class="fa-solid fa-microchip" style="color:#3b82f6; margin-right:15px;"></i> Centro de Control y Comando (C3)
-                </h2>
-                <div class="repository-shield" style="margin-left: auto; margin-right: 20px;">
-                    <img src="assets/escudo_tzomp.png" style="height: 60px; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.1));">
-                </div>
-                <div class="header-actions">
-                    <button class="action-btn" onclick="exportPersonnelData()" style="background:#3b82f6; color:white; border-radius:12px; box-shadow:0 10px 20px rgba(59,130,246,0.2);">
-                        <i class="fa-solid fa-file-shield"></i> Reporte de Confianza
-                    </button>
-                    <button class="action-btn secondary" onclick="refreshPersonnelData()" style="border-radius:12px;">
-                        <i class="fa-solid fa-dna"></i> Sincronizar Biometría
-                    </button>
-                </div>
-            </div>
+        <div class="repositorio-c3 fade-in" >
+
             
             <div class="stats-overview" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:20px; margin-bottom:30px;">
                 <div class="card" style="background:white; padding:20px; border-radius:15px; border-left:5px solid #3b82f6; display:flex; align-items:center; gap:15px;">
@@ -2009,81 +1919,8 @@ function getC3Section() {
 
 function getC5iSection() {
     return `
-        <div class="repositorio-c5i" style = "animation: slideInLeft 0.5s ease-out;" >
-            <div class="section-header" style="margin-bottom: 30px; border-bottom: 2px solid #8b5cf6; padding-bottom: 20px;">
-                <h2 style="font-family:'Montserrat', sans-serif; font-weight:800; color:var(--police-navy); font-size:2.2rem; margin:0;">
-                    <i class="fa-solid fa-satellite-dish" style="color:#8b5cf6; margin-right:15px;"></i> Inteligencia C5i
-                </h2>
-                <div class="repository-shield" style="margin-left: auto; margin-right: 20px;">
-                    <img src="assets/escudo_tzomp.png" style="height: 60px; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.1));">
-                </div>
-                <div class="header-actions">
-                    <button class="action-btn" onclick="exportPersonnelData()" style="background:#8b5cf6; color:white; border-radius:12px; box-shadow:0 10px 20px rgba(139,92,246,0.2);">
-                        <i class="fa-solid fa-tower-broadcast"></i> Enlace C5i
-                    </button>
-                    <button class="action-btn secondary" onclick="refreshPersonnelData()" style="border-radius:12px;">
-                        <i class="fa-solid fa-radar"></i> Escaneo de Fuerza
-                    </button>
-                </div>
-            </div>
+        <div class="repositorio-c5i fade-in" >
 
-            <div class="c5i-dashboard" style="display:grid; grid-template-columns: 2fr 1fr; gap:25px; margin-bottom:30px;">
-                <div class="card glass-card" style="padding:25px; border-radius:20px; background:linear-gradient(135deg, white, #f5f3ff);">
-                    <h4 style="color:#8b5cf6; margin-bottom:20px;"><i class="fas fa-map-marked-alt"></i> Despliegue Operativo</h4>
-                    <div style="height:200px; background:#e2e8f0; border-radius:15px; display:flex; align-items:center; justify-content:center; color:#64748b; border: 2px dashed #cbd5e1;">
-                        <span style="font-weight:700;"><i class="fas fa-radar fa-spin"></i> SINCRONIZANDO MAPA C5i TLAXCALA...</span>
-                    </div>
-                </div>
-                <div class="card glass-card" style="padding:25px; border-radius:20px; background:linear-gradient(135deg, #8b5cf6, #7c3aed); color:white;">
-                    <h4><i class="fas fa-broadcast-tower"></i> Estado de Red</h4>
-                    <div style="font-size:3rem; font-weight:900; margin:20px 0;">ONLINE</div>
-                    <p style="opacity:0.8;">Canal de datos encriptado estable para Tzompantepec.</p>
-                </div>
-            </div>
-
-            <div class="table-container card-3d" style="background:white; padding:15px; border-radius:20px; box-shadow:0 20px 40px rgba(0,0,0,0.08);">
-                <table class="data-table enhanced" id="personnelTable">
-                    <thead>
-                        <tr>
-                            <th>ACTIVO</th>
-                            <th>NOMBRE / ELEMENTO</th>
-                            <th>CUIP</th>
-                            <th>RADIO / MATRA</th>
-                            <th>UNIDAD ASIGNADA</th>
-                            <th>STATUS RED</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody">
-                        <tr><td colspan="6" class="text-center" style="padding:40px;">Conectando terminal satelital e integrando con C5i TLAXCALA...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        `;
-}
-
-function getC5iSection() {
-    return `
-        <div class="repositorio-c5i" style="animation: slideInLeft 0.5s ease-out;">
-            <div class="section-header" style="margin-bottom: 30px; border-bottom: 2px solid #8b5cf6; padding-bottom: 20px;">
-                <h2 style="font-family:'Montserrat', sans-serif; font-weight:800; color:var(--police-navy); font-size:2.2rem; margin:0;">
-                    <i class="fa-solid fa-satellite-dish" style="color:#8b5cf6; margin-right:15px;"></i> Terminal C5i Tlaxcala
-                </h2>
-                <div class="repository-shield" style="margin-left: auto; margin-right: 20px;">
-                    <img src="assets/escudo_tzomp.png" style="height: 60px; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.1));">
-                </div>
-                <div class="header-actions">
-                    <button class="action-btn" onclick="syncC5iData()" style="background:#8b5cf6; color:white; border-radius:12px; box-shadow:0 10px 20px rgba(139,92,246,0.2);">
-                        <i class="fa-solid fa-tower-broadcast"></i> Enlace C5i
-                    </button>
-                    <button class="action-btn secondary" onclick="refreshC5iTable()" style="border-radius:12px;">
-                        <i class="fa-solid fa-radar"></i> Escaneo de Fuerza
-                    </button>
-                    <button class="action-btn" onclick="exportarReporte('c5i_records','pdf')" style="background:#ef4444;color:white;border-radius:12px;">
-                        <i class="fas fa-file-pdf"></i> Reporte C5i
-                    </button>
-                </div>
-            </div>
 
             <div class="c5i-dashboard" style="display:grid; grid-template-columns: 2fr 1fr; gap:25px; margin-bottom:30px;">
                 <!-- Mapa interactivo Leaflet -->
@@ -2254,19 +2091,7 @@ window.syncC5iData = syncC5iData;
 function getQRRepoSection() {
     return `
         <div class="qr-repository-container" >
-            <div class="section-header" style="margin-bottom: 30px;">
-                <h2 style="font-family:'Montserrat', sans-serif; font-weight:800; color:var(--police-navy); font-size:2rem;">
-                    <i class="fa-solid fa-qrcode" style="color:var(--police-navy); margin-right:15px;"></i> Repositorio de Códigos QR
-                </h2>
-                <div class="repository-shield" style="margin-left: auto; margin-right: 20px;">
-                    <img src="assets/escudo_tzomp.png" style="height: 60px; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.1));">
-                </div>
-                <div class="header-actions">
-                    <button class="action-btn" onclick="window.print()" style="background:var(--police-navy); color:white;">
-                        <i class="fa-solid fa-print"></i> Imprimir Galería
-                    </button>
-                </div>
-            </div>
+
             
             <div class="qr-search-bar" style="margin-bottom: 35px; background:white; padding:20px; border-radius:15px; box-shadow:0 10px 25px rgba(0,0,0,0.05);">
                 <div class="search-input-wrapper" style="position: relative; max-width: 500px; margin:0 auto;">
@@ -2287,20 +2112,13 @@ function getQRRepoSection() {
 function getInventarioSection() {
     return `
         <div class="inventario-container" >
-            <div class="section-header" style="margin-bottom: 30px;">
-                <div>
-                    <h2 style="font-family:'Montserrat', sans-serif; font-weight:800; color:var(--police-navy); font-size:2rem; margin:0;">
-                        <i class="fa-solid fa-boxes-stacked" style="color:var(--police-gold); margin-right:15px;"></i> Control de Resguardo de Equipo
-                    </h2>
-                    <p style="color:#64748b; margin:5px 0 0 0; font-size:0.9rem;">
-                        <i class="fa-solid fa-circle-dot" style="color:#10b981;"></i>
-                        Conectado a Google Sheets &nbsp;·&nbsp; Última sincronización: <span id="lastSyncTime">--</span>
-                    </p>
-                </div>
-                <div class="repository-shield" style="margin-left: auto; margin-right: 20px;">
-                    <img src="assets/escudo_tzomp.png" style="height: 60px; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.1));">
-                </div>
-                <div class="header-actions">
+            <div class="inventory-status-bar" style="margin-bottom: 20px; padding: 10px 20px; background: white; border-radius: 10px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                <i class="fa-solid fa-circle-dot" style="color:#10b981;"></i>
+                <p style="color:#64748b; margin:0; font-size:0.9rem; font-weight: 600;">
+                    Conectado a Google Sheets &nbsp;·&nbsp; Última sincronización: <span id="lastSyncTime">--</span>
+                </p>
+            </div>
+
                     <button class="action-btn" onclick="refreshInventory()" style="background:var(--police-navy); color:white; font-weight:700;">
                         <i class="fa-solid fa-rotate"></i> Sincronizar
                     </button>
@@ -2529,16 +2347,8 @@ function getConfiguracionSection() {
     const sheetId = typeof SPREADSHEET_ID_CONFIG !== 'undefined' ? SPREADSHEET_ID_CONFIG : '';
 
     return `
-        <div class="config-container" style = "animation: fadeIn 0.5s ease-out;" >
-        <div class="section-header" style="margin-bottom: 30px;">
-            <h2 style="font-size: 2.2rem; font-weight: 800; color: var(--police-navy); margin: 0; display: flex; align-items: center; gap: 15px;">
-                <i class="fas fa-tools" style="color: var(--police-gold);"></i> Panel de Control Maestro
-            </h2>
-            <div class="repository-shield" style="margin-left: auto; margin-right: 20px;">
-                <img src="assets/escudo_tzomp.png" style="height: 60px; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.1));">
-            </div>
-            <p style="color:#64748b; margin-top:5px;">Configuración global táctica de la infraestructura C2</p>
-        </div>
+        <div class="config-container fade-in" >
+
 
         <div class="config-nav-tabs" style="display: flex; gap: 10px; margin-bottom: 30px; background: #f1f5f9; padding: 10px; border-radius: 15px;">
             <button class="config-tab-btn active" onclick="switchConfigTab('general', event)" style="flex:1; padding:15px; border:none; border-radius:10px; cursor:pointer; font-weight:700; background:white; color:var(--police-navy); box-shadow:0 4px 6px rgba(0,0,0,0.05); transition:all 0.3s;">GENERAL</button>
@@ -2562,28 +2372,8 @@ function getConfiguracionSection() {
 
 function getMultasSection() {
     return `
-        <div class="multas-container" style = "animation: fadeIn 0.5s ease-out;" >
-            <div class="section-header" style="margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.8); padding: 20px; border-radius: 20px; backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
-                <div>
-                    <h2 style="font-size: 2.2rem; font-weight: 800; color: var(--police-navy); margin: 0; display: flex; align-items: center; gap: 15px;">
-                        <i class="fa-solid fa-receipt" style="color: #ef4444;"></i> Repositorio de Multas
-                    </h2>
-                    <p style="color: #64748b; margin: 5px 0 0 0; font-weight: 500;">Control estratégico de vialidad • Tzompantepec</p>
-                </div>
-                <div class="repository-shield" style="margin-left: auto; margin-right: 20px;">
-                    <img src="assets/escudo_tzomp.png" style="height: 60px; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.1));">
-                </div>
-                <div class="header-actions" style="display: flex; gap: 12px;">
-                    <button class="action-btn" onclick="showNewFineModal()" style="padding: 12px 25px; border-radius: 12px; font-weight: 700; background: #059669; color: white; border: 2px solid #059669; box-shadow: 0 4px 15px rgba(5, 150, 105, 0.4); text-transform: uppercase; letter-spacing: 1px; cursor: pointer;">
-                        <i class="fas fa-plus-circle"></i> NUEVA INFRACCIÓN
-                    </button>
-                    ${tienePermiso('exportar') ? `
-                    <button class="action-btn secondary" onclick="exportFines()" style="border-radius: 12px; padding: 12px 20px;">
-                        <i class="fas fa-file-export"></i> Corte de Caja
-                    </button>
-                    ` : ''}
-                </div>
-            </div>
+        <div class="multas-container fade-in" >
+
 
             <div class="stats-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 35px;">
                 <div class="card" style="border: none; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border-left: 6px solid #ef4444;">
@@ -2702,29 +2492,8 @@ function getMultasSection() {
 }
 function getArmamentoSection() {
     return `
-        <div class="armamento-container fade-in" style="padding: 20px;">
-            <div class="repo-hero" style="background: linear-gradient(135deg, #0a1c34 0%, #06111f 100%); padding: 40px; border-radius: 25px; margin-bottom: 30px; color: white; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.2);">
-                <div style="position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
-                    <div style="display: flex; align-items: center; gap: 25px;">
-                        <div style="width: 70px; height: 70px; background: rgba(255,255,255,0.1); border-radius: 18px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
-                            <i class="fa-solid fa-gun" style="font-size: 2.2rem; color: var(--police-gold);"></i>
-                        </div>
-                        <div>
-                            <h2 style="margin: 0; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 2.4rem; letter-spacing: -1px; text-transform: uppercase;">Inventario de Armamento</h2>
-                            <p style="margin: 3px 0 0; opacity: 0.7; font-size: 1.1rem; font-weight: 500;">Control táctico de arsenal municipal</p>
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 15px; align-items: center;">
-                        <button class="action-btn" onclick="openArmamentoModal()" style="background: #c5a059; color: #0a192f; border: none; font-weight: 800; padding: 15px 30px; border-radius: 12px; font-size: 1rem; box-shadow: 0 10px 25px rgba(197, 160, 89, 0.3); transition: all 0.3s ease; text-transform: uppercase;">
-                            <i class="fas fa-plus-circle"></i> NUEVO EQUIPO
-                        </button>
-                        <button class="action-btn secondary" onclick="loadArmamentoData()" style="padding: 15px 20px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); color: white;">
-                            <i class="fas fa-sync"></i> Sincronizar
-                        </button>
-                    </div>
-                </div>
-                <img src="assets/escudo_tzomp.png" style="position: absolute; right: -50px; bottom: -50px; height: 300px; opacity: 0.1; transform: rotate(-15deg); pointer-events: none;">
-            </div>
+        <div class="armamento-container fade-in" style="padding: 10px;">
+
 
             <div class="tabs-container" style="display: flex; gap: 10px; margin-bottom: 25px; background: #f1f5f9; padding: 8px; border-radius: 15px; width: fit-content;">
                 <button class="tab-btn active" id="tab-armas" onclick="switchArmamentoTab('armas')" style="padding: 10px 25px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">ARMAS</button>
@@ -2741,29 +2510,8 @@ function getArmamentoSection() {
 
 function getVehiculosSection() {
     return `
-        <div class="vehiculos-container fade-in" style="padding: 20px;">
-            <div class="repo-hero" style="background: linear-gradient(135deg, #0a1c34 0%, #06111f 100%); padding: 40px; border-radius: 25px; margin-bottom: 30px; color: white; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.2);">
-                <div style="position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
-                    <div style="display: flex; align-items: center; gap: 25px;">
-                        <div style="width: 70px; height: 70px; background: rgba(255,255,255,0.1); border-radius: 18px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
-                            <i class="fa-solid fa-car-side" style="font-size: 2.2rem; color: var(--police-gold);"></i>
-                        </div>
-                        <div>
-                            <h2 style="margin: 0; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 2.4rem; letter-spacing: -1px; text-transform: uppercase;">Flota Vehicular</h2>
-                            <p style="margin: 3px 0 0; opacity: 0.7; font-size: 1.1rem; font-weight: 500;">Gestión de unidades y patrullas activas</p>
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 15px; align-items: center;">
-                        <button class="action-btn" onclick="openVehiculoModal()" style="background: #c5a059; color: #0a192f; border: none; font-weight: 800; padding: 15px 30px; border-radius: 12px; font-size: 1rem; box-shadow: 0 10px 25px rgba(197, 160, 89, 0.3); transition: all 0.3s ease; text-transform: uppercase;">
-                            <i class="fas fa-plus-circle"></i> NUEVA UNIDAD
-                        </button>
-                        <button class="action-btn secondary" onclick="loadVehiculosData()" style="padding: 15px 20px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); color: white;">
-                            <i class="fas fa-sync"></i>
-                        </button>
-                    </div>
-                </div>
-                <img src="assets/escudo_tzomp.png" style="position: absolute; right: -50px; bottom: -50px; height: 300px; opacity: 0.1; transform: rotate(-15deg); pointer-events: none;">
-            </div>
+        <div class="vehiculos-container fade-in" style="padding: 10px;">
+
 
             <div id="vehiculosGrid" class="inventory-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 25px;">
                 <!-- Cargado via JS -->
@@ -2785,21 +2533,8 @@ function getUsuariosSection() {
         `;
     }
     return `
-        <div class="usuarios-container">
-            <div class="section-header">
-                <h2><i class="fas fa-user-shield"></i> Gestión de Usuarios y Roles</h2>
-                <div class="repository-shield" style="margin-left: auto; margin-right: 20px;">
-                    <img src="assets/escudo_tzomp.png" style="height: 60px; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.1));">
-                </div>
-                <div class="header-actions">
-                    <button class="action-btn" onclick="showAddUserModal()">
-                        <i class="fas fa-plus"></i> Nuevo Usuario
-                    </button>
-                    <button class="action-btn secondary" onclick="loadUsersRepo()">
-                        <i class="fas fa-sync"></i> Sincronizar
-                    </button>
-                </div>
-            </div>
+        <div class="usuarios-container fade-in" style="padding: 10px;">
+
             
             <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 30px;">
                 <div class="stat-card" style="border-left: 4px solid #10b981;">
@@ -3391,7 +3126,22 @@ function fileToBase64(file) {
     });
 }
 
+// Función para generar el encabezado estándar de los módulos
+function getStandardHeader(title, subtitle, icon = 'fa-shield-halved', color = '#ffd700') {
+    return `
+        <div class="standard-header">
+            <img src="assets/escudo_tzomp.png" alt="Escudo" class="header-logo">
+            <div class="header-center">
+                <h1>${title}</h1>
+                <p><i class="fas ${icon}" style="color: ${color}"></i> ${subtitle}</p>
+            </div>
+            <img src="assets/escudo_tzomp.png" alt="Escudo" class="header-logo" style="opacity: 0.5; filter: grayscale(1);">
+        </div>
+    `;
+}
+
 function loadSection(section) {
+
     const rol = getCurrentUserRole();
 
     // Validar permisos de acceso a secciones completas
@@ -3406,68 +3156,126 @@ function loadSection(section) {
     }
 
     const contentArea = document.getElementById('contentArea');
+    let sectionHtml = '';
+    let headerConfig = { title: '', subtitle: '', icon: 'fa-shield-halved', actionsHtml: '' };
 
     switch (section) {
         case 'inicio':
-            contentArea.innerHTML = getInicioSection();
+            headerConfig = { 
+                title: 'Dashboard Principal', 
+                subtitle: 'Panel de Control del Sistema SIBIM v2.4.0', 
+                icon: 'fa-th-large',
+                actionsHtml: `<button class="action-btn" onclick="refreshDashboard()" style="background:var(--police-navy); color:white;"><i class="fa-solid fa-rotate"></i> Actualizar</button>`
+            };
+            sectionHtml = getInicioSection();
             break;
         case 'personal':
-            contentArea.innerHTML = getPersonalSection();
+            headerConfig = { 
+                title: 'Gestión de Personal', 
+                subtitle: 'Registro y Administración de Elementos de Seguridad', 
+                icon: 'fa-users-viewfinder',
+                actionsHtml: `
+                    <button class="action-btn" onclick="showAddEmployeeModal()" style="background: var(--police-gold); color: var(--police-navy); border: none; font-weight: 800; padding: 12px 25px; border-radius: 10px; font-size: 0.9rem; box-shadow: 0 4px 15px rgba(197, 160, 89, 0.2); transition: all 0.3s ease; text-transform: uppercase;">
+                        <i class="fas fa-plus"></i> NUEVO REGISTRO
+                    </button>
+                    <button class="action-btn secondary" onclick="refreshAllData()" style="padding: 12px 20px; border-radius: 10px; background: #f1f5f9; border: 1px solid #e2e8f0; color: var(--police-navy); font-weight: 600;">
+                        <i class="fas fa-sync"></i> ACTUALIZAR
+                    </button>
+                `
+            };
+            sectionHtml = getPersonalSection();
             setTimeout(loadPersonnelTable, 100);
             break;
         case 'armamento':
-            contentArea.innerHTML = getArmamentoSection();
+            headerConfig = { title: 'Armamento y Equipo', subtitle: 'Control de Inventario y Resguardo Guevara', icon: 'fa-gun' };
+            sectionHtml = getArmamentoSection();
             setTimeout(initArmamentoSection, 100);
             break;
         case 'vehiculos':
-            contentArea.innerHTML = getVehiculosSection();
+            headerConfig = { title: 'Flota Vehicular', subtitle: 'Control de Patrullas y Mantenimiento Operativo', icon: 'fa-car-on' };
+            sectionHtml = getVehiculosSection();
             setTimeout(initVehiculosSection, 100);
             break;
         case 'credenciales':
-            contentArea.innerHTML = getCredencialesSection();
+            headerConfig = { title: 'Emisión Credenciales', subtitle: 'Generación de Identificaciones Oficiales con QR', icon: 'fa-id-card-clip' };
+            sectionHtml = getCredencialesSection();
             setTimeout(initCredencialesSection, 100);
             break;
         case 'repositorio':
-            contentArea.innerHTML = getRepositorioSection();
-            // Cargar datos del repositorio
+            headerConfig = { title: 'Repositorio Central', subtitle: 'Base de Datos Maestra de Seguridad Pública', icon: 'fa-database' };
+            sectionHtml = getRepositorioSection();
             setTimeout(loadPersonnelData, 100);
             break;
         case 'c3':
-            contentArea.innerHTML = getC3Section();
+            headerConfig = { title: 'Control de Confianza', subtitle: 'Estatus de Evaluaciones y Certificaciones C3', icon: 'fa-user-shield' };
+            sectionHtml = getC3Section();
             setTimeout(loadPersonnelData, 100);
             break;
         case 'c5i':
-            contentArea.innerHTML = getC5iSection();
+            headerConfig = { title: 'Inteligencia C5i', subtitle: 'Terminal Activa de Despacho y Videovigilancia', icon: 'fa-microchip' };
+            sectionHtml = getC5iSection();
             setTimeout(() => initC5iSection(), 100);
             break;
         case 'movimientos':
-            contentArea.innerHTML = getMovimientosSection();
+            headerConfig = { title: 'Bitácora Sistema', subtitle: 'Registro de Auditoría y Movimientos de Usuarios', icon: 'fa-clock-rotate-left' };
+            sectionHtml = getMovimientosSection();
             break;
         case 'reportes':
-            contentArea.innerHTML = getReportesSection();
+            headerConfig = { title: 'Análisis y Reportes', subtitle: 'Estadísticas delictivas y Operativas', icon: 'fa-chart-pie' };
+            sectionHtml = getReportesSection();
             break;
         case 'usuarios':
-            contentArea.innerHTML = getUsuariosSection();
+            headerConfig = { title: 'Gestión de Usuarios', subtitle: 'Control de Acceso y Roles del Sistema', icon: 'fa-user-gear' };
+            sectionHtml = getUsuariosSection();
             break;
         case 'qr-repo':
-            contentArea.innerHTML = getQRRepoSection();
+            headerConfig = { 
+                title: 'Repositorio QR', 
+                subtitle: 'Códigos de Validación de Credenciales SIBIM', 
+                icon: 'fa-qrcode',
+                actionsHtml: `<button class="action-btn" onclick="window.print()" style="background:var(--police-navy); color:white;"><i class="fa-solid fa-print"></i> Imprimir Galería</button>`
+            };
+            sectionHtml = getQRRepoSection();
             break;
         case 'inventario':
-            contentArea.innerHTML = getInventarioSection();
+            headerConfig = { 
+                title: 'Inventario General', 
+                subtitle: 'Control de Equipo Táctico y Administrativo', 
+                icon: 'fa-box-open',
+                actionsHtml: `
+                    <button class="action-btn" onclick="refreshInventory()" style="background:var(--police-navy); color:white; font-weight:700;">
+                        <i class="fa-solid fa-rotate"></i> Sincronizar
+                    </button>
+                    <button class="action-btn secondary" onclick="exportInventoryExcel()">
+                        <i class="fa-solid fa-file-excel"></i> Excel
+                    </button>
+                `
+            };
+            sectionHtml = getInventarioSection();
             break;
         case 'multas':
-            contentArea.innerHTML = getMultasSection();
+            headerConfig = { title: 'Control de Multas', subtitle: 'Registro e Infracciones de Tránsito', icon: 'fa-receipt' };
+            sectionHtml = getMultasSection();
             break;
         case 'documentacion':
-            contentArea.innerHTML = getDocumentacionSection();
+            headerConfig = { title: 'Expedientes Digitales', subtitle: 'Documentación Legal y Administrativa del Personal', icon: 'fa-folder-tree' };
+            sectionHtml = getDocumentacionSection();
             break;
         case 'configuracion':
-            contentArea.innerHTML = getConfiguracionSection();
+            headerConfig = { title: 'Configuración', subtitle: 'Parámetros Globales del Sistema SIBIM', icon: 'fa-sliders' };
+            sectionHtml = getConfiguracionSection();
             setTimeout(initConfiguracionSection, 100);
             break;
+        default:
+            sectionHtml = `<h2>Sección ${section} en construcción</h2>`;
     }
 
+    // Inyectar encabezado + contenido
+    contentArea.innerHTML = getStandardHeader(headerConfig.title, headerConfig.subtitle, headerConfig.icon, headerConfig.actionsHtml) + sectionHtml;
+
+
     // Disparar evento de sección cargada
+
     document.dispatchEvent(new CustomEvent('sectionLoaded', { detail: section }));
 
     // Registrar la visualización de la sección

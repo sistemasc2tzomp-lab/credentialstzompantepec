@@ -21,9 +21,10 @@ body {
 }
 
 .nav-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 1rem 2rem;
+    width: 100%;
+    max-width: 100vw;
+    margin: 0;
+    padding: 1rem 4%;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -73,9 +74,10 @@ body {
 
 /* Hero Section */
 .hero {
-    padding: 8rem 2rem 4rem;
-    max-width: 1200px;
-    margin: 0 auto;
+    padding: 8rem 4% 4rem;
+    width: 100%;
+    max-width: 100vw;
+    margin: 0;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 4rem;
@@ -143,11 +145,13 @@ body {
 }
 
 .features-grid {
-    max-width: 1200px;
+    width: 100%;
+    max-width: 100vw;
     margin: 0 auto;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 2rem;
+    padding: 0 4%;
 }
 
 .feature-card {
@@ -302,6 +306,48 @@ body {
 }
 
 /* Dashboard Styles */
+/* Dashboard Styles */
+/* Standard Header System */
+.standard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 4%;
+    background: linear-gradient(to right, #0a192f, #1a3a5f);
+    border-bottom: 3px solid #c5a059;
+    color: white;
+    width: 100%;
+}
+
+.standard-header .header-logo {
+    max-height: 70px;
+    width: auto;
+    object-fit: contain;
+}
+
+.standard-header .header-center {
+    text-align: center;
+    flex: 1;
+}
+
+.standard-header h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin: 0;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #ffd700;
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+}
+
+.standard-header p {
+    font-size: 0.9rem;
+    margin: 5px 0 0;
+    opacity: 0.8;
+    letter-spacing: 1px;
+}
+
 .dashboard {
     display: flex;
     min-height: 100vh;
@@ -322,13 +368,30 @@ body {
 }
 
 .sidebar.collapsed {
-    width: 80px;
+    width: 70px;
+}
+
+.sidebar.collapsed .sidebar-header span,
+.sidebar.collapsed .sidebar-nav span,
+.sidebar.collapsed .nav-category {
+    display: none;
+}
+
+.sidebar.collapsed .sidebar-nav a {
+    justify-content: center;
+    padding: 0.75rem;
+}
+
+.sidebar.collapsed .sidebar-nav a i {
+    font-size: 1.4rem;
+    margin: 0;
 }
 
 .sidebar-header {
     padding: 1.5rem;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 10px;
     font-size: 1.2rem;
     font-weight: 700;
@@ -338,6 +401,27 @@ body {
     position: sticky;
     top: 0;
     z-index: 10;
+}
+
+.sidebar-toggle {
+    background: none;
+    border: none;
+    color: #c5a059;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 5px;
+    transition: transform 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-toggle:hover {
+    color: #ffd700;
+}
+
+.sidebar.collapsed .sidebar-toggle {
+    transform: rotate(180deg);
 }
 
 .sidebar-nav {
@@ -492,17 +576,26 @@ body {
         justify-content: center;
     }
 
-    .main-content {
-        margin-left: 0 !important;
-        width: 100%;
-    }
-
     .menu-toggle {
         display: block;
     }
 }
 
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-height: 100vh;
+    background: #f8fafc;
+}
 
+.content {
+    padding: 0;
+    width: 100%;
+    max-width: 100vw;
+    flex: 1;
+}
 
 .top-bar {
     background: white;
@@ -569,9 +662,17 @@ body {
     cursor: pointer;
 }
 
-.content {
-    padding: 2rem;
+/* Credential Field Global Fixes (Transparency) */
+.preview-field-label, .preview-field-value, 
+.field-label, .field-value {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
 }
+
+
 
 /* Credential Styles */
 .credential-container {

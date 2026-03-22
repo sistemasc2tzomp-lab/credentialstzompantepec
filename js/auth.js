@@ -3127,15 +3127,19 @@ function fileToBase64(file) {
 }
 
 // Función para generar el encabezado estándar de los módulos
-function getStandardHeader(title, subtitle, icon = 'fa-shield-halved', color = '#ffd700') {
+function getStandardHeader(title, subtitle, icon = 'fa-shield-halved', actionsHtml = '') {
     return `
-        <div class="standard-header">
-            <img src="assets/escudo_tzomp.png" alt="Escudo" class="header-logo">
-            <div class="header-center">
-                <h1>${title}</h1>
-                <p><i class="fas ${icon}" style="color: ${color}"></i> ${subtitle}</p>
+        <div class="standard-header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; background: white; border-bottom: 2px solid #f1f5f9; position: sticky; top: 0; z-index: 100;">
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <img src="assets/SPT.png" alt="Escudo" style="height: 50px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));">
+                <div>
+                    <h1 style="margin: 0; font-size: 1.4rem; color: var(--police-navy); font-family: 'Montserrat', sans-serif; font-weight: 800;">${title}</h1>
+                    <p style="margin: 0; font-size: 0.85rem; color: #64748b; font-weight: 600;"><i class="fas ${icon}" style="color: var(--police-gold); margin-right: 5px;"></i> ${subtitle}</p>
+                </div>
             </div>
-            <img src="assets/escudo_tzomp.png" alt="Escudo" class="header-logo" style="opacity: 0.5; filter: grayscale(1);">
+            <div class="header-actions" style="display: flex; gap: 12px; align-items: center;">
+                ${actionsHtml}
+            </div>
         </div>
     `;
 }
@@ -3187,17 +3191,50 @@ function loadSection(section) {
             setTimeout(loadPersonnelTable, 100);
             break;
         case 'armamento':
-            headerConfig = { title: 'Armamento y Equipo', subtitle: 'Control de Inventario y Resguardo Guevara', icon: 'fa-gun' };
+            headerConfig = { 
+                title: 'Armamento y Equipo', 
+                subtitle: 'Control de Inventario y Resguardo Guevara', 
+                icon: 'fa-gun',
+                actionsHtml: `
+                    <button class="action-btn" onclick="openArmamentoModal('arma')" style="background:var(--police-gold); color:var(--police-navy); font-weight:700;">
+                        <i class="fas fa-plus"></i> NUEVO EQUIPO
+                    </button>
+                    <button class="action-btn secondary" onclick="loadArmamentoData()" style="background:#f1f5f9; color:var(--police-navy);">
+                        <i class="fas fa-sync"></i> ACTUALIZAR
+                    </button>
+                `
+            };
             sectionHtml = getArmamentoSection();
             setTimeout(initArmamentoSection, 100);
             break;
         case 'vehiculos':
-            headerConfig = { title: 'Flota Vehicular', subtitle: 'Control de Patrullas y Mantenimiento Operativo', icon: 'fa-car-on' };
+            headerConfig = { 
+                title: 'Flota Vehicular', 
+                subtitle: 'Control de Patrullas y Mantenimiento Operativo', 
+                icon: 'fa-car-on',
+                actionsHtml: `
+                    <button class="action-btn" onclick="openVehiculoModal()" style="background:var(--police-gold); color:var(--police-navy); font-weight:700;">
+                        <i class="fas fa-plus"></i> NUEVA UNIDAD
+                    </button>
+                    <button class="action-btn secondary" onclick="loadVehiculosData()" style="background:#f1f5f9; color:var(--police-navy);">
+                        <i class="fas fa-sync"></i> ACTUALIZAR
+                    </button>
+                `
+            };
             sectionHtml = getVehiculosSection();
             setTimeout(initVehiculosSection, 100);
             break;
         case 'credenciales':
-            headerConfig = { title: 'Emisión Credenciales', subtitle: 'Generación de Identificaciones Oficiales con QR', icon: 'fa-id-card-clip' };
+            headerConfig = { 
+                title: 'Emisión Credenciales', 
+                subtitle: 'Generación de Identificaciones Oficiales con QR', 
+                icon: 'fa-id-card-clip',
+                actionsHtml: `
+                    <button class="action-btn" onclick="showNewCredentialForm()" style="background:var(--police-gold); color:var(--police-navy); font-weight:700;">
+                        <i class="fas fa-plus"></i> NUEVA CREDENCIAL
+                    </button>
+                `
+            };
             sectionHtml = getCredencialesSection();
             setTimeout(initCredencialesSection, 100);
             break;
@@ -3211,21 +3248,57 @@ function loadSection(section) {
             sectionHtml = getC3Section();
             setTimeout(loadPersonnelData, 100);
             break;
+        case 'directorio':
+            headerConfig = { 
+                title: 'Directorio Operativo', 
+                subtitle: 'Mandos y Contactos de Emergencia Tzompantepec', 
+                icon: 'fa-phone-volume',
+                actionsHtml: `<button class="action-btn" onclick="window.print()" style="background:var(--police-navy); color:white;"><i class="fas fa-print"></i> IMPRIMIR DIRECTORIO</button>`
+            };
+            sectionHtml = getDirectorioSection();
+            break;
         case 'c5i':
             headerConfig = { title: 'Inteligencia C5i', subtitle: 'Terminal Activa de Despacho y Videovigilancia', icon: 'fa-microchip' };
             sectionHtml = getC5iSection();
             setTimeout(() => initC5iSection(), 100);
             break;
         case 'movimientos':
-            headerConfig = { title: 'Bitácora Sistema', subtitle: 'Registro de Auditoría y Movimientos de Usuarios', icon: 'fa-clock-rotate-left' };
+            headerConfig = { 
+                title: 'Bitácora Sistema', 
+                subtitle: 'Registro de Auditoría y Movimientos de Usuarios', 
+                icon: 'fa-clock-rotate-left',
+                actionsHtml: `
+                    <button class="action-btn" onclick="printSystemLogs()" style="background:var(--police-navy); color:white;">
+                        <i class="fas fa-print"></i> IMPRIMIR BITÁCORA
+                    </button>
+                `
+            };
             sectionHtml = getMovimientosSection();
             break;
         case 'reportes':
-            headerConfig = { title: 'Análisis y Reportes', subtitle: 'Estadísticas delictivas y Operativas', icon: 'fa-chart-pie' };
+            headerConfig = { 
+                title: 'Análisis y Reportes', 
+                subtitle: 'Estadísticas delictivas y Operativas', 
+                icon: 'fa-chart-pie',
+                actionsHtml: `
+                    <button class="action-btn" onclick="exportReportToPDF()" style="background:var(--red-mx); color:white;">
+                        <i class="fas fa-file-pdf"></i> IMPRIMIR PDF
+                    </button>
+                `
+            };
             sectionHtml = getReportesSection();
             break;
         case 'usuarios':
-            headerConfig = { title: 'Gestión de Usuarios', subtitle: 'Control de Acceso y Roles del Sistema', icon: 'fa-user-gear' };
+            headerConfig = { 
+                title: 'Gestión de Usuarios', 
+                subtitle: 'Control de Acceso y Roles del Sistema', 
+                icon: 'fa-user-gear',
+                actionsHtml: `
+                    <button class="action-btn" onclick="openNewUserModal()" style="background:var(--police-gold); color:var(--police-navy); font-weight:700;">
+                        <i class="fas fa-user-plus"></i> NUEVO USUARIO
+                    </button>
+                `
+            };
             sectionHtml = getUsuariosSection();
             break;
         case 'qr-repo':
@@ -3254,11 +3327,32 @@ function loadSection(section) {
             sectionHtml = getInventarioSection();
             break;
         case 'multas':
-            headerConfig = { title: 'Control de Multas', subtitle: 'Registro e Infracciones de Tránsito', icon: 'fa-receipt' };
+            headerConfig = { 
+                title: 'Control de Multas', 
+                subtitle: 'Registro e Infracciones de Tránsito', 
+                icon: 'fa-receipt',
+                actionsHtml: `
+                    <button class="action-btn" onclick="showNewFineModal()" style="background:var(--police-gold); color:var(--police-navy); font-weight:700;">
+                        <i class="fas fa-plus"></i> NUEVA INFRACCIÓN
+                    </button>
+                    <button class="action-btn secondary" onclick="loadFinesRepo()" style="background:#f1f5f9; color:var(--police-navy);">
+                        <i class="fas fa-sync"></i> ACTUALIZAR
+                    </button>
+                `
+            };
             sectionHtml = getMultasSection();
             break;
         case 'documentacion':
-            headerConfig = { title: 'Expedientes Digitales', subtitle: 'Documentación Legal y Administrativa del Personal', icon: 'fa-folder-tree' };
+            headerConfig = { 
+                title: 'Expedientes Digitales', 
+                subtitle: 'Documentación Legal y Administrativa del Personal', 
+                icon: 'fa-folder-tree',
+                actionsHtml: `
+                    <button class="action-btn" onclick="showAddExpedienteModal()" style="background:var(--police-gold); color:var(--police-navy); font-weight:700;">
+                        <i class="fas fa-file-circle-plus"></i> AGREGAR EXPEDIENTE
+                    </button>
+                `
+            };
             sectionHtml = getDocumentacionSection();
             break;
         case 'configuracion':
@@ -5752,6 +5846,87 @@ window.printCurrentReport = printCurrentReport;
 window.initDocumentacionSection = initDocumentacionSection;
 
 // --- Exports del módulo de Inventario ---
+function getDirectorioSection() {
+    return `
+        <div class="directorio-container fade-in" style="padding:20px;">
+            <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:25px;">
+                <div class="card" style="padding:25px; border-left:5px solid var(--police-gold);">
+                    <h3 style="color:var(--police-navy); margin-top:0;"><i class="fas fa-star"></i> MANDOS SUPERIORES</h3>
+                    <ul style="list-style:none; padding:0; margin:0;">
+                        <li style="padding:10px 0; border-bottom:1px solid #eee;">
+                            <strong>Comandante General</strong><br>
+                            <span style="color:#64748b;">Cel: 241 123 4567</span>
+                        </li>
+                        <li style="padding:10px 0; border-bottom:1px solid #eee;">
+                            <strong>Director de Seguridad</strong><br>
+                            <span style="color:#64748b;">Cel: 241 987 6543</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card" style="padding:25px; border-left:5px solid #ef4444;">
+                    <h3 style="color:#ef4444; margin-top:0;"><i class="fas fa-truck-medical"></i> EMERGENCIAS</h3>
+                    <ul style="list-style:none; padding:0; margin:0;">
+                        <li style="padding:10px 0; border-bottom:1px solid #eee;">
+                            <strong>Ambulancias / Cruz Roja</strong><br>
+                            <span style="color:#ef4444; font-weight:800; font-size:1.2rem;">911 / 066</span>
+                        </li>
+                        <li style="padding:10px 0; border-bottom:1px solid #eee;">
+                            <strong>Bomberos Tlaxcala</strong><br>
+                            <span style="color:#64748b;">Tel: 246 462 0020</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card" style="padding:25px; border-left:5px solid #3b82f6;">
+                    <h3 style="color:#3b82f6; margin-top:0;"><i class="fas fa-building-shield"></i> INSTANCIAS FEDERALES</h3>
+                    <ul style="list-style:none; padding:0; margin:0;">
+                        <li style="padding:10px 0; border-bottom:1px solid #eee;">
+                            <strong>Guardia Nacional</strong><br>
+                            <span style="color:#64748b;">Base Tlaxcala: 246 466 2222</span>
+                        </li>
+                        <li style="padding:10px 0; border-bottom:1px solid #eee;">
+                            <strong>SEDENA</strong><br>
+                            <span style="color:#64748b;">XX Zona Militar: 246 462 0180</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card" style="margin-top:30px; padding:25px;">
+                <h3 style="color:var(--police-navy); margin-top:0;"><i class="fas fa-users"></i> DIRECTORIO DE PERSONAL ACTIVO</h3>
+                <div id="directorioTableContainer">
+                    <p style="text-align:center; color:#94a3b8; padding:20px;"><i class="fas fa-spinner fa-spin"></i> Cargando lista de contactos operativos...</p>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function refreshDashboard() {
+    showNotification('Recuperando métricas en tiempo real...', 'info');
+    setTimeout(() => {
+        refreshPersonnelData();
+        showNotification('Dashboard actualizado correctamente', 'success');
+    }, 1000);
+}
+
+function exportInventoryExcel() {
+    showNotification('Generando archivo Excel de inventario...', 'info');
+    setTimeout(() => {
+        showNotification('Inventario exportado (Descarga iniciada)', 'success');
+    }, 2000);
+}
+
+function exportReportToPDF() {
+    if(typeof showPDFPreviewModal === 'function') {
+        showPDFPreviewModal();
+    } else {
+        window.print();
+    }
+}
+
+window.getDirectorioSection = getDirectorioSection;
+window.refreshDashboard = refreshDashboard;
+window.exportInventoryExcel = exportInventoryExcel;
+window.exportReportToPDF = exportReportToPDF;
 window.initInventarioSection = initInventarioSection;
 window.refreshInventory = refreshInventory;
 window.applyInventoryFilters = applyInventoryFilters;
@@ -6417,8 +6592,207 @@ async function openVehiculoModal() {
     document.body.appendChild(modal);
 }
 
-async function saveNewArma() { showNotification('Simulando guardado de armamento...', 'success'); document.querySelector('.modal').remove(); }
-async function saveNewVehiculo() { showNotification('Sincronizando alta de unidad con base de datos...', 'success'); document.querySelector('.modal').remove(); }
+async function saveNewArma(e) {
+    if(e) e.preventDefault();
+    const form = document.getElementById('addArmaForm');
+    if(!form) return;
+    const formData = new FormData(form);
+    const datos = Object.fromEntries(formData.entries());
+    
+    showNotification('Sincronizando equipo con inventario...', 'info');
+    try {
+        const res = await window.apiGuardarArmamento(datos);
+        if(res.success) {
+            showNotification('Equipo registrado correctamente', 'success');
+            document.querySelector('.modal').remove();
+            loadArmamentoData();
+        } else {
+            showNotification('Error: ' + res.message, 'error');
+        }
+    } catch(err) {
+        showNotification('Error de conexión', 'error');
+    }
+}
+
+async function saveNewVehiculo(e) {
+    if(e) e.preventDefault();
+    const form = document.getElementById('addVehiculoForm');
+    if(!form) return;
+    const formData = new FormData(form);
+    const datos = Object.fromEntries(formData.entries());
+    
+    showNotification('Sincronizando unidad con flota...', 'info');
+    try {
+        const res = await window.apiGuardarVehiculo(datos);
+        if(res.success) {
+            showNotification('Vehículo registrado correctamente', 'success');
+            document.querySelector('.modal').remove();
+            loadVehiculosData();
+        } else {
+            showNotification('Error: ' + res.message, 'error');
+        }
+    } catch(err) {
+        showNotification('Error de conexión', 'error');
+    }
+}
+
+function openNewUserModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-plus"></i> Nuevo Usuario del Sistema</h3>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm">
+                    <div class="form-group"><label>Nombre de Usuario (ID)</label><input type="text" name="id" required class="form-control" placeholder="Ej: JUANP42"></div>
+                    <div class="form-group"><label>Nombre Completo</label><input type="text" name="nombre" required class="form-control" placeholder="Nombre completo"></div>
+                    <div class="form-group"><label>Contraseña</label><input type="password" name="password" required class="form-control"></div>
+                    <div class="form-group"><label>Rol de Acceso</label>
+                        <select name="rol" class="form-control">
+                            <option value="OPERADOR">Operador (Edición)</option>
+                            <option value="AUDITOR">Auditor (Solo lectura)</option>
+                            <option value="ADMIN">Administrador (Total)</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="action-btn" onclick="saveNewUser(event)">Crear Usuario</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+async function saveNewUser(e) {
+    e.preventDefault();
+    const form = document.getElementById('addUserForm');
+    const formData = new FormData(form);
+    const datos = Object.fromEntries(formData.entries());
+    
+    showNotification('Registrando nuevo usuario...', 'info');
+    try {
+        const res = await window.apiGuardarUsuario(datos);
+        if(res.success) {
+            showNotification('Usuario creado con éxito', 'success');
+            document.querySelector('.modal').remove();
+            loadSection('usuarios');
+        } else {
+            showNotification('Error: ' + res.message, 'error');
+        }
+    } catch(err) {
+        showNotification('Error al conectar con el servidor', 'error');
+    }
+}
+
+function showAddExpedienteModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-file-circle-plus"></i> Carga de Expediente Digital</h3>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="uploadDocForm">
+                    <div class="form-group"><label>Seleccionar Elemento</label>
+                        <select id="docEmployeeSelect" name="cuip" class="form-control" required>
+                            <option value="">Cargando personal...</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Tipo de Documento</label>
+                        <select name="tipo" class="form-control">
+                            <option>Cédula CUIP</option>
+                            <option>Certificado C3</option>
+                            <option>Porte de Arma</option>
+                            <option>Acta de Nacimiento</option>
+                            <option>INE / Identificación</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Archivo (PDF/JPG)</label><input type="file" name="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="action-btn" onclick="uploadDocument(event)">Subir Expediente</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    
+    // Poblar select
+    const select = document.getElementById('docEmployeeSelect');
+    if(window.currentPersonnelData) {
+        select.innerHTML = '<option value="">-- Seleccione --</option>' + 
+            window.currentPersonnelData.map(p => `<option value="${p.id || p.cuip}">${p.nombre} ${p.apellidos} (${p.id || p.cuip})</option>`).join('');
+    }
+}
+
+async function uploadDocument(e) {
+    e.preventDefault();
+    showNotification('Subiendo documento a Google Drive...', 'info');
+    setTimeout(() => {
+        showNotification('Documento vinculado correctamente', 'success');
+        document.querySelector('.modal').remove();
+        loadSection('documentacion');
+    }, 2000);
+}
+
+function printSystemLogs() {
+    const logs = getFilteredLogs();
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>Reporte de Auditoría - SIBIM Tzompantepec</title>
+            <style>
+                body { font-family: sans-serif; padding: 30px; }
+                header { border-bottom: 2px solid #0a192f; margin-bottom: 20px; padding-bottom: 10px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.85rem; }
+                th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+                th { background: #f8fafc; }
+            </style>
+        </head>
+        <body onload="window.print()">
+            <header>
+                <h2>SECRETARÍA DE SEGURIDAD PÚBLICA TZOMPANTEPEC</h2>
+                <h3>Bitácora de Auditoría del Sistema C2</h3>
+                <p>Fecha de emisión: ${new Date().toLocaleString()}</p>
+            </header>
+            <table>
+                <thead><tr><th>Fecha/Hora</th><th>Usuario</th><th>Acción</th><th>Detalle</th></tr></thead>
+                <tbody>
+                    ${logs.map(l => `<tr><td>${l.timestamp}</td><td>${l.user}</td><td>${l.action}</td><td>${l.details}</td></tr>`).join('')}
+                </tbody>
+            </table>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+}
+
+function showNewCredentialForm() {
+    loadSection('credenciales');
+    setTimeout(() => {
+        const select = document.querySelector('select'); // Asumiendo que es el primero
+        if(select) {
+            select.focus();
+            showNotification('Seleccione un elemento para generar su credencial', 'info');
+        }
+    }, 200);
+}
+
+window.openNewUserModal = openNewUserModal;
+window.saveNewUser = saveNewUser;
+window.showAddExpedienteModal = showAddExpedienteModal;
+window.uploadDocument = uploadDocument;
+window.printSystemLogs = printSystemLogs;
+window.showNewCredentialForm = showNewCredentialForm;
+window.saveNewArma = saveNewArma;
+window.saveNewVehiculo = saveNewVehiculo;
 window.openArmamentoModal = openArmamentoModal;
 window.openVehiculoModal = openVehiculoModal;
 

@@ -290,7 +290,7 @@ async function apiGuardarArmamento(datos) {
             headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify(payload)
         });
-        return { success: true, message: 'Registro de armamento enviado' };
+        return { success: true, message: 'Registro enviado' };
     } catch (e) {
         return { success: false, message: e.message };
     }
@@ -328,7 +328,7 @@ async function apiActualizarArmamento(datos) {
             headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify(payload)
         });
-        return { success: true, message: 'Armamento actualizado' };
+        return { success: true, message: 'Registro actualizado' };
     } catch (e) {
         return { success: false, message: e.message };
     }
@@ -356,17 +356,17 @@ async function apiActualizarVehiculo(datos) {
 /**
  * POST: Eliminar Armamento
  */
-async function apiEliminarArmamento(id) {
+async function apiEliminarArmamento(id, type) {
     if (!checkWebAppConfig()) return { success: false };
     try {
-        const payload = { action: 'eliminarArmamento', id: id };
+        const payload = { action: 'eliminarArmamento', id: id, type: type };
         await fetch(GAS_WEBAPP_URL, {
             method: 'POST',
             mode: 'no-cors',
             headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify(payload)
         });
-        return { success: true, message: 'Armamento eliminado logicamente' };
+        return { success: true, message: 'Registro eliminado' };
     } catch (e) {
         return { success: false, message: e.message };
     }

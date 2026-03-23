@@ -131,7 +131,7 @@ function doPost(e) {
         result = guardarVehiculo(params);
         break;
       case 'eliminararmamento':
-        result = eliminarArmamento(params.id || e.parameter.id);
+        result = eliminarArmamento(params.id || e.parameter.id, params.type || e.parameter.type);
         break;
       case 'eliminarvehiculo':
         result = eliminarVehiculo(params.id || e.parameter.id);
@@ -739,24 +739,59 @@ function guardarReporte(datos) {
 function guardarArmamento(datos) {
   try {
     var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-    var sheet = ss.getSheetByName(SHEET_ARMAMENTO);
-    if (!sheet) return { success: false, message: 'Hoja ARMAMENTO no encontrada' };
+    var targetSheet = SHEET_ARMAMENTO;
+    var prefix = 'ARM-';
+    
+    if (datos.categoria === 'radios') {
+      targetSheet = SHEET_RADIO;
+      prefix = 'RAD-';
+    } else if (datos.categoria === 'chalecos') {
+      targetSheet = SHEET_CHALECOS;
+      prefix = 'CHA-';
+    }
+    
+    var sheet = ss.getSheetByName(targetSheet);
+    if (!sheet) return { success: false, message: 'Hoja ' + targetSheet + ' no encontrada' };
 
-    var row = [
-      'ARM-' + (sheet.getLastRow() + 1), // ID autogenerado
-      datos.serie || '',
-      datos.tipo || '',
-      datos.marca || '',
-      datos.modelo || '',
-      datos.calibre || 'N/A',
-      datos.estado || 'Operativo',
-      datos.asignado || 'Arsenal'
-    ];
+    var row = [];
+    if (targetSheet === SHEET_ARMAMENTO) {
+      row = [
+        prefix + (sheet.getLastRow() + 1),
+        datos.serie || '',
+        datos.tipo || '',
+        datos.marca || '',
+        datos.modelo || '',
+        datos.calibre || 'N/A',
+        datos.estado || 'Operativo',
+        datos.asignado || 'Arsenal'
+      ];
+    } else if (targetSheet === SHEET_RADIO) {
+      row = [
+        prefix + (sheet.getLastRow() + 1),
+        datos.serie || '',
+        datos.matra || '',
+        datos.marca || '',
+        datos.modelo || '',
+        datos.estado || 'Operativo',
+        datos.asignado || 'Arsenal'
+      ];
+    } else if (targetSheet === SHEET_CHALECOS) {
+      row = [
+        prefix + (sheet.getLastRow() + 1),
+        datos.serie || '',
+        datos.nivel || '',
+        datos.marca || '',
+        datos.talla || '',
+        datos.vigencia || '',
+        datos.estado || 'Operativo',
+        datos.asignado || 'Arsenal'
+      ];
+    }
     
     sheet.appendRow(row);
-    return { success: true, message: 'Armamento registrado correctamente' };
+    return { success: true, message: 'Registro guardado correctamente en ' + targetSheet };
   } catch (err) {
-    return { success: false, message: 'Error al guardar armamento: ' + err.toString() };
+    return { success: false, message: 'Error al guardar: ' + err.toString() };
   }
 }
 
@@ -825,23 +860,49 @@ function actualizarVehiculo(datos) {
 function actualizarArmamento(datos) {
   try {
     var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-    var sheet = ss.getSheetByName(SHEET_ARMAMENTO);
-    if(!sheet) return { success: false, message: 'Hoja ARMAMENTO no encontrada' };
+    var targetSheet = SHEET_ARMAMENTO;
+    
+    if (datos.categoria === 'radios') {
+      targetSheet = SHEET_RADIO;
+    } else if (datos.categoria === 'chalecos') {
+      targetSheet = SHEET_CHALECOS;
+    }
+    
+    var sheet = ss.getSheetByName(targetSheet);
+    if(!sheet) return { success: false, message: 'Hoja ' + targetSheet + ' no encontrada' };
     
     var data = sheet.getDataRange().getValues();
     for (var i = 1; i < data.length; i++) {
-       if ((datos.id && String(data[i][0]) === String(datos.id)) || (datos.serie && String(data[i][1]) === String(datos.serie))) {
-           if(datos.serie) sheet.getRange(i+1, 2).setValue(datos.serie);
-           if(datos.tipo) sheet.getRange(i+1, 3).setValue(datos.tipo);
-           if(datos.marca) sheet.getRange(i+1, 4).setValue(datos.marca);
-           if(datos.modelo) sheet.getRange(i+1, 5).setValue(datos.modelo);
-           if(datos.calibre) sheet.getRange(i+1, 6).setValue(datos.calibre);
-           if(datos.estado) sheet.getRange(i+1, 7).setValue(datos.estado);
-           if(datos.asignado) sheet.getRange(i+1, 8).setValue(datos.asignado);
-           return { success: true, message: 'Armamento actualizado' };
+       if (String(data[i][0]) === String(datos.id)) {
+           var rowNum = i + 1;
+           if (targetSheet === SHEET_ARMAMENTO) {
+             if(datos.serie) sheet.getRange(rowNum, 2).setValue(datos.serie);
+             if(datos.tipo) sheet.getRange(rowNum, 3).setValue(datos.tipo);
+             if(datos.marca) sheet.getRange(rowNum, 4).setValue(datos.marca);
+             if(datos.modelo) sheet.getRange(rowNum, 5).setValue(datos.modelo);
+             if(datos.calibre) sheet.getRange(rowNum, 6).setValue(datos.calibre);
+             if(datos.estado) sheet.getRange(rowNum, 7).setValue(datos.estado);
+             if(datos.asignado) sheet.getRange(rowNum, 8).setValue(datos.asignado);
+           } else if (targetSheet === SHEET_RADIO) {
+             if(datos.serie) sheet.getRange(rowNum, 2).setValue(datos.serie);
+             if(datos.matra) sheet.getRange(rowNum, 3).setValue(datos.matra);
+             if(datos.marca) sheet.getRange(rowNum, 4).setValue(datos.marca);
+             if(datos.modelo) sheet.getRange(rowNum, 5).setValue(datos.modelo);
+             if(datos.estado) sheet.getRange(rowNum, 6).setValue(datos.estado);
+             if(datos.asignado) sheet.getRange(rowNum, 7).setValue(datos.asignado);
+           } else if (targetSheet === SHEET_CHALECOS) {
+             if(datos.serie) sheet.getRange(rowNum, 2).setValue(datos.serie);
+             if(datos.nivel) sheet.getRange(rowNum, 3).setValue(datos.nivel);
+             if(datos.marca) sheet.getRange(rowNum, 4).setValue(datos.marca);
+             if(datos.talla) sheet.getRange(rowNum, 5).setValue(datos.talla);
+             if(datos.vigencia) sheet.getRange(rowNum, 6).setValue(datos.vigencia);
+             if(datos.estado) sheet.getRange(rowNum, 7).setValue(datos.estado);
+             if(datos.asignado) sheet.getRange(rowNum, 8).setValue(datos.asignado);
+           }
+           return { success: true, message: 'Registro actualizado en ' + targetSheet };
        }
     }
-    return { success: false, message: 'Armamento no encontrado en BD.' };
+    return { success: false, message: 'Registro no encontrado en ' + targetSheet };
   } catch(e) {
     return { success: false, message: e.toString() };
   }
@@ -850,22 +911,26 @@ function actualizarArmamento(datos) {
 // ============================================================
 // FUNCIÓN: Eliminar Armamento
 // ============================================================
-function eliminarArmamento(id) {
+function eliminarArmamento(id, type) {
   try {
     var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-    var sheet = ss.getSheetByName(SHEET_ARMAMENTO);
-    if (!sheet) return { success: false, message: 'Hoja ARMAMENTO no encontrada' };
+    var targetSheet = SHEET_ARMAMENTO;
+    if (type === 'radios') targetSheet = SHEET_RADIO;
+    if (type === 'chalecos') targetSheet = SHEET_CHALECOS;
+    
+    var sheet = ss.getSheetByName(targetSheet);
+    if (!sheet) return { success: false, message: 'Hoja ' + targetSheet + ' no encontrada' };
 
     var data = sheet.getDataRange().getValues();
     for (var i = 1; i < data.length; i++) {
       if (String(data[i][0]) === String(id)) {
         sheet.deleteRow(i + 1);
-        return { success: true, message: 'Armamento eliminado correctamente' };
+        return { success: true, message: 'Registro eliminado correctamente de ' + targetSheet };
       }
     }
-    return { success: false, message: 'Registro de armamento no encontrado: ' + id };
+    return { success: false, message: 'Registro no encontrado: ' + id };
   } catch (err) {
-    return { success: false, message: 'Error al eliminar armamento: ' + err.toString() };
+    return { success: false, message: 'Error al eliminar: ' + err.toString() };
   }
 }
 

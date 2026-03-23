@@ -92,6 +92,8 @@ let systemLogs = [];
 // Cache global para los datos del inventario y estado
 var _invData = [];
 var _currentInvTab = 'personal';
+// Pestaña activa en el módulo Armamento y Equipo
+var _currentArmamentoTab = 'armas';
 var currentPersonnelData = [];
 var filteredPersonnelData = [];
 var localPersonnel = [];
@@ -6112,7 +6114,7 @@ async function loadArmamentoData(type = 'armas') {
                             ${item.nivel ? `<p><strong>Nivel:</strong> ${item.nivel}</p>` : ''}
                             <p><strong>Estado:</strong> <span class="status-badge ${String(item.estado).toLowerCase()}">${item.estado}</span></p>
                             <p><strong>Asignado:</strong> ${item.asignado || 'DISPONIBLE'}</p>
-                            ${(getCurrentUserRole() || '').toUpperCase() === 'ADMIN' ? `<div style="margin-top:15px; display:flex; gap:10px;"><button class="action-btn small secondary" onclick="window.editArmamento('${encodeURIComponent(JSON.stringify(item))}')"><i class="fas fa-edit"></i></button><button class="action-btn small danger" onclick="deleteArmamento('${item.id || item.serie || item.matricula || item.placa || item.eco}')"><i class="fas fa-trash"></i></button></div>` : ''}
+                            ${(getCurrentUserRole() || '').toUpperCase() === 'ADMIN' ? `<div style="margin-top:15px; display:flex; gap:10px;"><button class="action-btn small secondary" onclick="window.editArmamento('${encodeURIComponent(JSON.stringify(item))}')"><i class="fas fa-edit"></i></button><button class="action-btn small danger" onclick="deleteArmamento('${item.id || item.serie || item.matricula || item.placa || item.eco}', '${type}')"><i class="fas fa-trash"></i></button></div>` : ''}
                         </div>
                     </div>
                 `).join('')}
@@ -6255,14 +6257,21 @@ function closeArmamentoModal() {
 
 async function saveArmamento(e) {
     e.preventDefault();
+    const tipoVal = document.getElementById('inv-tipo').value;
+    // Derivar categoria para dirigir al sheet correcto
+    let categoria = 'armas';
+    if (tipoVal.toLowerCase().includes('radio')) categoria = 'radios';
+    else if (tipoVal.toLowerCase().includes('chaleco') || tipoVal.toLowerCase().includes('fornitura')) categoria = 'chalecos';
+
     const datos = {
-        tipo: document.getElementById('inv-tipo').value,
+        tipo: tipoVal,
         marca: document.getElementById('inv-marca').value,
         modelo: document.getElementById('inv-modelo').value,
         serie: document.getElementById('inv-serie').value,
         estado: document.getElementById('inv-estado').value,
         asignado: document.getElementById('inv-asignado').value,
-        observaciones: document.getElementById('inv-obs').value
+        observaciones: document.getElementById('inv-obs').value,
+        categoria: categoria
     };
 
     if(window.editingArmamentoId) datos.id = window.editingArmamentoId;
@@ -6274,7 +6283,9 @@ async function saveArmamento(e) {
             showNotification(window.editingArmamentoId ? 'Equipo actualizado' : 'Equipo registrado', 'success');
             window.editingArmamentoId = null;
             closeArmamentoModal();
-            loadArmamentoData();
+            // Recargar la pestaña correspondiente a la categoría guardada
+            _currentArmamentoTab = categoria;
+            loadArmamentoData(categoria);
         } else {
             showNotification('Error: ' + res.message, 'error');
         }
@@ -6376,11 +6387,9 @@ async function saveVehiculo(e) {
         placa: document.getElementById('v-placa').value,
         tipo: document.getElementById('v-tipo').value,
         marca: document.getElementById('v-marca').value,
-        modelo: document.getElementById('v-modelo').value,
-        color: document.getElementById('v-color').value,
-        kilometraje: document.getElementById('v-km').value,
+        kilometraje: document.getElementById('v-km') ? document.getElementById('v-km').value : '',
         estado: document.getElementById('v-estado').value,
-        cuadrante: document.getElementById('v-cuadrante').value
+        cuadrante: document.getElementById('v-cuadrante') ? document.getElementById('v-cuadrante').value : ''
     };
 
     if(window.editingVehiculoId) datos.id = window.editingVehiculoId;
@@ -6420,16 +6429,17 @@ window.editVehiculo = function(vStr) {
     }, 100);
 }
 
-async function deleteArmamento(id) {
+async function deleteArmamento(id, type) {
     if(!id) return showNotification('ID no válido para eliminar', 'error');
-    if(!confirm('¿Está seguro de dar de baja este armamento? Esta acción requiere privilegios de ADMINISTRADOR y quedará registrada.')) return;
+    if(!confirm('¿Está seguro de dar de baja este equipo? Esta acción requiere privilegios de ADMINISTRADOR y quedará registrada.')) return;
     
+    const tabType = type || _currentArmamentoTab || 'armas';
     showNotification('Procesando baja táctica...', 'info');
     try {
-        const res = await window.apiEliminarArmamento(id);
+        const res = await window.apiEliminarArmamento(id, tabType);
         if(res.success) {
-            showNotification('Armamento eliminado', 'success');
-            loadArmamentoData();
+            showNotification('Equipo eliminado correctamente', 'success');
+            loadArmamentoData(tabType);
         } else {
             showNotification('Error: ' + res.message, 'error');
         }
@@ -6457,6 +6467,7 @@ async function deleteVehiculo(id) {
 }
 
 function switchArmamentoTab(tab) {
+    _currentArmamentoTab = tab; // Guardar pestaña activa globalmente
     // Buscar todos los botones de pestañas en la sección de armamento
     const btns = document.querySelectorAll('.tabs-container .tab-btn');
     btns.forEach(b => b.classList.remove('active'));

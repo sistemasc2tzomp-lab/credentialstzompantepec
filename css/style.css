@@ -307,45 +307,82 @@ body {
 
 /* Dashboard Styles */
 /* Dashboard Styles */
-/* Standard Header System */
+/* Standard Header System v2 (Image 4 Alignment) */
 .standard-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 4%;
-    background: linear-gradient(to right, #0a192f, #1a3a5f);
-    border-bottom: 3px solid #c5a059;
+    padding: 1.5rem 3%;
+    background: #000000; /* Pure black as per Image 4 deep contrast */
+    border-bottom: 4px solid #c5a059;
     color: white;
     width: 100%;
-}
-
-.standard-header .header-logo {
-    max-height: 70px;
-    width: auto;
-    object-fit: contain;
+    margin-bottom: 0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
 }
 
 .standard-header .header-center {
-    text-align: center;
     flex: 1;
+    padding: 0 2rem;
 }
 
 .standard-header h1 {
     font-family: 'Montserrat', sans-serif;
-    font-size: 1.8rem;
-    font-weight: 800;
+    font-size: 2.2rem; /* Matches the large bold appearance */
+    font-weight: 900;
     margin: 0;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
     text-transform: uppercase;
-    color: #ffd700;
-    text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+    color: #c5a059;
+    line-height: 1;
 }
 
-.standard-header p {
-    font-size: 0.9rem;
-    margin: 5px 0 0;
-    opacity: 0.8;
-    letter-spacing: 1px;
+.standard-header .header-actions {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+/* Header Action Buttons v2 */
+.btn-v2-nuevo {
+    background: #c5a059 !important;
+    color: #000 !important;
+    border: none !important;
+    padding: 10px 24px !important;
+    border-radius: 6px !important;
+    font-weight: 800 !important;
+    font-size: 0.9rem !important;
+    text-transform: uppercase !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    cursor: pointer !important;
+    transition: all 0.3s !important;
+    box-shadow: 0 4px 10px rgba(197, 160, 89, 0.3) !important;
+}
+
+.btn-v2-nuevo:hover {
+    background: #d4af37 !important;
+    transform: translateY(-2px) !important;
+}
+
+.btn-v2-actualizar {
+    background: transparent !important;
+    color: #fff !important;
+    border: 2px solid #fff !important;
+    padding: 8px 20px !important;
+    border-radius: 6px !important;
+    font-weight: 700 !important;
+    font-size: 0.85rem !important;
+    text-transform: uppercase !important;
+    cursor: pointer !important;
+    transition: all 0.3s !important;
+}
+
+.btn-v2-actualizar:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: #c5a059 !important;
+    color: #c5a059 !important;
 }
 
 .dashboard {
@@ -3165,8 +3202,159 @@ input:checked+.slider:before {
     box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.2);
 }
 
-.filter-input:focus {
-    border-color: var(--police-gold) !important;
+/* ============================================
+   PREMIUM V2 MODALS (Phase 3)
+   ============================================ */
+.modal-v2 {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 25, 47, 0.85);
+    backdrop-filter: blur(8px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 5000;
+    padding: 20px;
+}
+
+.modal-content-v2 {
+    background: white;
+    width: 100%;
+    max-width: 600px;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    animation: modalSlideUp 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+@keyframes modalSlideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-header-v2 {
+    background: var(--police-navy);
+    padding: 20px 25px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px solid var(--police-gold);
+}
+
+.modal-header-v2 h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.modal-header-v2 h3 i {
+    color: var(--police-gold);
+}
+
+.close-modal {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: 0.2s;
+}
+
+.close-modal:hover {
+    background: rgba(255,255,255,0.2);
+    transform: rotate(90deg);
+}
+
+.modal-body-v2 {
+    padding: 30px;
+    background: #f8fafc;
+}
+
+.input-group-v2 {
+    margin-bottom: 20px;
+}
+
+.input-group-v2 label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #475569;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.input-group-v2 input,
+.input-group-v2 select,
+.input-group-v2 textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+    color: #1e293b;
+    transition: 0.2s;
+}
+
+.input-group-v2 input:focus,
+.input-group-v2 select:focus {
+    border-color: var(--police-gold);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.1);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(197, 160, 89, 0.1);
+}
+
+.modal-footer-v2 {
+    padding: 20px 25px;
+    background: white;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+}
+
+.btn-save {
+    background: var(--police-navy);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-save:hover {
+    background: #1a2a44;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.btn-cancel {
+    background: #f1f5f9;
+    color: #64748b;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-cancel:hover {
+    background: #e2e8f0;
 }

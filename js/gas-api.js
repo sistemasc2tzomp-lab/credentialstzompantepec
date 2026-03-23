@@ -57,6 +57,26 @@ async function apiGuardarUsuario(datos) {
 }
 
 /**
+ * POST: Actualizar usuario
+ */
+async function apiActualizarUsuario(datos) {
+    if (!checkWebAppConfig()) return { success: false, message: 'Falta configuración URL' };
+    try {
+        const payload = { action: 'actualizarUsuario', ...datos };
+        const response = await fetch(GAS_WEBAPP_URL, {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+        });
+        return { success: true, message: 'Usuario actualizado correctamente' };
+    } catch (e) {
+        console.error('apiActualizarUsuario Error:', e);
+        return { success: false, message: e.message };
+    }
+}
+
+/**
  * GET: Obtener personal
  */
 async function apiGetPersonal() {
@@ -374,6 +394,7 @@ async function apiEliminarVehiculo(id) {
 // Globales
 window.apiGetUsuarios = apiGetUsuarios;
 window.apiGuardarUsuario = apiGuardarUsuario;
+window.apiActualizarUsuario = apiActualizarUsuario;
 window.apiGetPersonal = apiGetPersonal;
 window.apiGuardarPersonal = apiGuardarPersonal;
 window.apiActualizarPersonal = apiActualizarPersonal;

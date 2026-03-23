@@ -173,16 +173,7 @@ function getCurrentUserRole() {
  * Point 9 del Overhaul 2026
  */
 function getStandardHeaderHTML(title, subtitle) {
-    return `
-        <div class="standard-header">
-            <img src="assets/escudo_tzomp.png" class="header-logo" alt="Escudo Tzompantepec">
-            <div class="header-center">
-                <h1>${title}</h1>
-                <p>${subtitle}</p>
-            </div>
-            <img src="assets/c2_logo.png" class="header-logo" alt="Logo C2">
-        </div>
-    `;
+    return getStandardHeader(title || '', subtitle || '');
 }
 
 // Comprobar si tiene permiso para una acción específica
@@ -3026,10 +3017,13 @@ async function loadUsersRepo() {
                     <td style="padding: 18px 20px; color:#94a3b8; font-size:0.85rem;">${u.ultimoacceso || 'Nunca'}</td>
                     <td style="padding: 18px 20px;">
                         <div style="display:flex; gap:10px;">
-                            <button class="action-btn small" style="background:#f1f5f9; color:#1a3a6e; border:none; border-radius:10px; padding:8px 12px;" onclick="editUser('${u.usuario || u.username}')">
-                                <i class="fas fa-shield-halved"></i>
+                            <button class="action-btn small" title="Modificar" style="background:#f1f5f9; color:#1a3a6e; border:none; border-radius:10px; padding:8px 12px;" onclick="editUser('${u.usuario || u.username}')">
+                                <i class="fas fa-user-pen"></i>
                             </button>
-                            <button class="action-btn small" style="background:#fff1f2; color:#be123c; border:none; border-radius:10px; padding:8px 12px;" onclick="deleteUser('${u.usuario || u.username}')">
+                            <button class="action-btn small" title="Cambiar Estado" style="background:#ecfdf5; color:#059669; border:none; border-radius:10px; padding:8px 12px;" onclick="toggleUserStatus('${u.usuario || u.username}')">
+                                <i class="fas fa-toggle-on"></i>
+                            </button>
+                            <button class="action-btn small" title="Eliminar" style="background:#fff1f2; color:#be123c; border:none; border-radius:10px; padding:8px 12px;" onclick="deleteUser('${u.usuario || u.username}')">
                                 <i class="fas fa-user-xmark"></i>
                             </button>
                         </div>
@@ -3061,9 +3055,113 @@ function closeUserModal() {
     }
 }
 
-function editUser(username) {
-    showNotification(`Gestionando privilegios para: @${username}`, 'info');
-    // Futura implementación de modal de edición
+async function editUser(username) {
+    showNotification(`Consultando privilegios para: @${username}`, 'info');
+    
+    try {
+        const users = await apiGetUsuarios();
+        const user = users.find(u => (u.usuario || u.username) === username);
+        
+        if (!user) {
+            showNotification('No se localizó el perfil técnico del usuario.', 'error');
+            return;
+        }
+        
+        showEditUserModal(user);
+    } catch (e) {
+        showNotification('Error de conexión al recuperar perfil.', 'error');
+    }
+}
+
+function showEditUserModal(user) {
+    const modal = document.createElement('div');
+    modal.id = 'editUserModalV2';
+    modal.className = 'modal-v2';
+    modal.style.display = 'flex';
+    
+    modal.innerHTML = `
+        <div class="modal-content-v2" style="max-width: 500px;">
+            <div class="modal-header-v2">
+                <h3><i class="fas fa-user-shield"></i> Gestión de Privilegios</h3>
+                <button class="close-modal" onclick="this.closest('.modal-v2').remove()">&times;</button>
+            </div>
+            <form id="editUserFormV2" onsubmit="updateUser(event)">
+                <input type="hidden" name="usuario" value="${user.usuario || user.username}">
+                <div class="modal-body-v2">
+                    <div style="text-align:center; margin-bottom:25px;">
+                        <div style="width:80px; height:80px; background:var(--police-navy); color:var(--police-gold); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 15px; font-size:2rem; border:3px solid var(--police-gold);">
+                            <i class="fas fa-user-gear"></i>
+                        </div>
+                        <h4 style="margin:0; color:var(--police-navy); text-transform:uppercase;">@${user.usuario || user.username}</h4>
+                    </div>
+
+                    <div class="input-group-v2">
+                        <label><i class="fas fa-signature"></i> Nombre del Titular</label>
+                        <input type="text" name="nombre" value="${user.nombre || ''}" required>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+                        <div class="input-group-v2">
+                            <label><i class="fas fa-user-tag"></i> Rol</label>
+                            <select name="rol">
+                                <option value="ADMIN" ${user.rol === 'ADMIN' ? 'selected' : ''}>ADMIN</option>
+                                <option value="OPERADOR" ${user.rol === 'OPERADOR' ? 'selected' : ''}>OPERADOR</option>
+                                <option value="CONSULTOR" ${user.rol === 'CONSULTOR' ? 'selected' : ''}>CONSULTOR</option>
+                            </select>
+                        </div>
+                        <div class="input-group-v2">
+                            <label><i class="fas fa-building-shield"></i> Área</label>
+                            <input type="text" name="departamento" value="${user.departamento || ''}">
+                        </div>
+                    </div>
+
+                    <div class="input-group-v2">
+                        <label><i class="fas fa-signal"></i> Estado</label>
+                        <select name="estado">
+                            <option value="ACTIVO" ${user.estado !== 'INACTIVO' ? 'selected' : ''}>ACTIVO</option>
+                            <option value="INACTIVO" ${user.estado === 'INACTIVO' ? 'selected' : ''}>INACTIVO</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer-v2">
+                    <button type="button" class="btn-cancel" onclick="this.closest('.modal-v2').remove()">CANCELAR</button>
+                    <button type="submit" class="btn-save">ACTUALIZAR</button>
+                </div>
+            </form>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+async function updateUser(event) {
+    event.preventDefault();
+    const data = Object.fromEntries(new FormData(event.target).entries());
+    showNotification('Sincronizando...', 'info');
+    const res = await apiActualizarUsuario(data);
+    if (res.success) {
+        showNotification('Usuario actualizado.', 'success');
+        event.target.closest('.modal-v2').remove();
+        loadUsersRepo();
+    } else {
+        showNotification('Error: ' + res.message, 'error');
+    }
+}
+
+async function toggleUserStatus(username) {
+    if (username === 'admin') {
+        showNotification('No se puede desactivar el administrador.', 'warning');
+        return;
+    }
+    const users = await apiGetUsuarios();
+    const user = users.find(u => (u.usuario || u.username) === username);
+    if (user) {
+        const nuevoEstado = user.estado === 'INACTIVO' ? 'ACTIVO' : 'INACTIVO';
+        const res = await apiActualizarUsuario({ usuario: username, estado: nuevoEstado });
+        if (res.success) {
+            showNotification(`@${username}: ${nuevoEstado}`, 'success');
+            loadUsersRepo();
+        }
+    }
 }
 
 function deleteUser(username) {
@@ -3129,15 +3227,12 @@ function fileToBase64(file) {
 // Función para generar el encabezado estándar de los módulos
 function getStandardHeader(title, subtitle, icon = 'fa-shield-halved', actionsHtml = '') {
     return `
-        <div class="standard-header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; background: white; border-bottom: 2px solid #f1f5f9; position: sticky; top: 0; z-index: 100;">
-            <div style="display: flex; align-items: center; gap: 20px;">
-                <img src="assets/SPT.png" alt="Escudo" style="height: 50px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));">
-                <div>
-                    <h1 style="margin: 0; font-size: 1.4rem; color: var(--police-navy); font-family: 'Montserrat', sans-serif; font-weight: 800;">${title}</h1>
-                    <p style="margin: 0; font-size: 0.85rem; color: #64748b; font-weight: 600;"><i class="fas ${icon}" style="color: var(--police-gold); margin-right: 5px;"></i> ${subtitle}</p>
-                </div>
+        <div class="standard-header">
+            <div class="header-content">
+                <span class="header-breadcrumb">SISTEMA INTEGRAL DE CONTROL POLICIAL (SIBIM)</span>
+                <h1 class="header-title-v2">${title.toUpperCase()}</h1>
             </div>
-            <div class="header-actions" style="display: flex; gap: 12px; align-items: center;">
+            <div class="header-actions-v2">
                 ${actionsHtml}
             </div>
         </div>
@@ -3166,24 +3261,34 @@ function loadSection(section) {
     switch (section) {
         case 'inicio':
             headerConfig = { 
-                title: 'Dashboard Principal', 
-                subtitle: 'Panel de Control del Sistema SIBIM v2.4.0', 
+                title: 'Panel Control', 
+                subtitle: 'Dashboard Principal', 
                 icon: 'fa-th-large',
-                actionsHtml: `<button class="action-btn" onclick="refreshDashboard()" style="background:var(--police-navy); color:white;"><i class="fa-solid fa-rotate"></i> Actualizar</button>`
+                actionsHtml: `
+                    <button class="btn-v2-actualizar" onclick="refreshDashboard()">
+                        <i class="fa-solid fa-rotate"></i> ACTUALIZAR
+                    </button>
+                    <button class="btn-v2-nuevo" onclick="window.print()">
+                        <i class="fas fa-print"></i> IMPRIMIR
+                    </button>
+                `
             };
             sectionHtml = getInicioSection();
             break;
         case 'personal':
             headerConfig = { 
                 title: 'Gestión de Personal', 
-                subtitle: 'Registro y Administración de Elementos de Seguridad', 
+                subtitle: 'Administración de Elementos', 
                 icon: 'fa-users-viewfinder',
                 actionsHtml: `
-                    <button class="action-btn" onclick="showAddEmployeeModal()" style="background: var(--police-gold); color: var(--police-navy); border: none; font-weight: 800; padding: 12px 25px; border-radius: 10px; font-size: 0.9rem; box-shadow: 0 4px 15px rgba(197, 160, 89, 0.2); transition: all 0.3s ease; text-transform: uppercase;">
-                        <i class="fas fa-plus"></i> NUEVO REGISTRO
+                    <button class="btn-v2-nuevo" onclick="showAddEmployeeModal()">
+                        <i class="fas fa-plus"></i> NUEVO
                     </button>
-                    <button class="action-btn secondary" onclick="refreshAllData()" style="padding: 12px 20px; border-radius: 10px; background: #f1f5f9; border: 1px solid #e2e8f0; color: var(--police-navy); font-weight: 600;">
+                    <button class="btn-v2-actualizar" onclick="refreshAllData()">
                         <i class="fas fa-sync"></i> ACTUALIZAR
+                    </button>
+                    <button class="btn-v2-actualizar" style="border-color:#fff;" onclick="window.print()">
+                        <i class="fas fa-print"></i> EMISIÓN
                     </button>
                 `
             };
@@ -3193,36 +3298,40 @@ function loadSection(section) {
         case 'armamento':
             headerConfig = { 
                 title: 'Armamento y Equipo', 
-                subtitle: 'Control de Inventario y Resguardo Guevara', 
+                subtitle: 'Control de Activos de Seguridad', 
                 icon: 'fa-gun',
                 actionsHtml: `
-                    <button class="action-btn" onclick="openArmamentoModal('arma')" style="background:var(--police-gold); color:var(--police-navy); font-weight:700;">
-                        <i class="fas fa-plus"></i> NUEVO EQUIPO
+                    <button class="btn-v2-nuevo" onclick="openArmamentoModal('arma')">
+                        <i class="fas fa-plus"></i> AGREGAR
                     </button>
-                    <button class="action-btn secondary" onclick="loadArmamentoData()" style="background:#f1f5f9; color:var(--police-navy);">
+                    <button class="btn-v2-actualizar" onclick="refreshInventory()">
                         <i class="fas fa-sync"></i> ACTUALIZAR
+                    </button>
+                    <button class="btn-v2-actualizar" style="border-color:#fff;" onclick="window.print()">
+                        <i class="fas fa-print"></i> IMPRIMIR
                     </button>
                 `
             };
             sectionHtml = getArmamentoSection();
-            setTimeout(initArmamentoSection, 100);
             break;
         case 'vehiculos':
             headerConfig = { 
                 title: 'Flota Vehicular', 
-                subtitle: 'Control de Patrullas y Mantenimiento Operativo', 
-                icon: 'fa-car-on',
+                subtitle: 'Control de Unidades y Patrullas', 
+                icon: 'fa-car-side',
                 actionsHtml: `
-                    <button class="action-btn" onclick="openVehiculoModal()" style="background:var(--police-gold); color:var(--police-navy); font-weight:700;">
-                        <i class="fas fa-plus"></i> NUEVA UNIDAD
+                    <button class="btn-v2-nuevo" onclick="openVehiculoModal()">
+                        <i class="fas fa-plus"></i> AGREGAR
                     </button>
-                    <button class="action-btn secondary" onclick="loadVehiculosData()" style="background:#f1f5f9; color:var(--police-navy);">
+                    <button class="btn-v2-actualizar" onclick="refreshInventory()">
                         <i class="fas fa-sync"></i> ACTUALIZAR
+                    </button>
+                    <button class="btn-v2-actualizar" style="border-color:#fff;" onclick="window.print()">
+                        <i class="fas fa-print"></i> IMPRIMIR
                     </button>
                 `
             };
             sectionHtml = getVehiculosSection();
-            setTimeout(initVehiculosSection, 100);
             break;
         case 'credenciales':
             headerConfig = { 
@@ -3291,11 +3400,17 @@ function loadSection(section) {
         case 'usuarios':
             headerConfig = { 
                 title: 'Gestión de Usuarios', 
-                subtitle: 'Control de Acceso y Roles del Sistema', 
+                subtitle: 'Control de Acceso y Roles', 
                 icon: 'fa-user-gear',
                 actionsHtml: `
-                    <button class="action-btn" onclick="openNewUserModal()" style="background:var(--police-gold); color:var(--police-navy); font-weight:700;">
-                        <i class="fas fa-user-plus"></i> NUEVO USUARIO
+                    <button class="btn-v2-nuevo" onclick="openNewUserModal()">
+                        <i class="fas fa-user-plus"></i> NUEVO
+                    </button>
+                    <button class="btn-v2-actualizar" onclick="loadUsersRepo()">
+                        <i class="fas fa-sync"></i> ACTUALIZAR
+                    </button>
+                    <button class="btn-v2-actualizar" style="border-color:#fff;" onclick="window.print()">
+                        <i class="fas fa-print"></i> IMPRIMIR
                     </button>
                 `
             };
@@ -3313,14 +3428,17 @@ function loadSection(section) {
         case 'inventario':
             headerConfig = { 
                 title: 'Inventario General', 
-                subtitle: 'Control de Equipo Táctico y Administrativo', 
+                subtitle: 'Control de Activos y Suministros', 
                 icon: 'fa-box-open',
                 actionsHtml: `
-                    <button class="action-btn" onclick="refreshInventory()" style="background:var(--police-navy); color:white; font-weight:700;">
-                        <i class="fa-solid fa-rotate"></i> Sincronizar
+                    <button class="btn-v2-nuevo" onclick="exportInventoryExcel()">
+                        <i class="fa-solid fa-file-excel"></i> EXCEL
                     </button>
-                    <button class="action-btn secondary" onclick="exportInventoryExcel()">
-                        <i class="fa-solid fa-file-excel"></i> Excel
+                    <button class="btn-v2-actualizar" onclick="refreshInventory()">
+                        <i class="fa-solid fa-rotate"></i> SINCRONIZAR
+                    </button>
+                    <button class="btn-v2-actualizar" style="border-color:#fff;" onclick="window.print()">
+                        <i class="fas fa-print"></i> IMPRIMIR
                     </button>
                 `
             };
@@ -3329,14 +3447,17 @@ function loadSection(section) {
         case 'multas':
             headerConfig = { 
                 title: 'Control de Multas', 
-                subtitle: 'Registro e Infracciones de Tránsito', 
+                subtitle: 'Gestión de Infracciones de Tránsito', 
                 icon: 'fa-receipt',
                 actionsHtml: `
-                    <button class="action-btn" onclick="showNewFineModal()" style="background:var(--police-gold); color:var(--police-navy); font-weight:700;">
-                        <i class="fas fa-plus"></i> NUEVA INFRACCIÓN
+                    <button class="btn-v2-nuevo" onclick="showNewFineModal()">
+                        <i class="fas fa-plus"></i> NUEVA
                     </button>
-                    <button class="action-btn secondary" onclick="loadFinesRepo()" style="background:#f1f5f9; color:var(--police-navy);">
+                    <button class="btn-v2-actualizar" onclick="loadFinesRepo()">
                         <i class="fas fa-sync"></i> ACTUALIZAR
+                    </button>
+                    <button class="btn-v2-actualizar" style="border-color:#fff;" onclick="window.print()">
+                        <i class="fas fa-print"></i> IMPRIMIR
                     </button>
                 `
             };
@@ -3345,11 +3466,14 @@ function loadSection(section) {
         case 'documentacion':
             headerConfig = { 
                 title: 'Expedientes Digitales', 
-                subtitle: 'Documentación Legal y Administrativa del Personal', 
+                subtitle: 'Resguardo de Documentación Oficial', 
                 icon: 'fa-folder-tree',
                 actionsHtml: `
-                    <button class="action-btn" onclick="showAddExpedienteModal()" style="background:var(--police-gold); color:var(--police-navy); font-weight:700;">
-                        <i class="fas fa-file-circle-plus"></i> AGREGAR EXPEDIENTE
+                    <button class="btn-v2-nuevo" onclick="showAddExpedienteModal()">
+                        <i class="fas fa-file-circle-plus"></i> AGREGAR
+                    </button>
+                    <button class="btn-v2-actualizar" onclick="refreshPersonnelData()">
+                        <i class="fas fa-sync"></i> ACTUALIZAR
                     </button>
                 `
             };
@@ -4049,77 +4173,96 @@ function showAddEmployeeModal() {
     const modal = document.createElement('div');
     modal.className = 'modal';
     modal.innerHTML = `
-    <div class="modal-content modal-lg" >
-            <div class="modal-header">
-                <h3><i class="fas fa-user-plus"></i> Agregar Nuevo Personal Policial</h3>
-                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+        <div class="modal-content modal-lg" style="max-width:950px; border-radius:25px; border:none; overflow:hidden;">
+            <div class="modal-header" style="background:#000; color:#c5a059; padding:25px 40px; border:none;">
+                <div style="display:flex; align-items:center; gap:15px;">
+                    <i class="fas fa-user-plus fa-lg"></i>
+                    <div>
+                        <h3 style="margin:0; font-size:1.5rem; font-weight:800; text-transform:uppercase;">Alta de Personal</h3>
+                        <p style="margin:0; font-size:0.8rem; color:#fff; opacity:0.8;">SISTEMA INTEGRAL DE CONTROL POLICIAL</p>
+                    </div>
+                </div>
+                <button class="close-btn" onclick="this.closest('.modal').remove()" style="color:#fff; font-size:2rem;">&times;</button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="padding:40px; background:#fff;">
                 <form id="addEmployeeForm" onsubmit="addNewEmployee(event)">
-                    <div style="display:grid; grid-template-columns: 200px 1fr; gap:30px;">
+                    <div style="display:grid; grid-template-columns: 240px 1fr; gap:40px;">
                         <!-- Columna Foto -->
                         <div style="text-align:center;">
-                            <div id="addPhotoPreview" style="width:180px; height:220px; border:2px dashed #cbd5e1; border-radius:15px; margin-bottom:15px; overflow:hidden; background:#f8fafc; display:flex; align-items:center; justify-content:center;">
-                                <i class="fas fa-user fa-5x" style="color:#cbd5e1;" id="addImgIcon"></i>
+                            <label style="display:block; font-weight:800; color:#0a192f; margin-bottom:15px; font-size:0.9rem;">FOTOGRAFÍA OFICIAL</label>
+                            <div id="addPhotoPreview" style="width:200px; height:260px; border:2px dashed #cbd5e1; border-radius:20px; margin: 0 auto 20px; overflow:hidden; background:#f8fafc; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="document.getElementById('addPhotoInput').click()">
+                                <i class="fas fa-camera fa-4x" style="color:#cbd5e1;" id="addImgIcon"></i>
                                 <img src="" style="width:100%; height:100%; object-fit:cover; display:none;" id="addImgPreview">
                             </div>
                             <input type="file" id="addPhotoInput" accept="image/*" style="display:none;" onchange="previewAddImage(event)">
-                            <button type="button" class="action-btn small secondary" onclick="document.getElementById('addPhotoInput').click()" style="width:100%;">
-                                <i class="fas fa-camera"></i> Adjuntar Foto
-                            </button>
+                            <p style="font-size:0.75rem; color:#64748b;">JPG o PNG. Fondo sólido recomendado.</p>
                             <input type="hidden" name="foto" id="addFotoBase64">
                         </div>
 
-                        <!-- Columna Datos -->
-                        <div class="form-grid" style="grid-template-columns: repeat(2, 1fr);">
+                        <!-- Columna Datos Master -->
+                        <div class="form-grid" style="grid-template-columns: repeat(2, 1fr); gap:20px;">
                             <div class="form-group">
-                                <label style="font-weight:700;">Nombre completo *</label>
-                                <input type="text" name="nombre" required class="form-control" placeholder="Ej: Juan Pérez García">
+                                <label style="font-weight:800; color:#0a192f; font-size:0.85rem;">NOMBRE COMPLETO *</label>
+                                <input type="text" name="nombre" required class="form-control" placeholder="Ej: JUAN PÉREZ GARCÍA" style="text-transform:uppercase; font-weight:700;">
                             </div>
                             <div class="form-group">
-                                <label style="font-weight:700;">Cargo *</label>
-                                <input type="text" name="cargo" required class="form-control" placeholder="Ej: POLICÍA">
+                                <label style="font-weight:800; color:#0a192f; font-size:0.85rem;">CARGO / PUESTO *</label>
+                                <input type="text" name="cargo" required class="form-control" placeholder="Ej: POLICÍA TERCERO" style="text-transform:uppercase;">
                             </div>
                             <div class="form-group">
-                                <label style="font-weight:700;">CUIP *</label>
-                                <input type="text" name="cuip" required class="form-control" placeholder="Ej: TZ-001">
+                                <label style="font-weight:800; color:#0a192f; font-size:0.85rem;">CUIP / ID *</label>
+                                <input type="text" name="cuip" required class="form-control" placeholder="TZ-2026-001" style="text-transform:uppercase; font-family:monospace;">
                             </div>
                             <div class="form-group">
-                                <label style="font-weight:700;">CURP *</label>
-                                <input type="text" name="curp" required class="form-control" placeholder="PEGR800101HXXXXX01">
+                                <label style="font-weight:800; color:#0a192f; font-size:0.85rem;">CURP *</label>
+                                <input type="text" name="curp" required class="form-control" placeholder="18 DIGITOS" style="text-transform:uppercase; font-family:monospace;">
                             </div>
                             <div class="form-group">
-                                <label style="font-weight:700;">Teléfono</label>
-                                <input type="tel" name="telefono" class="form-control" placeholder="Ej: 2411234567">
+                                <label style="font-weight:800; color:#0a192f; font-size:0.85rem;">TELÉFONO DE CONTACTO</label>
+                                <input type="tel" name="telefono" class="form-control" placeholder="241 123 4567">
                             </div>
                             <div class="form-group">
-                                <label style="font-weight:700;">Email</label>
-                                <input type="email" name="email" class="form-control" placeholder="Ej: policia@tzompantepec.gob.mx">
+                                <label style="font-weight:800; color:#0a192f; font-size:0.85rem;">CORREO ELECTRÓNICO</label>
+                                <input type="email" name="email" class="form-control" placeholder="ejemplo@tzompantepec.gob.mx">
                             </div>
                             <div class="form-group">
-                                <label style="font-weight:700;">Fecha de vigencia</label>
-                                <input type="date" name="vigencia" class="form-control" value="2025-12-31">
-                            </div>
-                            <div class="form-group">
-                                <label style="font-weight:700;">Fecha de ingreso</label>
+                                <label style="font-weight:800; color:#0a192f; font-size:0.85rem;">FECHA DE INGRESO</label>
                                 <input type="date" name="fechaIngreso" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight:800; color:#0a192f; font-size:0.85rem;">VIGENCIA CREDENCIAL</label>
+                                <input type="date" name="vigencia" class="form-control" value="2026-12-31">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sección Firma -->
+                    <div style="margin-top:30px; padding-top:20px; border-top:1px solid #e2e8f0;">
+                        <label style="font-weight:800; color:#0a192f; font-size:0.85rem; display:block; margin-bottom:10px;">FIRMA AUTÓGRAFA DEL ELEMENTO</label>
+                        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:15px; padding:10px;">
+                            <canvas id="signature-pad" style="width:100%; height:120px; background:#fff; cursor:crosshair;"></canvas>
+                            <div style="text-align:right; margin-top:10px;">
+                                <button type="button" class="action-btn small secondary" onclick="clearSignature()"><i class="fas fa-eraser"></i> Limpiar Firma</button>
                             </div>
                         </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button type="submit" form="addEmployeeForm" class="action-btn">
-                    <i class="fas fa-save"></i> Guardar Personal
-                </button>
-                <button class="action-btn secondary" onclick="this.closest('.modal').remove()">
-                    Cancelar
+            <div class="modal-footer" style="padding:25px 40px; background:#f8fafc; border-top:1px solid #e2e8f0;">
+                <button class="btn-v2-actualizar" onclick="this.closest('.modal').remove()" style="border:1.5px solid #64748b; color:#64748b;">CANCELAR</button>
+                <button type="submit" form="addEmployeeForm" class="btn-v2-nuevo">
+                    <i class="fas fa-save"></i> GUARDAR PERSONAL
                 </button>
             </div>
         </div>
     `;
 
     document.body.appendChild(modal);
+    
+    // Inicializar signature pad si está definido
+    if (typeof initSignaturePad === 'function') {
+        setTimeout(initSignaturePad, 100);
+    }
 }
 
 // Agregar nuevo empleado

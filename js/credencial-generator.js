@@ -180,138 +180,128 @@ function printEnhancedCredential() {
                    324 x 504 px (escala 0.9 del preview 360x550)
                    Ratio: card-print / preview = 0.9 en X, 0.916 en Y
                    ============================================= */
+                /* =============================================
+                   TARJETA DE IMPRESIÓN V3 (PHASE 3)
+                   324 x 504 px
+                   ============================================= */
                 .card-print {
                     width: 324px;
                     height: 504px;
-                    border-radius: 15px;
+                    border-radius: 12px;
                     position: relative;
                     overflow: hidden;
                     background-size: 100% 100%;
                     background-position: center;
                     background-repeat: no-repeat;
-                    box-shadow: 0 0 1px rgba(0,0,0,0.5);
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
                     page-break-inside: avoid;
                     margin-bottom: 30px;
+                    background-color: #f0f0f0;
                 }
                 
-                .front-bg { background-image: url('assets/credential_front_bg.jpg'); }
-                .back-bg { background-image: url('assets/credential_back_bg.jpg'); }
+                .front-bg { background-image: url('assets/cred_frente.png'); }
+                .back-bg { background-image: url('assets/cred_vuelta.png'); }
 
-                /* --- Valores con posición absoluta (impresos) ---
-                   Proporcionales a 324x504:
-                   NOMBRE:  top 187px  left 148px
-                   CARGO:   top 214px
-                   CUIP:    top 241px
-                   CURP:    top 268px
-                   VIGENCIA:top 295px
-                   FECHA:   top 322px
+                /* --- Foto del oficial (impresion V3) --- 
+                   Posicionada dentro del recuadro gris del template
                 */
-                /* --- Contenedor de Datos (Transparente v2.4.0) --- */
+                .photo-oficial {
+                    position: absolute;
+                    top: 178px;
+                    left: 45px;
+                    width: 88px;
+                    height: 110px;
+                    border-radius: 4px;
+                    overflow: hidden;
+                    border: 1px solid rgba(0,0,0,0.1);
+                    z-index: 5;
+                }
+
+                .photo-oficial img { width: 100%; height: 100%; object-fit: cover; }
+
+                /* --- Contenedor de Datos (Derecha de la foto) --- */
                 .data-column {
                     position: absolute;
-                    top: 212px;
-                    left: 140px;
-                    width: 175px;
-                    max-height: 180px; /* 5 grupos x 35px: garantiza no cubrir firma/huellar */
-                    overflow: hidden;
+                    top: 180px;
+                    left: 145px;
+                    width: 155px;
                     display: flex;
                     flex-direction: column;
-                    gap: 0;
-                    background: transparent !important;
-                    background-color: transparent !important;
-                    padding: 0;
+                    gap: 4px;
                     z-index: 10;
                 }
 
                 .field-group {
-                    position: relative;
-                    height: 35px; /* Reducido para mayor margen con zona de firma */
-                    width: 100%;
-                    background: transparent !important;
-                    background-color: transparent !important;
-                    border: none !important;
+                    display: flex;
+                    flex-direction: column;
+                    background: transparent;
                 }
 
                 .field-label {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
                     font-family: 'Montserrat', sans-serif;
-                    font-size: 7.5pt;
+                    font-size: 6pt;
                     font-weight: 800;
                     color: #1e3a6e;
                     text-transform: uppercase;
-                    background: transparent !important;
-                    background-color: transparent !important;
-                    padding: 0;
                     margin: 0;
+                    line-height: 1;
                 }
 
                 .field-value {
-                    position: absolute;
-                    top: 16px; /* Offset 16px desde la etiqueta */
-                    left: 0;
-                    width: 100%;
                     font-family: 'Inter', sans-serif;
-                    font-size: 8.5pt;
+                    font-size: 8pt;
                     font-weight: 700;
-                    color: #1a1a2e;
+                    color: #000;
                     text-transform: uppercase;
-                    background: transparent !important;
-                    background-color: transparent !important;
-                    border: none !important;
-                    padding: 0;
-                    margin: 0;
+                    margin: 0 0 2px 0;
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
                 }
 
-                /* --- Foto del oficial (impresion) --- */
-                .photo-oficial {
+                /* --- Firma y Huella --- */
+                .firma-oficial {
                     position: absolute;
-                    top: 212px;
-                    left: 20px;
-                    width: 110px;
-                    height: 140px;
-                    border-radius: 4px;
-                    overflow: hidden;
-                    background: transparent !important;
-                    border: none !important;
+                    bottom: 85px;
+                    left: 44px;
+                    width: 125px;
+                    height: 48px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 15;
+                }
+                .firma-oficial img { 
+                    max-width: 100%; 
+                    max-height: 100%; 
+                    mix-blend-mode: multiply; /* Para quitar fondo blanco si existe */
                 }
 
-                .photo-oficial img { width: 100%; height: 100%; object-fit: cover; }
-
-                /* --- QR frontal (oculto) --- */
-                .qr-box-print {
+                .huella-oficial {
                     position: absolute;
-                    bottom: 12px;
-                    left: 30px;
-                    width: 50px;
-                    height: 50px;
+                    bottom: 74px;
+                    right: 44px;
+                    width: 100px;
+                    height: 85px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 15;
+                }
+
+                /* --- QR trasera --- */
+                .qr-back-print {
+                    position: absolute;
+                    bottom: 15px;
+                    right: 25px;
+                    width: 60px;
+                    height: 60px;
                     background: white;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     border-radius: 4px;
                     padding: 2px;
-                    opacity: 0;
-                }
-                .qr-box-print img { width: 100%; height: 100%; }
-
-                /* --- QR trasera --- */
-                .qr-back-print {
-                    position: absolute;
-                    bottom: 12px;
-                    right: 25px;
-                    width: 75px;
-                    height: 75px;
-                    background: white;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    border-radius: 6px;
-                    padding: 3px;
                 }
                 .qr-back-print img, .qr-back-print canvas { width: 100% !important; height: 100% !important; }
 
@@ -325,8 +315,8 @@ function printEnhancedCredential() {
         </head>
         <body>
             <div class="no-print-header">
-                <div style="font-family: 'Montserrat', sans-serif; font-size: 1.2rem; font-weight: 800; letter-spacing: 1px;">PREPARACIÓN DE CREDENCIAL OFICIAL</div>
-                <p style="font-size: 0.9rem; opacity: 0.8; margin: 8px 0;">Verifique que la escala de impresión esté al 100% y el papel sea el correcto.</p>
+                <div style="font-family: 'Montserrat', sans-serif; font-size: 1.2rem; font-weight: 800; letter-spacing: 1px;">PREPARACIÓN DE CREDENCIAL OFICIAL V3</div>
+                <p style="font-size: 0.9rem; opacity: 0.8; margin: 8px 0;">Nueva Plantilla Dynamica Phase 3 - Tzompantepec</p>
                 <button class="print-btn" onclick="window.print()"><i class="fas fa-print"></i> MANDAR A IMPRESORA</button>
             </div>
 
@@ -336,7 +326,6 @@ function printEnhancedCredential() {
                          onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(data.nombre)}&background=0a192f&color=fff&size=200'">
                 </div>
                 
-                <!-- Bloque de Datos Corregido (Stacked) -->
                 <div class="data-column">
                     <div class="field-group">
                         <span class="field-label">Nombre</span>
@@ -351,18 +340,22 @@ function printEnhancedCredential() {
                         <span class="field-value">${data.cuip || '---'}</span>
                     </div>
                     <div class="field-group">
-                        <span class="field-label">Vigencia SIBIM</span>
-                        <span class="field-value">${data.vigencia || 'OFICIAL'}</span>
+                        <span class="field-label">CURP</span>
+                        <span class="field-value">${data.curp || '---'}</span>
                     </div>
                     <div class="field-group">
-                        <span class="field-label">Expedición</span>
-                        <span class="field-value">${data.fechaExpedicion || fechaExp}</span>
+                        <span class="field-label">Vigencia</span>
+                        <span class="field-value">${data.vigencia || 'OFICIAL'}</span>
                     </div>
                 </div>
 
-                <div class="qr-box-print">
-                    <img src="${qrDataUrl}">
+                <!-- Zona de Firma -->
+                <div class="firma-oficial">
+                    ${data.firma ? `<img src="${data.firma}">` : ''}
                 </div>
+
+                <!-- Reservado para Huella (Fisica o Digital) -->
+                <div class="huella-oficial"></div>
             </div>
 
             <div class="card-print back-bg">

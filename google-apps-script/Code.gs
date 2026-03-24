@@ -210,7 +210,12 @@ function getPersonal() {
           ine_link             : row[32] || '',
           curp_link            : row[33] || '',
           cuip_doc_link        : row[34] || '',
-          comprobante_link     : row[35] || ''
+          comprobante_link     : row[35] || '',
+          estado_civil         : row[36] || '',
+          cartilla_militar     : row[37] || '',
+          contacto_emergencia  : row[38] || '',
+          tel_emergencia       : row[39] || '',
+          domicilio            : row[40] || ''
         });
       }
     });
@@ -276,7 +281,12 @@ function guardarPersonal(datos) {
       ineUrl,                      // AG: INE
       curpUrl,                     // AH: CURP
       cuipDocUrl,                  // AI: CUIP DOC
-      comprobanteUrl               // AJ: COMPROBANTE
+      comprobanteUrl,              // AJ: COMPROBANTE
+      datos.estado_civil || '',    // AK: Estado Civil
+      datos.cartilla_militar || '',// AL: Cartilla S.M.N.
+      datos.contacto_emergencia || '', // AM: Contacto Emergencia
+      datos.tel_emergencia || '',  // AN: Tel Emergencia
+      datos.domicilio || ''        // AO: Domicilio
     ];
     
     sheet.appendRow(row);
@@ -340,6 +350,11 @@ function actualizarPersonal(datos) {
         if (datos.telefono) sheet.getRange(rowNum, 13).setValue(datos.telefono);
         if (datos.armado) sheet.getRange(rowNum, 14).setValue(datos.armado);
         if (datos.estado) sheet.getRange(rowNum, 15).setValue(datos.estado);
+        if (datos.estado_civil) sheet.getRange(rowNum, 37).setValue(datos.estado_civil);
+        if (datos.cartilla_militar) sheet.getRange(rowNum, 38).setValue(datos.cartilla_militar);
+        if (datos.contacto_emergencia) sheet.getRange(rowNum, 39).setValue(datos.contacto_emergencia);
+        if (datos.tel_emergencia) sheet.getRange(rowNum, 40).setValue(datos.tel_emergencia);
+        if (datos.domicilio) sheet.getRange(rowNum, 41).setValue(datos.domicilio);
         
         // Manejo de foto en Drive
         if (datos.foto && datos.foto.includes('base64')) {

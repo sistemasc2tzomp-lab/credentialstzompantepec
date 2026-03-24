@@ -198,9 +198,8 @@ function printEnhancedCredential() {
                     margin-bottom: 30px;
                     background-color: #f0f0f0;
                 }
-                
-                .front-bg { background-image: url('assets/cred_frente.png'); }
-                .back-bg { background-image: url('assets/cred_vuelta.png'); }
+                .front-bg { background-image: url('assets/credential_front_bg.jpg'); }
+                .back-bg { background-image: url('assets/credential_back_bg.jpg'); }
 
                 /* --- Foto del oficial (impresion V3) --- 
                    Posicionada dentro del recuadro gris del template

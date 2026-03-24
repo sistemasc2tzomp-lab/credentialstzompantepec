@@ -3019,6 +3019,7 @@ async function loadUsersRepo() {
                     <td style="padding: 18px 20px; color:#94a3b8; font-size:0.85rem;">${u.ultimoacceso || 'Nunca'}</td>
                     <td style="padding: 18px 20px;">
                         <div style="display:flex; gap:10px;">
+                            ${(getCurrentUserRole() || '').toUpperCase() === 'ADMIN' ? `
                             <button class="action-btn small" title="Modificar" style="background:#f1f5f9; color:#1a3a6e; border:none; border-radius:10px; padding:8px 12px;" onclick="editUser('${u.usuario || u.username}')">
                                 <i class="fas fa-user-pen"></i>
                             </button>
@@ -3028,6 +3029,7 @@ async function loadUsersRepo() {
                             <button class="action-btn small" title="Eliminar" style="background:#fff1f2; color:#be123c; border:none; border-radius:10px; padding:8px 12px;" onclick="deleteUser('${u.usuario || u.username}')">
                                 <i class="fas fa-user-xmark"></i>
                             </button>
+                            ` : `<span style="color:#94a3b8; font-size: 0.8rem;">Sin permisos</span>`}
                         </div>
                     </td>
                 </tr>
@@ -4209,7 +4211,24 @@ function showAddEmployeeModal() {
                             </div>
                             <div class="form-group">
                                 <label style="font-weight:800; color:#0a192f; font-size:0.85rem;">CARGO / PUESTO *</label>
-                                <input type="text" name="cargo" required class="form-control" placeholder="Ej: POLICÍA TERCERO" style="text-transform:uppercase;">
+                                <select name="cargo" required class="form-control" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:10px; width:100%; cursor:pointer;">
+                                    <!-- Menú de hamburguesa falso en el select -->
+                                    <option value="">≡ SELECCIONE UN CARGO</option>
+                                    <option value="DIRECTOR DE SEGURIDAD PÚBLICA">DIRECTOR DE SEGURIDAD PÚBLICA</option>
+                                    <option value="SUBDIRECTOR DE SEGURIDAD PÚBLICA">SUBDIRECTOR DE SEGURIDAD PÚBLICA</option>
+                                    <option value="COMANDANTE">COMANDANTE</option>
+                                    <option value="POLICÍA PRIMERO">POLICÍA PRIMERO</option>
+                                    <option value="POLICÍA SEGUNDO">POLICÍA SEGUNDO</option>
+                                    <option value="POLICÍA TERCERO">POLICÍA TERCERO</option>
+                                    <option value="POLICÍA">POLICÍA</option>
+                                    <option value="OFICIAL">OFICIAL</option>
+                                    <option value="SUPERVISOR">SUPERVISOR</option>
+                                    <option value="ADMINISTRATIVO">ADMINISTRATIVO</option>
+                                    <option value="JUEZ CÍVICO">JUEZ CÍVICO</option>
+                                    <option value="MÉDICO LEGUISTA">MÉDICO LEGUISTA</option>
+                                    <option value="PARAMÉDICO">PARAMÉDICO</option>
+                                    <option value="PROTECCIÓN CIVIL">PROTECCIÓN CIVIL</option>
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label style="font-weight:800; color:#0a192f; font-size:0.85rem;">CUIP / ID *</label>
@@ -4224,8 +4243,49 @@ function showAddEmployeeModal() {
                                 <input type="tel" name="telefono" class="form-control" placeholder="241 123 4567">
                             </div>
                             <div class="form-group">
+                                <label style="font-weight:800; color:#0a192f; font-size:0.85rem;">TEL. DE EMERGENCIA</label>
+                                <input type="tel" name="tel_emergencia" class="form-control" placeholder="Teléfono en caso de emergencia">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight:800; color:#0a192f; font-size:0.85rem;">CONTACTO DE EMERGENCIA</label>
+                                <input type="text" name="contacto_emergencia" class="form-control" placeholder="Nombre completo del contacto">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight:800; color:#0a192f; font-size:0.85rem;">ESTADO CIVIL</label>
+                                <select name="estado_civil" class="form-control" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:10px; width:100%;">
+                                    <option value="">Seleccione</option>
+                                    <option value="SOLTERO(A)">Soltero(a)</option>
+                                    <option value="CASADO(A)">Casado(a)</option>
+                                    <option value="DIVORCIADO(A)">Divorciado(a)</option>
+                                    <option value="VIUDO(A)">Viudo(a)</option>
+                                    <option value="UNIÓN LIBRE">Unión Libre</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight:800; color:#0a192f; font-size:0.85rem;">CARTILLA S.M.N.</label>
+                                <input type="text" name="cartilla_militar" class="form-control" placeholder="Matrícula de cartilla">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight:800; color:#0a192f; font-size:0.85rem;">TIPO DE SANGRE</label>
+                                <select name="tipoSangre" class="form-control" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:10px; width:100%;">
+                                    <option value="">Seleccione</option>
+                                    <option value="O+">O Positivo (O+)</option>
+                                    <option value="O-">O Negativo (O-)</option>
+                                    <option value="A+">A Positivo (A+)</option>
+                                    <option value="A-">A Negativo (A-)</option>
+                                    <option value="B+">B Positivo (B+)</option>
+                                    <option value="B-">B Negativo (B-)</option>
+                                    <option value="AB+">AB Positivo (AB+)</option>
+                                    <option value="AB-">AB Negativo (AB-)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
                                 <label style="font-weight:800; color:#0a192f; font-size:0.85rem;">CORREO ELECTRÓNICO</label>
                                 <input type="email" name="email" class="form-control" placeholder="ejemplo@tzompantepec.gob.mx">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight:800; color:#0a192f; font-size:0.85rem;">DOMICILIO ACTUAL</label>
+                                <textarea name="domicilio" class="form-control" placeholder="Calle, Número, Colonia, Municipio" rows="2" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:10px; width:100%; resize:none;"></textarea>
                             </div>
                             <div class="form-group">
                                 <label style="font-weight:800; color:#0a192f; font-size:0.85rem;">FECHA DE INGRESO</label>
@@ -4393,7 +4453,23 @@ async function editEmployee(cuipOrId) {
                             </div>
                             <div class="form-group">
                                 <label><i class="fas fa-briefcase"></i> Cargo / Puesto</label>
-                                <input type="text" name="cargo" value="${person.cargo || ''}" required class="form-control">
+                                <select name="cargo" required class="form-control">
+                                    <option value="">≡ SELECCIONE UN CARGO</option>
+                                    <option value="DIRECTOR DE SEGURIDAD PÚBLICA" ${person.cargo === 'DIRECTOR DE SEGURIDAD PÚBLICA' ? 'selected' : ''}>DIRECTOR DE SEGURIDAD PÚBLICA</option>
+                                    <option value="SUBDIRECTOR DE SEGURIDAD PÚBLICA" ${person.cargo === 'SUBDIRECTOR DE SEGURIDAD PÚBLICA' ? 'selected' : ''}>SUBDIRECTOR DE SEGURIDAD PÚBLICA</option>
+                                    <option value="COMANDANTE" ${person.cargo === 'COMANDANTE' ? 'selected' : ''}>COMANDANTE</option>
+                                    <option value="POLICÍA PRIMERO" ${person.cargo === 'POLICÍA PRIMERO' ? 'selected' : ''}>POLICÍA PRIMERO</option>
+                                    <option value="POLICÍA SEGUNDO" ${person.cargo === 'POLICÍA SEGUNDO' ? 'selected' : ''}>POLICÍA SEGUNDO</option>
+                                    <option value="POLICÍA TERCERO" ${person.cargo === 'POLICÍA TERCERO' ? 'selected' : ''}>POLICÍA TERCERO</option>
+                                    <option value="POLICÍA" ${person.cargo === 'POLICÍA' ? 'selected' : ''}>POLICÍA</option>
+                                    <option value="OFICIAL" ${person.cargo === 'OFICIAL' ? 'selected' : ''}>OFICIAL</option>
+                                    <option value="SUPERVISOR" ${person.cargo === 'SUPERVISOR' ? 'selected' : ''}>SUPERVISOR</option>
+                                    <option value="ADMINISTRATIVO" ${person.cargo === 'ADMINISTRATIVO' ? 'selected' : ''}>ADMINISTRATIVO</option>
+                                    <option value="JUEZ CÍVICO" ${person.cargo === 'JUEZ CÍVICO' ? 'selected' : ''}>JUEZ CÍVICO</option>
+                                    <option value="MÉDICO LEGUISTA" ${person.cargo === 'MÉDICO LEGUISTA' ? 'selected' : ''}>MÉDICO LEGUISTA</option>
+                                    <option value="PARAMÉDICO" ${person.cargo === 'PARAMÉDICO' ? 'selected' : ''}>PARAMÉDICO</option>
+                                    <option value="PROTECCIÓN CIVIL" ${person.cargo === 'PROTECCIÓN CIVIL' ? 'selected' : ''}>PROTECCIÓN CIVIL</option>
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label><i class="fas fa-fingerprint"></i> CURP</label>
@@ -4416,6 +4492,47 @@ async function editEmployee(cuipOrId) {
                                 <select name="estado" class="form-control" style="border-left:5px solid #10b981;">
                                     ${Object.values(EMPLOYEE_STATUS).map(s => `<option value="${s}" ${person.estado === s ? 'selected' : ''}>${s}</option>`).join('')}
                                 </select>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-phone-alt"></i> Tel. Emergencia</label>
+                                <input type="tel" name="tel_emergencia" value="${person.tel_emergencia || ''}" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-user-friends"></i> Contacto Emergencia</label>
+                                <input type="text" name="contacto_emergencia" value="${person.contacto_emergencia || ''}" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-rings"></i> Estado Civil</label>
+                                <select name="estado_civil" class="form-control">
+                                    <option value="">Seleccione</option>
+                                    <option value="SOLTERO(A)" ${person.estado_civil === 'SOLTERO(A)' ? 'selected' : ''}>Soltero(a)</option>
+                                    <option value="CASADO(A)" ${person.estado_civil === 'CASADO(A)' ? 'selected' : ''}>Casado(a)</option>
+                                    <option value="DIVORCIADO(A)" ${person.estado_civil === 'DIVORCIADO(A)' ? 'selected' : ''}>Divorciado(a)</option>
+                                    <option value="VIUDO(A)" ${person.estado_civil === 'VIUDO(A)' ? 'selected' : ''}>Viudo(a)</option>
+                                    <option value="UNIÓN LIBRE" ${person.estado_civil === 'UNIÓN LIBRE' ? 'selected' : ''}>Unión Libre</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-file-invoice"></i> Cartilla S.M.N.</label>
+                                <input type="text" name="cartilla_militar" value="${person.cartilla_militar || ''}" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-tint"></i> Tipo de Sangre</label>
+                                <select name="tipoSangre" class="form-control">
+                                    <option value="">Seleccione</option>
+                                    <option value="O+" ${person.tipoSangre === 'O+' ? 'selected' : ''}>O Positivo (O+)</option>
+                                    <option value="O-" ${person.tipoSangre === 'O-' ? 'selected' : ''}>O Negativo (O-)</option>
+                                    <option value="A+" ${person.tipoSangre === 'A+' ? 'selected' : ''}>A Positivo (A+)</option>
+                                    <option value="A-" ${person.tipoSangre === 'A-' ? 'selected' : ''}>A Negativo (A-)</option>
+                                    <option value="B+" ${person.tipoSangre === 'B+' ? 'selected' : ''}>B Positivo (B+)</option>
+                                    <option value="B-" ${person.tipoSangre === 'B-' ? 'selected' : ''}>B Negativo (B-)</option>
+                                    <option value="AB+" ${person.tipoSangre === 'AB+' ? 'selected' : ''}>AB Positivo (AB+)</option>
+                                    <option value="AB-" ${person.tipoSangre === 'AB-' ? 'selected' : ''}>AB Negativo (AB-)</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="grid-column: span 2;">
+                                <label><i class="fas fa-map-marker-alt"></i> Domicilio Actual</label>
+                                <textarea name="domicilio" class="form-control" rows="2" style="background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:10px; width:100%; resize:none;">${person.domicilio || ''}</textarea>
                             </div>
                             <div class="form-group">
                                 <label><i class="fas fa-calendar-check"></i> Vigencia</label>
@@ -5319,6 +5436,9 @@ async function initCredencialesSection() {
                     <button class="action-btn small" onclick="useQRForCredential('${p.nombre}', '${p.cargo}', '${p.cuip}', '${p.curp}', '${p.foto}')" title="Cargar en generador">
                         <i class="fas fa-upload"></i> Cargar
                     </button>
+                    <button class="action-btn small primary" onclick="printReceipt('credencial', '${encodeURIComponent(JSON.stringify(p))}')" title="Vale de Emisión de Credencial">
+                        <i class="fas fa-file-signature"></i> Vale
+                    </button>
                     <button class="action-btn small secondary" onclick="printSingleCredential('${p.cuip}')" title="Impresión Directa">
                         <i class="fas fa-print"></i>
                     </button>
@@ -5436,11 +5556,11 @@ async function loadFinesRepo() {
                         <i class="fas fa-cash-register"></i> COBRAR
                     </button>
                     ` : `
-                    <button class="action-btn small" title="Imprimir Recibo" onclick="printFineTicket('${f.folio}', true)" style="background: #3b82f6;">
+                    <button class="action-btn small" title="Imprimir Recibo" onclick="printReceipt('multa', '${encodeURIComponent(JSON.stringify(f))}')" style="background: #3b82f6;">
                         <i class="fas fa-receipt"></i> RECIBO
                     </button>
                     `}
-                    <button class="action-btn small secondary" title="Imprimir Infracción" onclick="printFineTicket('${f.folio}', false)">
+                    <button class="action-btn small secondary" title="Imprimir Infracción" onclick="printReceipt('multa', '${encodeURIComponent(JSON.stringify(f))}')">
                         <i class="fas fa-print"></i>
                     </button>
                     ${isAdmin ? `
@@ -6114,7 +6234,7 @@ async function loadArmamentoData(type = 'armas') {
                             ${item.nivel ? `<p><strong>Nivel:</strong> ${item.nivel}</p>` : ''}
                             <p><strong>Estado:</strong> <span class="status-badge ${String(item.estado).toLowerCase()}">${item.estado}</span></p>
                             <p><strong>Asignado:</strong> ${item.asignado || 'DISPONIBLE'}</p>
-                            ${(getCurrentUserRole() || '').toUpperCase() === 'ADMIN' ? `<div style="margin-top:15px; display:flex; gap:10px;"><button class="action-btn small secondary" onclick="window.editArmamento('${encodeURIComponent(JSON.stringify(item))}')"><i class="fas fa-edit"></i></button><button class="action-btn small danger" onclick="deleteArmamento('${item.id || item.serie || item.matricula || item.placa || item.eco}', '${type}')"><i class="fas fa-trash"></i></button></div>` : ''}
+                            ${(getCurrentUserRole() || '').toUpperCase() === 'ADMIN' ? `<div style="margin-top:15px; display:flex; gap:10px;"><button class="action-btn small primary" onclick="printReceipt('armamento', '${encodeURIComponent(JSON.stringify(item))}', '${type}')" title="Imprimir Vale de Resguardo"><i class="fas fa-print"></i></button><button class="action-btn small secondary" onclick="window.editArmamento('${encodeURIComponent(JSON.stringify(item))}')"><i class="fas fa-edit"></i></button><button class="action-btn small danger" onclick="deleteArmamento('${item.id || item.serie || item.matricula || item.placa || item.eco}', '${type}')"><i class="fas fa-trash"></i></button></div>` : ''}
                         </div>
                     </div>
                 `).join('')}
@@ -6154,7 +6274,7 @@ async function loadVehiculosData() {
                     <p><strong>Estatus:</strong> <span class="status-badge ${String(v.estado).toLowerCase().replace(/\s+/g, '-')}">${v.estado}</span></p>
                     <p><strong>Kilometraje:</strong> ${v.kilometraje} km</p>
                     <p><strong>Asignado:</strong> ${v.asignado || 'BASE C2'}</p>
-                    ${(getCurrentUserRole() || '').toUpperCase() === 'ADMIN' ? `<div style="margin-top:15px; display:flex; gap:10px;"><button class="action-btn small secondary" onclick="window.editVehiculo('${encodeURIComponent(JSON.stringify(v))}')"><i class="fas fa-edit"></i></button><button class="action-btn small danger" onclick="deleteVehiculo('${v.id || v.eco || v.placa}')"><i class="fas fa-trash"></i></button></div>` : ''}
+                    ${(getCurrentUserRole() || '').toUpperCase() === 'ADMIN' ? `<div style="margin-top:15px; display:flex; gap:10px;"><button class="action-btn small primary" onclick="printReceipt('vehiculo', '${encodeURIComponent(JSON.stringify(v))}')" title="Imprimir Vale de Resguardo"><i class="fas fa-print"></i></button><button class="action-btn small secondary" onclick="window.editVehiculo('${encodeURIComponent(JSON.stringify(v))}')"><i class="fas fa-edit"></i></button><button class="action-btn small danger" onclick="deleteVehiculo('${v.id || v.eco || v.placa}')"><i class="fas fa-trash"></i></button></div>` : ''}
                 </div>
             </div>
         `).join('');
@@ -6335,14 +6455,33 @@ function openVehiculoModal() {
                             <select id="v-tipo" class="form-control" required style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem;">
                                 <option value="Patrulla (Sadan)">Patrulla (Sedan)</option>
                                 <option value="Patrulla (Pick-Up)">Patrulla (Pick-Up)</option>
-                                <option value="Motocicleta">Motocicleta</option>
                                 <option value="Ambulancia">Ambulancia</option>
                                 <option value="Vialidad">Tránsito/Vialidad</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label style="display:block; margin-bottom:5px; font-weight:700; font-size:0.85rem; color:#64748b;">Marca / Modelo</label>
-                            <input type="text" id="v-marca" placeholder="Ej: Dodge Charger 2024" required class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem;">
+                            <input type="text" id="v-marca" placeholder="Ej: Dodge Charger" required class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem;">
+                        </div>
+                        <div class="form-group">
+                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:0.85rem; color:#64748b;">Año</label>
+                            <input type="text" id="v-anio" placeholder="Ej: 2024" class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem;">
+                        </div>
+                        <div class="form-group">
+                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:0.85rem; color:#64748b;">Color</label>
+                            <input type="text" id="v-color" placeholder="Ej: Azul c/ Blanco" class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem;">
+                        </div>
+                        <div class="form-group">
+                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:0.85rem; color:#64748b;">No. de Motor</label>
+                            <input type="text" id="v-motor" placeholder="Número de motor" class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem;">
+                        </div>
+                        <div class="form-group">
+                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:0.85rem; color:#64748b;">Pasajeros</label>
+                            <input type="number" id="v-pasajeros" placeholder="Capacidad" class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem;">
+                        </div>
+                        <div class="form-group">
+                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:0.85rem; color:#64748b;">Responsable / Asignación</label>
+                            <input type="text" id="v-responsable" placeholder="Titular a cargo" class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem;">
                         </div>
                         <div class="form-group">
                             <label style="display:block; margin-bottom:5px; font-weight:700; font-size:0.85rem; color:#64748b;">Estatus Operativo</label>
@@ -6387,6 +6526,11 @@ async function saveVehiculo(e) {
         placa: document.getElementById('v-placa').value,
         tipo: document.getElementById('v-tipo').value,
         marca: document.getElementById('v-marca').value,
+        anio: document.getElementById('v-anio') ? document.getElementById('v-anio').value : '',
+        color: document.getElementById('v-color') ? document.getElementById('v-color').value : '',
+        motor: document.getElementById('v-motor') ? document.getElementById('v-motor').value : '',
+        pasajeros: document.getElementById('v-pasajeros') ? document.getElementById('v-pasajeros').value : '',
+        responsable: document.getElementById('v-responsable') ? document.getElementById('v-responsable').value : '',
         kilometraje: document.getElementById('v-km') ? document.getElementById('v-km').value : '',
         estado: document.getElementById('v-estado').value,
         cuadrante: document.getElementById('v-cuadrante') ? document.getElementById('v-cuadrante').value : ''
@@ -6410,20 +6554,23 @@ async function saveVehiculo(e) {
     }
 }
 
-window.editVehiculo = function(vStr) {
-    const v = JSON.parse(decodeURIComponent(vStr));
+window.editVehiculo = function(vehStr) {
+    const v = JSON.parse(decodeURIComponent(vehStr));
     openVehiculoModal();
-    document.getElementById('v-eco').value = v.economico || v.eco || v.id || v.placa || '';
-    document.getElementById('v-placa').value = v.placa || '';
-    document.getElementById('v-tipo').value = v.tipo || 'Patrulla (Sadan)';
-    document.getElementById('v-marca').value = v.marca || '';
-    document.getElementById('v-modelo').value = v.modelo || '';
-    if(document.getElementById('v-color')) document.getElementById('v-color').value = v.color || '';
-    document.getElementById('v-km').value = v.kilometraje || '';
-    document.getElementById('v-estado').value = v.estado || 'Activo';
-    document.getElementById('v-cuadrante').value = v.cuadrante || '';
-    window.editingVehiculoId = v.id || v.eco || v.placa;
     setTimeout(() => {
+        document.getElementById('v-eco').value = v.economico || v.eco || v.id || v.placa || '';
+        document.getElementById('v-placa').value = v.placa || '';
+        document.getElementById('v-tipo').value = v.tipo || 'Patrulla (Sadan)';
+        document.getElementById('v-marca').value = v.marca || '';
+        if (document.getElementById('v-anio')) document.getElementById('v-anio').value = v.anio || '';
+        if (document.getElementById('v-color')) document.getElementById('v-color').value = v.color || '';
+        if (document.getElementById('v-motor')) document.getElementById('v-motor').value = v.motor || '';
+        if (document.getElementById('v-pasajeros')) document.getElementById('v-pasajeros').value = v.pasajeros || '';
+        if (document.getElementById('v-responsable')) document.getElementById('v-responsable').value = v.responsable || v.asignado || '';
+        if (document.getElementById('v-km')) document.getElementById('v-km').value = v.kilometraje || '';
+        document.getElementById('v-estado').value = v.estado || 'Activo';
+        if (document.getElementById('v-cuadrante')) document.getElementById('v-cuadrante').value = v.cuadrante || '';
+        window.editingVehiculoId = v.id || v.eco || v.placa;
         const btn = document.querySelector('#formVehiculo button[type="submit"]');
         if(btn) btn.textContent = 'Actualizar Unidad';
     }, 100);

@@ -1487,47 +1487,47 @@ function getInicioSection() {
 function getPersonalSection() {
     return `
         <div class="gestion-personal-container fade-in" style="padding: 10px;">
-
-
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px;">
-                <div class="stat-premium" style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.02); border-left: 5px solid #1a3a6e;">
-                    <span style="color: #64748b; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">FUERZA ACTIVA</span>
-                    <h3 style="font-size: 2.2rem; margin: 8px 0; color: #0a192f; font-weight: 900;" id="statCountActivos">${currentPersonnelData?.length || 0}</h3>
-                    <div style="font-size: 0.85rem; color: #10b981; font-weight: 700;"><i class="fas fa-shield-check"></i> Personal Validado</div>
+            <!-- Stats Cards Dinámicas -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-bottom: 28px;">
+                <div style="background: linear-gradient(135deg, #0a192f 0%, #1a3a6e 100%); padding: 22px 25px; border-radius: 18px; color: white; box-shadow: 0 8px 25px rgba(10,25,47,0.2);">
+                    <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8;">Fuerza Activa</span>
+                    <h3 style="font-size: 2.4rem; margin: 6px 0 4px; font-weight: 900;" id="statPersonalTotal">--</h3>
+                    <div style="font-size: 0.8rem; opacity: 0.9;"><i class="fas fa-shield-alt"></i> Elementos Validados</div>
                 </div>
-                <div class="stat-premium" style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.02); border-left: 5px solid #c5a059;">
-                    <span style="color: #64748b; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">EXPEDIENTES C2</span>
-                    <h3 style="font-size: 2.2rem; margin: 8px 0; color: #0a192f; font-weight: 900;">${currentPersonnelData?.length || 0}</h3>
-                    <div style="font-size: 0.85rem; color: #3b82f6; font-weight: 700;"><i class="fas fa-cloud-check"></i> Sincronizados</div>
+                <div style="background: linear-gradient(135deg, #b8941f 0%, #c5a059 100%); padding: 22px 25px; border-radius: 18px; color: white; box-shadow: 0 8px 25px rgba(197,160,89,0.2);">
+                    <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; opacity: 0.85;">Expedientes C2</span>
+                    <h3 style="font-size: 2.4rem; margin: 6px 0 4px; font-weight: 900;" id="statExpedientes">--</h3>
+                    <div style="font-size: 0.8rem; opacity: 0.9;"><i class="fas fa-cloud-upload-alt"></i> Sincronizados</div>
                 </div>
-                <div class="stat-premium" style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.02); border-left: 5px solid #ef4444;">
-                    <span style="color: #64748b; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">PENDIENTES</span>
-                    <h3 style="font-size: 2.2rem; margin: 8px 0; color: #0a192f; font-weight: 900;">0</h3>
-                    <div style="font-size: 0.85rem; color: #ef4444; font-weight: 700;"><i class="fas fa-clock"></i> Falta Credencial</div>
+                <div style="background: white; padding: 22px 25px; border-radius: 18px; border: 1px solid #fde2e2; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+                    <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8;">Pendientes</span>
+                    <h3 style="font-size: 2.4rem; margin: 6px 0 4px; font-weight: 900; color: #ef4444;" id="statPendientes">0</h3>
+                    <div style="font-size: 0.8rem; color: #ef4444;"><i class="fas fa-exclamation-circle"></i> Sin Credencial</div>
                 </div>
-                <div class="stat-premium" style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.02); border-left: 5px solid #10b981;">
-                    <span style="color: #64748b; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">ESTATUS QR</span>
-                    <h3 style="font-size: 2.2rem; margin: 8px 0; color: #0a192f; font-weight: 900;">OK</h3>
-                    <div style="font-size: 0.85rem; color: #10b981; font-weight: 700;"><i class="fas fa-qrcode"></i> Encriptación Activa</div>
+                <div style="background: white; padding: 22px 25px; border-radius: 18px; border: 1px solid #d1fae5; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+                    <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8;">Sistema QR</span>
+                    <h3 style="font-size: 2.4rem; margin: 6px 0 4px; font-weight: 900; color: #10b981;">OK</h3>
+                    <div style="font-size: 0.8rem; color: #10b981;"><i class="fas fa-qrcode"></i> Encriptación Activa</div>
                 </div>
             </div>
             
-            <div class="repo-main card" style="padding: 25px; border-radius: 25px; background: white; border: none; box-shadow: 0 15px 40px rgba(0,0,0,0.04);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
-                    <h3 style="margin: 0; font-weight: 800; color: #0a192f; display: flex; align-items: center; gap: 10px; font-size: 1.4rem;">
-                        <i class="fas fa-search-plus" style="color: #c5a059;"></i> Directorio Operativo
+            <!-- Directorio Operativo -->
+            <div style="background: white; border-radius: 22px; box-shadow: 0 10px 40px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; overflow: hidden;">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 22px 28px; border-bottom: 1px solid #f1f5f9; flex-wrap: wrap; gap: 12px;">
+                    <h3 style="margin: 0; font-weight: 800; color: #0a192f; display: flex; align-items: center; gap: 10px; font-size: 1.25rem;">
+                        <i class="fas fa-users" style="color: #c5a059;"></i> Directorio Operativo
                     </h3>
-                    <div style="position: relative; width: 450px; max-width: 100%;">
-                        <i class="fas fa-filter" style="position: absolute; left: 18px; top: 15px; color: #94a3b8;"></i>
-                        <input type="text" id="buscarCredencial" placeholder="Escriba nombre, CUIP o cargo..." onkeyup="filterCredencialesRepo()" 
-                               style="width: 100%; padding: 14px 15px 14px 50px; border-radius: 12px; border: 1px solid #f1f5f9; background: #f8fafc; outline: none; transition: all 0.3s ease; font-size: 1rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+                    <div style="position: relative; width: 380px; max-width: 100%;">
+                        <i class="fas fa-search" style="position: absolute; left: 16px; top: 12px; color: #94a3b8; font-size: 0.9rem;"></i>
+                        <input type="text" id="searchPersonnel" placeholder="Buscar por nombre, CUIP o cargo..." oninput="filterPersonnelDirectory()" 
+                               style="width: 100%; padding: 11px 15px 11px 42px; border-radius: 12px; border: 2px solid #f1f5f9; background: #f8fafc; outline: none; font-size: 0.92rem; transition: border 0.3s;"
+                               onfocus="this.style.borderColor='#c5a059'" onblur="this.style.borderColor='#f1f5f9'">
                     </div>
                 </div>
-
-                <div class="inventory-grid" id="credencialesGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px;">
-                    <div class="loading" style="grid-column: 1/-1; text-align: center; padding: 100px;">
-                        <i class="fas fa-spinner fa-spin fa-3x" style="color: #1a3a6e; margin-bottom: 20px;"></i>
-                        <p style="font-weight: 600; color: #64748b;">Sincronizando expedientes tácticos...</p>
+                <div id="personnelDirectory" style="padding: 20px 28px 28px; max-height: calc(100vh - 340px); overflow-y: auto;">
+                    <div style="text-align: center; padding: 60px 20px;">
+                        <div style="width: 50px; height: 50px; border: 4px solid #e2e8f0; border-top-color: #c5a059; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 20px;"></div>
+                        <p style="font-weight: 600; color: #64748b; font-size: 0.95rem;">Cargando directorio operativo...</p>
                     </div>
                 </div>
             </div>
@@ -1717,7 +1717,7 @@ function getCredencialesSection() {
             }
 
 
-            /* --- QR FRONTAL (oculto, el fondo no lo necesita) --- */
+            /* --- QR FRONTAL --- */
             .qr-frontal-pos {
                 position: absolute;
                 bottom: 12px;
@@ -1730,8 +1730,12 @@ function getCredencialesSection() {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                z-index: 10;
-                opacity: 0;
+                z-index: 60; /* Above signature if overlaps */
+            }
+            .qr-frontal-pos canvas {
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: contain;
             }
 
             /* --- QR TRASERA --- 
@@ -1749,6 +1753,11 @@ function getCredencialesSection() {
                 align-items: center;
                 justify-content: center;
                 z-index: 10;
+            }
+            .qr-trasera-pos canvas {
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: contain;
             }
 
             .card-label-modern {
@@ -2647,16 +2656,57 @@ function getMultasSection() {
 function getArmamentoSection() {
     return `
         <div class="armamento-container fade-in" style="padding: 10px;">
-
-
-            <div class="tabs-container" style="display: flex; gap: 10px; margin-bottom: 25px; background: #f1f5f9; padding: 8px; border-radius: 15px; width: fit-content;">
-                <button class="tab-btn active" id="tab-armas" onclick="switchArmamentoTab('armas')" style="padding: 10px 25px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">ARMAS</button>
-                <button class="tab-btn" id="tab-radios" onclick="switchArmamentoTab('radios')" style="padding: 10px 25px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">RADIOS</button>
-                <button class="tab-btn" id="tab-chalecos" onclick="switchArmamentoTab('chalecos')" style="padding: 10px 25px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">CHALECOS</button>
+            <!-- Stats Dashboard -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px;">
+                <div style="background: linear-gradient(135deg, #0a192f, #1a3a6e); padding: 18px 22px; border-radius: 16px; color: white;">
+                    <span style="font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; opacity: 0.8;">Total Activos</span>
+                    <h3 style="font-size: 2rem; margin: 5px 0 2px; font-weight: 900;" id="statTotalActivos">--</h3>
+                    <div style="font-size: 0.75rem; opacity: 0.85;"><i class="fas fa-boxes-stacked"></i> Inventariados</div>
+                </div>
+                <div style="background: white; padding: 18px 22px; border-radius: 16px; border: 1px solid #d1fae5;">
+                    <span style="font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #94a3b8;">Operativos</span>
+                    <h3 style="font-size: 2rem; margin: 5px 0 2px; font-weight: 900; color: #10b981;" id="statOperativos">--</h3>
+                    <div style="font-size: 0.75rem; color: #10b981;"><i class="fas fa-check-circle"></i> En servicio</div>
+                </div>
+                <div style="background: white; padding: 18px 22px; border-radius: 16px; border: 1px solid #fee2e2;">
+                    <span style="font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #94a3b8;">En Reparación</span>
+                    <h3 style="font-size: 2rem; margin: 5px 0 2px; font-weight: 900; color: #ef4444;" id="statReparacion">--</h3>
+                    <div style="font-size: 0.75rem; color: #ef4444;"><i class="fas fa-wrench"></i> Taller</div>
+                </div>
+                <div style="background: white; padding: 18px 22px; border-radius: 16px; border: 1px solid #e0e7ff;">
+                    <span style="font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #94a3b8;">Asignados</span>
+                    <h3 style="font-size: 2rem; margin: 5px 0 2px; font-weight: 900; color: #6366f1;" id="statAsignados">--</h3>
+                    <div style="font-size: 0.75rem; color: #6366f1;"><i class="fas fa-user-check"></i> En uso</div>
+                </div>
             </div>
 
-            <div id="armamentoContent" class="inventory-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
-                <!-- Cargado via JS -->
+            <!-- Tabs Premium -->
+            <div style="background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; overflow: hidden;">
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 18px 25px; border-bottom: 1px solid #f1f5f9; flex-wrap: wrap; gap: 12px;">
+                    <div class="tabs-container" style="display: flex; gap: 5px; background: #f1f5f9; padding: 5px; border-radius: 12px;">
+                        <button class="tab-btn active" id="tab-armas" onclick="switchArmamentoTab('armas')" style="padding: 10px 22px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 0.82rem; transition: all 0.3s; background: var(--police-navy); color: white;">
+                            <i class="fas fa-gun"></i> ARMAS
+                        </button>
+                        <button class="tab-btn" id="tab-radios" onclick="switchArmamentoTab('radios')" style="padding: 10px 22px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 0.82rem; transition: all 0.3s; background: transparent; color: #64748b;">
+                            <i class="fas fa-walkie-talkie"></i> RADIOS
+                        </button>
+                        <button class="tab-btn" id="tab-chalecos" onclick="switchArmamentoTab('chalecos')" style="padding: 10px 22px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 0.82rem; transition: all 0.3s; background: transparent; color: #64748b;">
+                            <i class="fas fa-vest"></i> CHALECOS
+                        </button>
+                        <button class="tab-btn" id="tab-vehiculos" onclick="switchArmamentoTab('vehiculos')" style="padding: 10px 22px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 0.82rem; transition: all 0.3s; background: transparent; color: #64748b;">
+                            <i class="fas fa-car-side"></i> VEHÍCULOS
+                        </button>
+                    </div>
+                    <div style="position: relative; width: 280px; max-width: 100%;">
+                        <i class="fas fa-search" style="position: absolute; left: 14px; top: 11px; color: #94a3b8; font-size: 0.85rem;"></i>
+                        <input type="text" id="searchInventario" placeholder="Buscar por serie o modelo..." oninput="filterInventario()"
+                               style="width: 100%; padding: 10px 14px 10px 38px; border-radius: 10px; border: 2px solid #f1f5f9; background: #f8fafc; outline: none; font-size: 0.85rem; transition: border 0.3s;"
+                               onfocus="this.style.borderColor='#c5a059'" onblur="this.style.borderColor='#f1f5f9'">
+                    </div>
+                </div>
+                <div id="armamentoContent" style="padding: 22px 25px; max-height: calc(100vh - 380px); overflow-y: auto;">
+                    <!-- Cargado via JS -->
+                </div>
             </div>
         </div>
     `;
@@ -3373,10 +3423,107 @@ function searchPersonnel() {
     });
 }
 
-function loadPersonnelTable() {
-    // Esta función debería usar loadGoogleSheetsData y renderizar en #personalTableBody
-    // Por ahora usaremos datos de ejemplo si no hay conexión
-    renderPersonnelTable();
+async function loadPersonnelTable() {
+    const container = document.getElementById('personnelDirectory');
+    if (!container) return;
+
+    try {
+        const personnel = await loadGoogleSheetsData();
+        currentPersonnelData = personnel || [];
+        filteredPersonnelData = [...currentPersonnelData];
+
+        // Actualizar stats
+        const totalEl = document.getElementById('statPersonalTotal');
+        const expEl = document.getElementById('statExpedientes');
+        if (totalEl) totalEl.textContent = currentPersonnelData.length;
+        if (expEl) expEl.textContent = currentPersonnelData.length;
+
+        renderPersonnelDirectory(currentPersonnelData);
+    } catch (err) {
+        console.error('Error en loadPersonnelTable:', err);
+        container.innerHTML = `
+            <div style="text-align:center; padding:60px 20px;">
+                <i class="fas fa-exclamation-triangle fa-3x" style="color:#ef4444; margin-bottom:15px;"></i>
+                <p style="font-weight:700; color:#ef4444;">Error al cargar directorio</p>
+                <p style="color:#94a3b8; font-size:0.85rem;">${err.message || 'Verifique su conexión'}</p>
+                <button onclick="loadPersonnelTable()" class="action-btn" style="margin-top:15px; background:#0a192f; color:white; padding:10px 25px; border-radius:10px; border:none; font-weight:700; cursor:pointer;">
+                    <i class="fas fa-redo"></i> Reintentar
+                </button>
+            </div>`;
+    }
+}
+
+function renderPersonnelDirectory(data) {
+    const container = document.getElementById('personnelDirectory');
+    if (!container) return;
+
+    if (!data || data.length === 0) {
+        container.innerHTML = `
+            <div style="text-align:center; padding:60px 20px;">
+                <i class="fas fa-user-slash fa-3x" style="color:#cbd5e1; margin-bottom:15px;"></i>
+                <p style="font-weight:700; color:#64748b;">No hay personal registrado</p>
+                <p style="color:#94a3b8; font-size:0.85rem;">Use el botón "+ NUEVO" para agregar elementos.</p>
+            </div>`;
+        return;
+    }
+
+    container.innerHTML = `
+        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:18px;">
+            ${data.map(p => {
+                const statusColor = (p.estado || 'Activo').toLowerCase().includes('activo') ? '#10b981' : 
+                                    (p.estado || '').toLowerCase().includes('franco') ? '#f59e0b' : 
+                                    (p.estado || '').toLowerCase().includes('baja') ? '#ef4444' : '#3b82f6';
+                return `
+                <div style="background:white; border-radius:16px; border:1px solid #f1f5f9; box-shadow:0 4px 15px rgba(0,0,0,0.03); overflow:hidden; transition: transform 0.2s, box-shadow 0.2s; cursor:pointer;"
+                     onmouseenter="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'"
+                     onmouseleave="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.03)'">
+                    <div style="display:flex; gap:15px; padding:18px 20px; align-items:center;">
+                        <div style="width:60px; height:60px; border-radius:14px; overflow:hidden; flex-shrink:0; background:#f1f5f9; border:2px solid #e2e8f0;">
+                            <img src="${p.foto || ''}" 
+                                 onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(p.nombre)}&background=0a192f&color=fff&size=120&bold=true'"
+                                 style="width:100%; height:100%; object-fit:cover; object-position:center top;">
+                        </div>
+                        <div style="flex:1; min-width:0;">
+                            <h4 style="margin:0 0 3px; font-size:0.95rem; font-weight:800; color:#0a192f; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.nombre}</h4>
+                            <p style="margin:0 0 5px; font-size:0.78rem; color:#64748b; font-weight:600;">${p.cargo || 'Sin cargo'}</p>
+                            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                                <span style="font-size:0.7rem; background:#f1f5f9; color:#475569; padding:2px 8px; border-radius:6px; font-weight:700; font-family:monospace;">${p.cuip || 'S/CUIP'}</span>
+                                <span style="font-size:0.65rem; background:${statusColor}15; color:${statusColor}; padding:2px 8px; border-radius:6px; font-weight:700;">● ${p.estado || 'Activo'}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:flex; border-top:1px solid #f1f5f9; background:#fafbfc;">
+                        <button onclick="viewEmployeeDetails('${p.cuip || p.nombre}')" style="flex:1; padding:10px; border:none; background:transparent; cursor:pointer; color:#64748b; font-size:0.75rem; font-weight:700; transition:background 0.2s;" 
+                                onmouseenter="this.style.background='#f1f5f9'" onmouseleave="this.style.background='transparent'">
+                            <i class="fas fa-eye"></i> Ver
+                        </button>
+                        <button onclick="editEmployee('${p.cuip || p.nombre}')" style="flex:1; padding:10px; border:none; border-left:1px solid #f1f5f9; background:transparent; cursor:pointer; color:#3b82f6; font-size:0.75rem; font-weight:700; transition:background 0.2s;"
+                                onmouseenter="this.style.background='#eff6ff'" onmouseleave="this.style.background='transparent'">
+                            <i class="fas fa-pen"></i> Editar
+                        </button>
+                        <button onclick="generateEmployeeCredential('${p.cuip || p.nombre}')" style="flex:1; padding:10px; border:none; border-left:1px solid #f1f5f9; background:transparent; cursor:pointer; color:#c5a059; font-size:0.75rem; font-weight:700; transition:background 0.2s;"
+                                onmouseenter="this.style.background='#fffbeb'" onmouseleave="this.style.background='transparent'">
+                            <i class="fas fa-id-card"></i> Credencial
+                        </button>
+                    </div>
+                </div>`;
+            }).join('')}
+        </div>`;
+}
+
+function filterPersonnelDirectory() {
+    const query = (document.getElementById('searchPersonnel')?.value || '').toLowerCase().trim();
+    if (!query) {
+        renderPersonnelDirectory(currentPersonnelData);
+        return;
+    }
+    const filtered = currentPersonnelData.filter(p =>
+        (p.nombre || '').toLowerCase().includes(query) ||
+        (p.cuip || '').toLowerCase().includes(query) ||
+        (p.cargo || '').toLowerCase().includes(query) ||
+        (p.curp || '').toLowerCase().includes(query)
+    );
+    renderPersonnelDirectory(filtered);
 }
 
 // Función auxiliar para convertir archivos a Base64
@@ -6401,47 +6548,146 @@ window.openInvResguardoModal = openInvResguardoModal;
 window.closeInvModal = closeInvModal;
 window.saveInvResguardo = saveInvResguardo;
 // --- REPOSITORIOS TÁCTICOS DATA ---
+let _currentInventoryData = [];
+let _currentInventoryType = 'armas';
+
 async function loadArmamentoData(type = 'armas') {
     const container = document.getElementById('armamentoContent');
     if (!container) return;
+    _currentInventoryType = type;
 
-    container.innerHTML = `<div style="padding:40px; text-align:center;"><i class="fas fa-spinner fa-spin fa-3x"></i><p>Consultando arsenal de ${type} en Google Sheets...</p></div>`;
+    container.innerHTML = `<div style="padding:50px; text-align:center;">
+        <div style="width:40px; height:40px; border:4px solid #e2e8f0; border-top-color:#c5a059; border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 15px;"></div>
+        <p style="font-weight:600; color:#64748b;">Consultando ${type} en Google Sheets...</p>
+    </div>`;
 
     try {
-        const action = type === 'armas' ? 'getArmamento' : type === 'radios' ? 'getRadios' : 'getChalecos';
+        let action;
+        if (type === 'vehiculos') {
+            action = 'getVehiculos';
+        } else {
+            action = type === 'armas' ? 'getArmamento' : type === 'radios' ? 'getRadios' : 'getChalecos';
+        }
         const data = await window.apiGetSheetData(action);
 
         if (!Array.isArray(data)) {
-            if (data && data.message) {
-                throw new Error(data.message);
-            }
+            if (data && data.message) throw new Error(data.message);
         }
 
-        if (!data || data.length === 0) {
-            container.innerHTML = `<div style="padding:40px; text-align:center; color:#64748b;"><i class="fas fa-box-open fa-3x"></i><p>No se encontraron registros de ${type}.</p></div>`;
-            return;
-        }
+        _currentInventoryData = data || [];
 
-        container.innerHTML = `
-            <div class="inventory-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:20px;">
-                ${data.map(item => `
-                    <div class="inventory-card card" style="border-left: 5px solid ${item.estado === 'Operativo' || item.estado === 'Activo' ? '#10b981' : '#ef4444'};">
-                        <div class="card-header"><h4>${item.tipo || item.marca} ${item.modelo || ''}</h4></div>
-                        <div class="card-body" style="font-size:0.85rem;">
-                            <p><strong>Serie/ID:</strong> ${item.serie || item.id || '---'}</p>
-                            ${item.calibre ? `<p><strong>Calibre:</strong> ${item.calibre}</p>` : ''}
-                            ${item.nivel ? `<p><strong>Nivel:</strong> ${item.nivel}</p>` : ''}
-                            <p><strong>Estado:</strong> <span class="status-badge ${String(item.estado).toLowerCase()}">${item.estado}</span></p>
-                            <p><strong>Asignado:</strong> ${item.asignado || 'DISPONIBLE'}</p>
-                            ${(getCurrentUserRole() || '').toUpperCase() === 'ADMIN' ? `<div style="margin-top:15px; display:flex; gap:10px;"><button class="action-btn small primary" onclick="printReceipt('armamento', '${encodeURIComponent(JSON.stringify(item))}', '${type}')" title="Imprimir Vale de Resguardo"><i class="fas fa-print"></i></button><button class="action-btn small secondary" onclick="window.editArmamento('${encodeURIComponent(JSON.stringify(item))}')"><i class="fas fa-edit"></i></button><button class="action-btn small danger" onclick="deleteArmamento('${item.id || item.serie || item.matricula || item.placa || item.eco}', '${type}')"><i class="fas fa-trash"></i></button></div>` : ''}
+        // Actualizar stats
+        const total = _currentInventoryData.length;
+        const operativos = _currentInventoryData.filter(i => {
+            const st = String(i.estado || '').toLowerCase();
+            return st.includes('operativo') || st.includes('activo') || st.includes('bueno') || st.includes('servicio');
+        }).length;
+        const reparacion = _currentInventoryData.filter(i => {
+            const st = String(i.estado || '').toLowerCase();
+            return st.includes('reparación') || st.includes('taller') || st.includes('reparacion') || st.includes('mal');
+        }).length;
+        const asignados = _currentInventoryData.filter(i => i.asignado && i.asignado.toUpperCase() !== 'DISPONIBLE' && i.asignado.toUpperCase() !== 'BASE C2').length;
+        
+        if (document.getElementById('statTotalActivos')) document.getElementById('statTotalActivos').textContent = total;
+        if (document.getElementById('statOperativos')) document.getElementById('statOperativos').textContent = operativos;
+        if (document.getElementById('statReparacion')) document.getElementById('statReparacion').textContent = reparacion;
+        if (document.getElementById('statAsignados')) document.getElementById('statAsignados').textContent = asignados;
+
+        renderInventoryCards(container, _currentInventoryData, type);
+    } catch (err) {
+        container.innerHTML = `<div style="padding:50px; text-align:center; color:#ef4444;">
+            <i class="fas fa-exclamation-triangle fa-3x" style="margin-bottom:15px;"></i>
+            <p style="font-weight:700;">Error al cargar ${type}</p>
+            <p style="color:#94a3b8; font-size:0.85rem;">${err.message || 'Error de conexión con la base de datos.'}</p>
+            <button onclick="loadArmamentoData('${type}')" style="margin-top:12px; background:#0a192f; color:white; padding:10px 22px; border-radius:10px; border:none; font-weight:700; cursor:pointer;">
+                <i class="fas fa-redo"></i> Reintentar
+            </button>
+        </div>`;
+    }
+}
+
+function renderInventoryCards(container, data, type) {
+    const isAdmin = (getCurrentUserRole() || '').toUpperCase() === 'ADMIN';
+    
+    if (!data || data.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:50px 20px;">
+            <i class="fas fa-box-open fa-3x" style="color:#cbd5e1; margin-bottom:15px;"></i>
+            <p style="font-weight:700; color:#64748b;">No hay registros de ${type}</p>
+            <p style="color:#94a3b8; font-size:0.85rem;">Use el botón "+ AGREGAR" para registrar activos.</p>
+        </div>`;
+        return;
+    }
+
+    const isVehicle = type === 'vehiculos';
+
+    container.innerHTML = `
+        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:18px;">
+            ${data.map(item => {
+                const statusOk = String(item.estado||'').toLowerCase().match(/operativo|activo|bueno|servicio/);
+                const statusColor = statusOk ? '#10b981' : '#ef4444';
+                const idLabel = isVehicle ? (item.placa || item.eco || item.serie || '---') : (item.serie || item.id || '---');
+                const titleLabel = isVehicle ? (item.marca || '') + ' ' + (item.modelo || '') : (item.tipo || item.marca || '') + ' ' + (item.modelo || '');
+                
+                const calDiv = item.calibre ? '<div><strong style="color:#94a3b8;">Calibre:</strong> ' + item.calibre + '</div>' : '';
+                const nivDiv = item.nivel ? '<div><strong style="color:#94a3b8;">Nivel:</strong> ' + item.nivel + '</div>' : '';
+                const typeDiv = (isVehicle && item.tipo) ? '<div><strong style="color:#94a3b8;">Tipo:</strong> ' + item.tipo + '</div>' : '';
+                const kmDiv = (isVehicle && item.kilometraje) ? '<div><strong style="color:#94a3b8;">Km:</strong> ' + item.kilometraje + '</div>' : '';
+                
+                const editOnclick = isVehicle ? "window.editVehiculo('" + encodeURIComponent(JSON.stringify(item)) + "')" : "window.editArmamento('" + encodeURIComponent(JSON.stringify(item)) + "')";
+                const delOnclick = isVehicle ? "deleteVehiculo('" + (item.id || item.eco || item.placa) + "')" : "deleteArmamento('" + (item.id || item.serie || item.placa || item.eco) + "', '" + type + "')";
+                const printOnclick = "printReceipt('armamento', '" + encodeURIComponent(JSON.stringify(item)) + "', '" + type + "')";
+
+                return `
+                <div style="background:white; border-radius:16px; border:1px solid #f1f5f9; box-shadow:0 4px 15px rgba(0,0,0,0.03); overflow:hidden; border-left:4px solid ${statusColor}; transition:transform 0.2s, box-shadow 0.2s;"
+                     onmouseenter="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.07)'"
+                     onmouseleave="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.03)'">
+                    <div style="padding:18px 20px;">
+                        <h4 style="margin:0 0 10px; font-size:0.95rem; font-weight:800; color:#0a192f;">${titleLabel.trim() || 'Sin nombre'}</h4>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; font-size:0.8rem; color:#475569;">
+                            <div><strong style="color:#94a3b8;">ID/Serie:</strong> <span style="font-family:monospace; font-weight:700;">${idLabel}</span></div>
+                            ${calDiv}
+                            ${nivDiv}
+                            ${typeDiv}
+                            ${kmDiv}
+                            <div><strong style="color:#94a3b8;">Estado:</strong> <span style="color:${statusColor}; font-weight:700;">${item.estado || '---'}</span></div>
+                            <div style="grid-column:1/-1;"><strong style="color:#94a3b8;">Asignado:</strong> ${item.asignado || 'DISPONIBLE'}</div>
                         </div>
                     </div>
-                `).join('')}
-            </div>
-        `;
-    } catch (err) {
-        container.innerHTML = `<div style="padding:40px; text-align:center; color:#ef4444;"><i class="fas fa-exclamation-triangle fa-3x"></i><p>Error: ${err.message || 'Error al conectar con la base de datos.'}</p></div>`;
+                    <div style="display:flex; border-top:1px solid #f1f5f9; background:#fafbfc;">
+                        <button onclick="${printOnclick}" style="flex:1; padding:9px; border:none; background:transparent; cursor:pointer; color:#64748b; font-size:0.75rem; font-weight:700; transition:background 0.2s;" onmouseenter="this.style.background='#f1f5f9'" onmouseleave="this.style.background='transparent'">
+                            <i class="fas fa-print"></i> Vale
+                        </button>
+                        <button onclick="${editOnclick}" style="flex:1; padding:9px; border:none; border-left:1px solid #f1f5f9; background:transparent; cursor:pointer; color:#3b82f6; font-size:0.75rem; font-weight:700; transition:background 0.2s;" onmouseenter="this.style.background='#eff6ff'" onmouseleave="this.style.background='transparent'">
+                            <i class="fas fa-pen"></i> Editar
+                        </button>
+                        ${isAdmin ? `
+                        <button onclick="${delOnclick}" style="flex:1; padding:9px; border:none; border-left:1px solid #f1f5f9; background:transparent; cursor:pointer; color:#ef4444; font-size:0.75rem; font-weight:700; transition:background 0.2s;" onmouseenter="this.style.background='#fef2f2'" onmouseleave="this.style.background='transparent'">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>` : ''}
+                    </div>
+                </div>`;
+            }).join('')}
+        </div>`;
+}
+
+function filterInventario() {
+    const query = (document.getElementById('searchInventario')?.value || '').toLowerCase().trim();
+    const container = document.getElementById('armamentoContent');
+    if (!container) return;
+    
+    if (!query) {
+        renderInventoryCards(container, _currentInventoryData, _currentInventoryType);
+        return;
     }
+    const filtered = _currentInventoryData.filter(item =>
+        (item.serie || '').toLowerCase().includes(query) ||
+        (item.tipo || '').toLowerCase().includes(query) ||
+        (item.marca || '').toLowerCase().includes(query) ||
+        (item.modelo || '').toLowerCase().includes(query) ||
+        (item.placa || '').toLowerCase().includes(query) ||
+        (item.asignado || '').toLowerCase().includes(query)
+    );
+    renderInventoryCards(container, filtered, _currentInventoryType);
 }
 
 async function loadVehiculosData() {
@@ -6848,6 +7094,35 @@ window.deleteArmamento = async function(id, type) {
             loadArmamentoData(type);
         } else {
             showNotification('Error al eliminar: ' + res.message, 'error');
+        }
+    } catch(e) {
+        showNotification('Error de conexión', 'error');
+    }
+};
+
+window.editVehiculo = function(itemJson) {
+    try {
+        const item = JSON.parse(decodeURIComponent(itemJson));
+        window.editingVehiculoData = item;
+        // Make sure openVehiculoModal reads window.editingVehiculoData
+        if (typeof openVehiculoModal === 'function') {
+            openVehiculoModal();
+        }
+    } catch(e) {
+        console.error('Error parsing vehicle item:', e);
+    }
+};
+
+window.deleteVehiculo = async function(id) {
+    if(!confirm('¿Está seguro de eliminar este vehículo de la flota?')) return;
+    showNotification('Eliminando vehículo...', 'warning');
+    try {
+        const res = await window.apiEliminarVehiculo(id);
+        if (res && res.success) {
+            showNotification('Vehículo eliminado', 'success');
+            loadArmamentoData('vehiculos');
+        } else {
+            showNotification('Error al eliminar: ' + (res ? res.message : 'Error desconocido'), 'error');
         }
     } catch(e) {
         showNotification('Error de conexión', 'error');

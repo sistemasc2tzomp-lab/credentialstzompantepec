@@ -17,6 +17,60 @@ if (typeof REPORT_TYPES === 'undefined') {
     var REPORT_TYPES = window.REPORT_TYPES;
 }
 
+// Helpers de Filtrado
+function filterDataByDate(data, filters, dateField = 'fecha') {
+    if (!filters || !filters.type || filters.type === 'all') return data;
+    
+    return data.filter(item => {
+        const val = item[dateField];
+        if (!val) return false;
+        
+        // Normalizar fecha (asumiendo YYYY-MM-DD o DD/MM/YYYY)
+        let itemDate;
+        if (val.includes('-')) itemDate = new Date(val);
+        else if (val.includes('/')) {
+            const parts = val.split('/');
+            itemDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+        } else itemDate = new Date(val);
+
+        if (isNaN(itemDate.getTime())) return true; // Si no es fecha válida, incluir por defecto
+
+        if (filters.type === 'day') {
+            const filterDate = new Date(filters.date);
+            return itemDate.toDateString() === filterDate.toDateString();
+        }
+        if (filters.type === 'month') {
+            const [fYear, fMonth] = filters.month.split('-');
+            return itemDate.getFullYear() == fYear && (itemDate.getMonth() + 1) == fMonth;
+        }
+        if (filters.type === 'year') {
+            return itemDate.getFullYear() == filters.year;
+        }
+        return true;
+    });
+}
+
+function getFilteredLogs(filters) {
+    const logs = window.auditLogs || [];
+    if (!filters || !filters.type || filters.type === 'all') return logs;
+
+    return logs.filter(log => {
+        const logDate = new Date(log.timestamp);
+        if (filters.type === 'day') {
+            const filterDate = new Date(filters.date);
+            return logDate.toDateString() === filterDate.toDateString();
+        }
+        if (filters.type === 'month') {
+            const [fYear, fMonth] = filters.month.split('-');
+            return logDate.getFullYear() == fYear && (logDate.getMonth() + 1) == fMonth;
+        }
+        if (filters.type === 'year') {
+            return logDate.getFullYear() == filters.year;
+        }
+        return true;
+    });
+}
+
 
 // Configuración extendida de reportes (se combina con la de auth.js si ya existe)
 const extendedReportConfig = {
@@ -86,8 +140,13 @@ if (typeof reportConfig === 'undefined') {
 
 
 // Generar reporte de personal
-async function generatePersonnelReport() {
-    const data = await loadGoogleSheetsData();
+async function generatePersonnelReport(filters = {}) {
+    let data = await loadGoogleSheetsData();
+    
+    // El personal activo no suele tener fecha de registro en el objeto, 
+    // pero si existiera 'fecha_alta', filtraríamos por ella.
+    // Por ahora lo dejamos pasar todo a menos que se use vigencia como filtro
+    // data = filterDataByDate(data, filters, 'fecha_alta');
 
     const reportData = data.map(person => ({
         nombre: person.nombre,
@@ -130,8 +189,8 @@ function generateMovementsReport(filters = {}) {
 }
 
 // Generar reporte de actividad por usuario
-function generateUserActivityReport() {
-    const logs = auditLogs;
+function generateUserActivityReport(filters = {}) {
+    const logs = getFilteredLogs(filters);
     const userStats = {};
 
     logs.forEach(log => {
@@ -175,8 +234,9 @@ function generateUserActivityReport() {
 }
 
 // Generar reporte de vigencias
-async function generateVigenciaReport() {
-    const data = await loadGoogleSheetsData();
+async function generateVigenciaReport(filters = {}) {
+    let data = await loadGoogleSheetsData();
+    data = filterDataByDate(data, filters, 'vigencia');
     const today = new Date();
 
     const reportData = data.map(person => {
@@ -206,9 +266,9 @@ async function generateVigenciaReport() {
 }
 
 // Generar reporte estadístico
-async function generateEstadisticasReport() {
+async function generateEstadisticasReport(filters = {}) {
     const personnel = await loadGoogleSheetsData();
-    const logs = auditLogs;
+    const logs = getFilteredLogs(filters);
 
     // Calcular estadísticas
     const totalPersonal = personnel.length;
@@ -267,8 +327,10 @@ async function generateEstadisticasReport() {
     };
 }
 
-async function generateC3Report() {
-    const personnel = await loadGoogleSheetsData();
+async function generateC3Report(filters = {}) {
+    let personnel = await loadGoogleSheetsData();
+    // En C3 el campo relevante de fecha suele ser la evaluación
+    personnel = filterDataByDate(personnel, filters, 'fecha_evaluacion');
     const reportData = personnel.map(p => {
         // Simular datos de C3 basados en el personal real
         const hasCert = p.cuip && p.cuip.length > 5;
@@ -284,15 +346,16 @@ async function generateC3Report() {
     return { type: REPORT_TYPES.C3, data: reportData, generatedAt: new Date().toISOString(), totalRegistros: reportData.length };
 }
 
-async function generateC5iReport() {
-    const reportData = [
+async function generateC5iReport(filters = {}) {
+    let reportData = [
         { folio: 'C5I-2026-001', fecha: '2026-02-27', tipo: 'ALERTA TÁCTICA', localizacion: 'CENTRO', oficial: 'C2-STAFF', estatus: 'RESUELTO' },
         { folio: 'C5I-2026-002', fecha: '2026-02-27', tipo: 'VIGILANCIA QR', localizacion: 'ZONA NORTE', oficial: 'UNIDAD 04', estatus: 'ACTIVO' }
     ];
+    reportData = filterDataByDate(reportData, filters, 'fecha');
     return { type: REPORT_TYPES.C5I, data: reportData, generatedAt: new Date().toISOString(), totalRegistros: reportData.length };
 }
 
-async function generateMultasReport() {
+async function generateMultasReport(filters = {}) {
     // Intentar obtener multas de la base de datos real
     let fines = [];
     try {
@@ -311,6 +374,8 @@ async function generateMultasReport() {
             { folio: 'V-2026-003', fecha: '2026-02-27', placa: 'ABC-999', infraccion: 'SIN LICENCIA', monto: '$2,100.00', oficial: 'OFICIAL DURÁN' }
         ];
     }
+
+    fines = filterDataByDate(fines, filters, 'fecha');
 
     return { type: REPORT_TYPES.MULTAS, data: fines, generatedAt: new Date().toISOString(), totalRegistros: fines.length };
 }
@@ -408,41 +473,42 @@ function exportReportToExcel(report) {
 async function exportarReporte(reportType, formato) {
     showNotification(`Generando reporte ${reportType}...`, 'info');
 
+    const filters = window.currentReportFilters || {};
     let report;
     try {
         switch (reportType) {
             case REPORT_TYPES.MOVIMIENTOS:
             case 'movimientos':
-                report = generateMovementsReport(); break;
+                report = generateMovementsReport(filters); break;
             case REPORT_TYPES.PERSONAL_ACTIVO:
             case 'personal_activo':
-                report = await generatePersonnelReport(); break;
+                report = await generatePersonnelReport(filters); break;
             case REPORT_TYPES.ACTIVIDAD_USUARIOS:
             case 'actividad_usuarios':
-                report = generateUserActivityReport(); break;
+                report = generateUserActivityReport(filters); break;
             case REPORT_TYPES.VIGENCIAS:
             case 'vigencias':
-                report = await generateVigenciaReport(); break;
+                report = await generateVigenciaReport(filters); break;
             case REPORT_TYPES.ESTADISTICAS:
             case 'estadisticas':
-                report = await generateEstadisticasReport(); break;
+                report = await generateEstadisticasReport(filters); break;
             case REPORT_TYPES.C3:
             case 'c3_records':
-                report = await generateC3Report(); break;
+                report = await generateC3Report(filters); break;
             case REPORT_TYPES.C5I:
             case 'c5i_records':
-                report = await generateC5iReport(); break;
+                report = await generateC5iReport(filters); break;
             case REPORT_TYPES.MULTAS:
             case 'multas_records':
-                report = await generateMultasReport(); break;
+                report = await generateMultasReport(filters); break;
             case REPORT_TYPES.DOCUMENTACION:
             case 'doc_records':
-                report = await generateDocReport(); break;
+                report = await generateDocReport(filters); break;
             case REPORT_TYPES.INVENTARIO:
             case 'inv_records':
-                report = await generateInventoryReport(); break;
+                report = await generateInventoryReport(filters); break;
             default:
-                report = await generatePersonnelReport();
+                report = await generatePersonnelReport(filters);
         }
     } catch (e) {
         console.error('Error generando reporte:', e);

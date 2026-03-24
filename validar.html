@@ -373,7 +373,9 @@
                                 <div>
                                     <span class="sig-label-ui">FIRMA TITULAR:</span>
                                     <div class="sig-box-ui">
-                                        <img src="assets/firma_placeholder.png" style="height: 50px; opacity: 0.5;" onerror="this.style.display='none'">
+                                        ${cop.firma 
+                                            ? `<img src="${cop.firma}" style="max-width: 100%; max-height: 100%; object-fit: contain; mix-blend-mode: multiply;">` 
+                                            : `<span style="font-size:0.7rem; color:#cbd5e1;">Pendiente de registro</span>`}
                                     </div>
                                 </div>
                                 <div>

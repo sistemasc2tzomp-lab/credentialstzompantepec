@@ -4274,7 +4274,8 @@ function generateEmployeeCredential(employeeId) {
             employee.telefono || '',
             employee.email || '',
             employee.vigencia || '2025-12-31',
-            photoSrc
+            photoSrc,
+            employee.firma || ''
         );
 
         logAction(ACTION_TYPES.GENERATE, `Generó credencial para: ${employee.nombre} `);
@@ -4349,7 +4350,7 @@ function showAddEmployeeModal() {
                 </div>
                 <button class="close-btn" onclick="this.closest('.modal').remove()" style="color:#fff; font-size:2rem;">&times;</button>
             </div>
-            <div class="modal-body" style="padding:40px; background:#fff;">
+            <div class="modal-body" style="padding:40px; background:#fff; max-height:70vh; overflow-y:auto;">
                 <form id="addEmployeeForm" onsubmit="addNewEmployee(event)">
                     <div style="display:grid; grid-template-columns: 240px 1fr; gap:40px;">
                         <!-- Columna Foto -->
@@ -4581,7 +4582,7 @@ async function editEmployee(cuipOrId) {
                 <h3 style="margin:0;"><i class="fas fa-file-pen" style="color:var(--police-gold); margin-right:12px;"></i> Actualización Progresiva de Expediente</h3>
                 <button class="close-btn" onclick="this.closest('.modal').remove()" style="color:white; opacity:1;">&times;</button>
             </div>
-            <div class="modal-body" style="padding:35px; background:#f8fafc;">
+            <div class="modal-body" style="padding:35px; background:#f8fafc; max-height:70vh; overflow-y:auto;">
                 <form id="editEmployeeForm" onsubmit="updateEmployee(event)">
                     <!-- Hidden field con fallback robusto para CUIP y Nombre Original -->
                     <input type="hidden" name="cuip_original" value="${person.cuip || ''}">
@@ -4727,6 +4728,25 @@ async function editEmployee(cuipOrId) {
                             </div>
                         </div>
                     </div>
+
+                    <!-- Sección de Firma Digital del Elemento -->
+                    <div style="margin-top:35px; background:white; padding:25px; border-radius:18px; border:1px solid #e2e8f0;">
+                        <h4 style="color:var(--police-navy); margin:0 0 20px 0; display:flex; align-items:center; gap:10px;">
+                            <i class="fas fa-file-signature" style="color:var(--police-gold);"></i> 
+                            Firma Autógrafa del Elemento
+                        </h4>
+                        ${person.firma ? `<div style="margin-bottom:12px; text-align:center;"><span style="font-size:0.8rem; color:#10b981; font-weight:700;">● Firma registrada</span><br><img src="${person.firma}" style="max-height:80px; border:1px solid #e2e8f0; border-radius:8px; margin-top:8px; padding:5px;"></div>` : ''}
+                        <div style="width:100%; height:180px; border:2px dashed #cbd5e1; border-radius:15px; background:#fdfdfd; position:relative;">
+                            <canvas id="signature-pad" style="width:100%; height:100%; cursor:crosshair; touch-action:none; display:block;"></canvas>
+                        </div>
+                        <div style="margin-top:12px; display:flex; gap:10px; align-items:center;">
+                            <button type="button" onclick="clearSignature()" style="background:#f1f5f9; color:#64748b; border:none; padding:8px 18px; border-radius:8px; font-weight:700; cursor:pointer;">
+                                <i class="fas fa-eraser"></i> Limpiar
+                            </button>
+                            <span style="font-size:0.8rem; color:#94a3b8;">Dibuja aquí la firma del elemento. Si ya existe una firma registrada, la nueva la reemplazará.</span>
+                        </div>
+                        <input type="hidden" name="firma" id="firmaBase64Edit" value="">
+                    </div>
                 </form>
             </div>
             <div class="modal-footer" style="background:white; border-radius:0 0 24px 24px; padding:25px; border-top:1px solid #f1f5f9;">
@@ -4741,6 +4761,13 @@ async function editEmployee(cuipOrId) {
     `;
 
     document.body.appendChild(modal);
+
+    // Inicializar el Pad de Firma una vez que el modal esté en el DOM
+    setTimeout(() => {
+        if (typeof initSignaturePad === 'function') {
+            initSignaturePad();
+        }
+    }, 400);
 }
 
 // Previsualizar imagen en edición
@@ -4763,6 +4790,17 @@ async function updateEmployee(event) {
     try {
         const formData = new FormData(form);
         
+        // Capturar la firma desde el canvas si el usuario dibujó algo
+        const signatureCanvas = document.getElementById('signature-pad');
+        const firmaHiddenInput = document.getElementById('firmaBase64Edit');
+        if (signatureCanvas && firmaHiddenInput && typeof isCanvasBlank === 'function') {
+            if (!isCanvasBlank(signatureCanvas)) {
+                const sigData = signatureCanvas.toDataURL('image/png');
+                firmaHiddenInput.value = sigData;
+                formData.set('firma', sigData);
+            }
+        }
+
         // Llamar a la API correcta definida en gas-api.js
         const result = await apiActualizarPersonal(formData);
 
@@ -5625,7 +5663,7 @@ async function printSingleCredential(cuip) {
     if (!p) return;
 
     // Set as current and print
-    window.selectForCredential(p.nombre, p.cargo, p.cuip, p.curp, p.telefono, p.email, '2025-12-31', p.foto);
+    window.selectForCredential(p.nombre, p.cargo, p.cuip, p.curp, p.telefono, p.email, '2025-12-31', p.foto, p.firma || '');
     setTimeout(() => {
         window.printEnhancedCredential();
     }, 500);

@@ -18,7 +18,7 @@ function toDirectDriveUrl(url) {
     return url;
 }
 
-function selectForCredential(nombre, cargo, cuip, curp, telefono = '', email = '', vigencia = '2025-12-31', foto = '') {
+function selectForCredential(nombre, cargo, cuip, curp, telefono = '', email = '', vigencia = '2025-12-31', foto = '', firma = '') {
     currentPersonData = {
         nombre,
         cargo,
@@ -27,7 +27,8 @@ function selectForCredential(nombre, cargo, cuip, curp, telefono = '', email = '
         telefono,
         email,
         vigencia,
-        foto
+        foto,
+        firma
     };
 
     // Registrar la generación de credencial
@@ -91,8 +92,18 @@ function updateEnhancedCredential(data) {
         photoArea.innerHTML = `
             <img src="${photoSrc || ''}" 
                  onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(data.nombre)}&background=0a192f&color=fff&size=200&bold=true'"
-                 style="width: 100%; height: 100%; object-fit: cover;">
+                 style="width: 100%; height: 100%; object-fit: cover; object-position: center top;">
         `;
+    }
+
+    // Actualizar firma en la vista previa
+    const firmaPreview = document.getElementById('previewSignature');
+    if (firmaPreview) {
+        if (data.firma) {
+            firmaPreview.innerHTML = `<img src="${data.firma}" style="max-width:100%; max-height:100%; object-fit:contain; mix-blend-mode:multiply;">`;
+        } else {
+            firmaPreview.innerHTML = '';
+        }
     }
 
     // Generar QR Real con datos de validación oficial
@@ -216,7 +227,7 @@ function printEnhancedCredential() {
                     z-index: 5;
                 }
 
-                .photo-oficial img { width: 100%; height: 100%; object-fit: cover; }
+                .photo-oficial img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
 
                 /* --- Contenedor de Datos (Derecha de la foto) --- */
                 .data-column {
@@ -269,11 +280,12 @@ function printEnhancedCredential() {
                     align-items: center;
                     justify-content: center;
                     z-index: 15;
+                    border-bottom: 1.5px solid rgba(0,0,0,0.4);
                 }
                 .firma-oficial img { 
-                    max-width: 100%; 
-                    max-height: 100%; 
-                    mix-blend-mode: multiply; /* Para quitar fondo blanco si existe */
+                    max-width: 95%; 
+                    max-height: 95%; 
+                    mix-blend-mode: multiply;
                 }
 
                 .huella-oficial {

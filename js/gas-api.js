@@ -12,20 +12,48 @@ function checkWebAppConfig() {
 }
 
 /**
+ * JSONP GET helper — bypasses all CORS restrictions with GAS.
+ * Works from any static site (GitHub Pages, etc.).
+ */
+function gasGet(action, extraParams = {}) {
+    return new Promise((resolve, reject) => {
+        const cbName = 'cb_' + action + '_' + Date.now();
+        const url = new URL(GAS_WEBAPP_URL);
+        url.searchParams.set('action', action);
+        url.searchParams.set('callback', cbName);
+        Object.entries(extraParams).forEach(([k, v]) => url.searchParams.set(k, v));
+
+        const script = document.createElement('script');
+        script.src = url.toString();
+
+        const timer = setTimeout(() => {
+            cleanup();
+            reject(new Error('JSONP timeout for ' + action));
+        }, 10000);
+
+        window[cbName] = (data) => {
+            cleanup();
+            resolve(data);
+        };
+
+        function cleanup() {
+            clearTimeout(timer);
+            delete window[cbName];
+            if (script.parentNode) script.parentNode.removeChild(script);
+        }
+
+        script.onerror = () => { cleanup(); reject(new Error('JSONP script error')); };
+        document.head.appendChild(script);
+    });
+}
+
+/**
  * GET: Obtener usuarios
  */
 async function apiGetUsuarios() {
     if (!checkWebAppConfig()) return [];
     try {
-        const response = await fetch(`${GAS_WEBAPP_URL}?action=getUsuarios`);
-        if (!response.ok) throw new Error('Network response was not ok');
-        const text = await response.text();
-        try {
-            return JSON.parse(text);
-        } catch (e) {
-            console.error('Error parseando JSON (probablemente necesita permisos Públicos "Anyone" en el WebApp):', text.substring(0, 100));
-            return [];
-        }
+        return await gasGet('getUsuarios');
     } catch (e) {
         console.error('apiGetUsuarios Error:', e);
         return [];
@@ -82,15 +110,7 @@ async function apiActualizarUsuario(datos) {
 async function apiGetPersonal() {
     if (!checkWebAppConfig()) return null;
     try {
-        const response = await fetch(`${GAS_WEBAPP_URL}?action=getPersonal`);
-        if (!response.ok) throw new Error('Error HTTP');
-        const text = await response.text();
-        try {
-            return JSON.parse(text);
-        } catch (e) {
-            console.error('Error parseando JSON (probablemente necesita permisos Públicos "Anyone" en el WebApp):', text.substring(0, 100));
-            return null;
-        }
+        return await gasGet('getPersonal');
     } catch (e) {
         console.error('apiGetPersonal Error:', e);
         return null;
@@ -237,22 +257,14 @@ async function apiActualizarEstado(cuip, estado) {
 }
 
 /**
- * GET: Obtener datos genéricos
+ * GET: Obtener datos genéricos (con JSONP para GitHub Pages)
  */
-async function apiGetSheetData(action) {
+async function apiGetSheetData(action, params = {}) {
     if (!checkWebAppConfig()) return [];
     try {
-        const response = await fetch(`${GAS_WEBAPP_URL}?action=${action}`);
-        if (!response.ok) throw new Error('HTTP error ' + response.status);
-        const text = await response.text();
-        try {
-            return JSON.parse(text);
-        } catch (e) {
-            console.error('Error parseando JSON en', action, '(probablemente necesita permisos Públicos "Anyone"):', text.substring(0, 100));
-            return [];
-        }
+        return await gasGet(action, params);
     } catch (e) {
-        console.error('apiGetSheetData Error:', e);
+        console.error('apiGetSheetData Error (' + action + '):', e);
         return [];
     }
 }

@@ -7931,4 +7931,4 @@ function checkUpdates() {
 }
 
 // --- FIN DEL MÓDULO DE AUTENTICACIÓN Y GESTIÓN ---
-console.log('✅ Sistema Central Tzompantepec v2.7.0-STABLE Operativo');
+console.log('✅ Sistema Central Tzompantepec v2.8.0-STABLE Operativo');

@@ -146,7 +146,7 @@ function updateEnhancedCredential(data) {
         }
     });
 }
-function printEnhancedCredential() {
+async function printEnhancedCredential() {
     if (!currentPersonData) {
         alert('Selecciona un oficial primero desde el Repositorio de Personal.');
         return;
@@ -161,17 +161,27 @@ function printEnhancedCredential() {
         logAction(ACTION_TYPES.PRINT, `Generó impresión de credencial: ${data.nombre}`);
     }
 
-    const tempCanvas = document.createElement('canvas');
-    
     // Identificador único para validación (CUIP o Nombre como backup)
     const uniqueId = data.cuip && data.cuip !== '---' ? data.cuip : (data.nombre || 'INVALID');
     const currentPath = window.location.origin + window.location.pathname.replace('dashboard.html', '').replace('index.html', '');
     const baseUrl = currentPath.endsWith('/') ? currentPath + 'validar.html' : currentPath + '/validar.html';
     const validationUrl = `${baseUrl}?id=${encodeURIComponent(uniqueId)}`;
  
-    // Generar el QR para la impresión (un poco más grande para mejor escaneo)
-    QRCode.toCanvas(tempCanvas, validationUrl, { width: 400, margin: 1, errorCorrectionLevel: 'H' });
-    const qrDataUrl = tempCanvas.toDataURL();
+    // Generar el QR para la impresión con await correcto (toCanvas es asíncrono)
+    let qrDataUrl = '';
+    try {
+        const tempCanvas = document.createElement('canvas');
+        await new Promise((resolve, reject) => {
+            QRCode.toCanvas(tempCanvas, validationUrl, { width: 400, margin: 1, errorCorrectionLevel: 'H' }, (err) => {
+                if (err) reject(err); else resolve();
+            });
+        });
+        qrDataUrl = tempCanvas.toDataURL();
+    } catch(qrErr) {
+        // Fallback: usar API externa si la librería falla
+        qrDataUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(validationUrl)}&ecc=H`;
+        console.warn('QR lib falló, usando API externa:', qrErr);
+    }
 
     const printContent = `
         <!DOCTYPE html>

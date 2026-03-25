@@ -111,7 +111,10 @@ function updateEnhancedCredential(data) {
     
     // Identificador único para validación (CUIP o Nombre como backup)
     const uniqueId = data.cuip && data.cuip !== '---' ? data.cuip : (data.nombre || 'INVALID');
-    const baseUrl = 'https://sistemasc2tzomp-lab.github.io/credentialstzompantepec/validar.html';
+    
+    // Detectar base URL automáticamente (soporta localhost y github pages)
+    const currentPath = window.location.origin + window.location.pathname.replace('dashboard.html', '').replace('index.html', '');
+    const baseUrl = currentPath.endsWith('/') ? currentPath + 'validar.html' : currentPath + '/validar.html';
     const validationUrl = `${baseUrl}?id=${encodeURIComponent(uniqueId)}`;
 
     qrContainers.forEach(container => {
@@ -162,7 +165,9 @@ function printEnhancedCredential() {
     
     // Identificador único para validación (CUIP o Nombre como backup)
     const uniqueId = data.cuip && data.cuip !== '---' ? data.cuip : (data.nombre || 'INVALID');
-    const validationUrl = `https://sistemasc2tzomp-lab.github.io/credentialstzompantepec/validar.html?id=${encodeURIComponent(uniqueId)}`;
+    const currentPath = window.location.origin + window.location.pathname.replace('dashboard.html', '').replace('index.html', '');
+    const baseUrl = currentPath.endsWith('/') ? currentPath + 'validar.html' : currentPath + '/validar.html';
+    const validationUrl = `${baseUrl}?id=${encodeURIComponent(uniqueId)}`;
  
     // Generar el QR para la impresión (un poco más grande para mejor escaneo)
     QRCode.toCanvas(tempCanvas, validationUrl, { width: 400, margin: 1, errorCorrectionLevel: 'H' });
@@ -217,8 +222,8 @@ function printEnhancedCredential() {
                 */
                 .photo-oficial {
                     position: absolute;
-                    top: 178px;
-                    left: 45px;
+                    top: 172px;
+                    left: 52px;
                     width: 88px;
                     height: 110px;
                     border-radius: 4px;

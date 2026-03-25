@@ -1640,8 +1640,8 @@ function getCredencialesSection() {
                Dimensiones calibradas para evitar solapamiento con etiquetas */
             .photo-frame-dynamic {
                 position: absolute;
-                top: 192px;   
-                left: 22px;   
+                top: 185px;   
+                left: 28px;   
                 width: 120px; 
                 height: 150px;
                 border-radius: 4px;
@@ -1724,11 +1724,12 @@ function getCredencialesSection() {
                 height: 80px;
                 z-index: 100; 
                 background: transparent !important;
-                border: 1px dashed rgba(15, 43, 94, 0.15) !important;
+                border: 1px dashed rgba(15, 43, 94, 0.1) !important;
                 border-radius: 8px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                overflow: hidden;
             }
             .huella-abs {
                 position: absolute;

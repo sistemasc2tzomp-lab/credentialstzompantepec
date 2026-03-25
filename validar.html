@@ -4,273 +4,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Credencial Virtual - SPT Tzompantepec</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;600;700&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>SISTEMA SIBIM - Validación Táctica</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+        :root {
+            --tzomp-blue: #0f172a;
+            --tzomp-gold: #c5a059;
+            --tzomp-light: #f8fafc;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
         body {
             min-height: 100vh;
-            background: #f0f2f5;
+            background: #0a192f;
             margin: 0;
             padding: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: 'Inter', sans-serif;
+            color: #1e293b;
         }
 
-        /* Contenedor de la Credencial Virtual */
         .credencial-virtual-container {
             width: 100%;
-            max-width: 450px;
+            max-width: 420px;
             position: relative;
+            transform: scale(0.98);
+            transition: transform 0.3s ease;
         }
+        
+        .credencial-virtual-container:hover { transform: scale(1); }
 
         .credencial-tzomp-ui {
             width: 100%;
-            height: 640px;
+            min-height: 650px;
             background: white;
-            border-radius: 25px;
+            border-radius: 30px;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 50px 100px rgba(0, 0, 0, 0.5);
             display: flex;
             flex-direction: column;
-            border: 1px solid rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .tzomp-header {
-            padding: 20px 25px;
+        /* Badge de Validación */
+        .status-stamp {
+            position: absolute;
+            top: 25px;
+            right: -35px;
+            background: var(--success);
+            color: white;
+            padding: 10px 45px;
+            transform: rotate(25deg);
+            font-weight: 900;
+            z-index: 100;
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+            text-transform: uppercase;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            font-family: 'Montserrat', sans-serif;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .status-stamp.inactive {
+            background: var(--danger);
+            box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);
+        }
+
+        .tzomp-header-premium {
+            padding: 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 100px;
-            box-sizing: border-box;
+            background: white;
         }
 
-        .tzomp-header img {
-            height: 60px;
-            object-fit: contain;
-        }
+        .tzomp-header-premium img { height: 50px; object-fit: contain; }
 
-        .tzomp-banner {
-            background: #1a3a6e;
+        .tzomp-banner-solid {
+            background: var(--tzomp-blue);
             color: white;
             text-align: center;
-            padding: 12px 0;
+            padding: 15px 0;
             font-family: 'Montserrat', sans-serif;
-            font-weight: 800;
-            font-size: 1.25rem;
-            line-height: 1.2;
+            font-weight: 900;
+            font-size: 1.3rem;
+            line-height: 1.1;
             letter-spacing: 1px;
             text-transform: uppercase;
         }
 
-        .tzomp-body {
+        .tzomp-body-premium {
             flex: 1;
-            padding: 25px;
+            padding: 30px 25px;
             display: grid;
-            grid-template-columns: 180px 1fr;
-            gap: 20px;
-            align-items: start;
+            grid-template-columns: 1fr;
+            gap: 25px;
         }
 
-        .photo-frame {
-            width: 170px;
-            height: 220px;
+        .photo-container-premium {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .photo-frame-premium {
+            width: 140px;
+            height: 180px;
             border-radius: 15px;
-            background: #f8fafc;
-            border: 2px solid #e2e8f0;
+            background: #f1f5f9;
             overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .photo-frame img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .info-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            text-align: left;
-        }
-
-        .info-item {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .info-label {
-            font-size: 0.8rem;
-            color: #64748b;
-            font-weight: 500;
-        }
-
-        .info-value {
-            font-size: 1rem;
-            color: #0f172a;
-            font-weight: 700;
-            border-bottom: 1px solid #f1f5f9;
-            padding-bottom: 2px;
-        }
-
-        .info-value.name {
-            font-size: 1.2rem;
-            color: #000;
-            font-weight: 800;
-            border-bottom: none;
-        }
-
-        .signature-section {
-            padding: 0 25px 20px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .sig-box-ui {
             border: 1px solid #e2e8f0;
-            height: 70px;
-            border-radius: 8px;
-            margin-top: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            flex-shrink: 0;
+        }
+
+        .photo-frame-premium img { width: 100%; height: 100%; object-fit: cover; }
+
+        .info-core-premium {
+            flex: 1;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            background: #fdfdfd;
+            gap: 12px;
         }
 
-        .sig-label-ui {
-            font-size: 0.65rem;
-            font-weight: 800;
-            color: #a4abb5;
-            text-transform: uppercase;
-            width: 100%;
-            text-align: left;
-            margin-bottom: 2px;
-        }
-
-        .tzomp-footer {
-            height: 140px;
-            position: relative;
-            overflow: hidden;
-            margin-top: auto;
-        }
-
-        .wave-bg-ui {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 75%;
-            background: linear-gradient(180deg, #1a3a6e 0%, #0a192f 100%);
-            z-index: 1;
-        }
-
-        .wave-svg-ui {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 2;
-        }
-
-        .footer-content-ui {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            padding: 15px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            z-index: 3;
-            box-sizing: border-box;
-        }
-
-        .footer-logo-group {
+        .field-item-premium {
             display: flex;
             flex-direction: column;
-            align-items: center;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 5px;
         }
 
-        .footer-text-ui {
-            color: white;
+        .field-label-premium {
+            font-size: 0.7rem;
+            color: #94a3b8;
             font-weight: 700;
-            font-size: 0.8rem;
-            text-align: center;
-            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .field-value-premium {
+            font-size: 1.1rem;
+            color: var(--tzomp-blue);
+            font-weight: 800;
             line-height: 1.2;
         }
 
-        .status-badge {
-            position: absolute;
-            top: 20px;
-            right: -10px;
-            background: #10b981;
+        .field-value-premium.name {
+            font-size: 1.4rem;
+            line-height: 1;
+            margin-top: 2px;
+        }
+
+        .signature-grid-premium {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 5px;
+        }
+
+        .sig-container-premium {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sig-box-premium {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            height: 80px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .sig-box-premium img { max-width: 90%; max-height: 85%; object-fit: contain; mix-blend-mode: multiply; }
+
+        .footer-tactical-premium {
+            height: 110px;
+            background: var(--tzomp-blue);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 25px;
             color: white;
-            padding: 8px 25px;
-            transform: rotate(15deg);
-            font-weight: 900;
-            z-index: 10;
-            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
-            border-radius: 5px;
-            text-transform: uppercase;
-            font-size: 0.9rem;
+            border-top: 4px solid var(--tzomp-gold);
         }
 
-        .status-badge.inactive {
-            background: #ef4444;
-            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        .footer-logo-premium { display: flex; flex-direction: column; align-items: center; }
+        .footer-logo-premium img { height: 50px; filter: brightness(0) invert(1); }
+        .footer-logo-premium span { color: var(--tzomp-gold); font-weight: 900; font-size: 0.7rem; margin-top: 2px; }
+
+        .footer-text-premium { text-align: center; font-weight: 800; font-size: 0.8rem; line-height: 1.2; letter-spacing: 0.5px; }
+
+        .footer-qr-mock {
+            width: 65px;
+            height: 65px;
+            background: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px;
         }
 
-        .loading-state {
-            text-align: center;
-            color: #1a3a6e;
+        .footer-qr-mock i { font-size: 2.8rem; color: var(--tzomp-blue); }
+
+        .loading-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            color: var(--tzomp-gold);
         }
 
-        .loading-state i {
-            font-size: 3rem;
-            margin-bottom: 15px;
-        }
+        .loading-screen i { font-size: 4rem; text-shadow: 0 0 20px rgba(197, 160, 89, 0.3); }
 
-        @media (max-width: 480px) {
-            .credencial-tzomp-ui {
-                height: auto;
-                min-height: 640px;
-            }
-
-            .tzomp-body {
-                grid-template-columns: 1fr;
-                justify-items: center;
-            }
-
-            .photo-frame {
-                width: 220px;
-                height: 280px;
-            }
-
-            .info-list {
-                width: 100%;
-            }
+        @media (max-width: 400px) {
+            .credencial-virtual-container { transform: scale(0.9); }
         }
     </style>
 </head>
 
 <body>
     <div id="mainContainer" class="credencial-virtual-container">
-        <div class="loading-state">
+        <div class="loading-screen">
             <i class="fas fa-shield-halved fa-beat"></i>
-            <h3>Validando Identidad Oficial...</h3>
-            <p>Conectando con Sistemas C2 Tzompantepec</p>
+            <h2 style="font-family: Montserrat; font-weight: 900;">AUTENTICANDO...</h2>
+            <p style="color: white; opacity: 0.7;">Conectando a Red C2 Tzompantepec</p>
         </div>
     </div>
 
@@ -280,15 +250,12 @@
             if (!foto || foto === 'foto' || foto === '---' || foto.trim() === '') {
                 return 'assets/FOTOGRAFIAS PERSONAL/' + (cuip || 'default').trim() + '.png';
             }
-            const f = String(foto).trim();
-            if (f.startsWith('http')) {
-                if (f.includes('drive.google.com')) {
-                    const idMatch = f.match(/id=([^&]+)/) || f.match(/\/d\/([^/]+)/);
-                    if (idMatch) return `https://lh3.googleusercontent.com/u/0/d/${idMatch[1]}=w400-h500`;
-                }
-                return f;
+            if (foto.startsWith('data:')) return foto;
+            if (foto.includes('drive.google.com')) {
+                const idMatch = foto.match(/id=([^&]+)/) || foto.match(/\/d\/([^/]+)/);
+                if (idMatch) return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w600`;
             }
-            return 'assets/FOTOGRAFIAS PERSONAL/' + f;
+            return foto;
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
@@ -297,133 +264,108 @@
             const container = document.getElementById('mainContainer');
 
             if (!idToSearch) {
-                container.innerHTML = '<div class="tzomp-banner" style="background:#ef4444; border-radius:15px; padding:40px;">ERROR: IDENTIFICADOR NO PROPORCIONADO</div>';
+                container.innerHTML = '<div style="background:var(--danger); color:white; padding:30px; border-radius:15px; text-align:center; font-weight:800; border:4px solid white;">ERROR: IDENTIFICADOR NO PROPORCIONADO</div>';
                 return;
             }
 
             try {
-                let personal = await apiGetPersonal();
-
-                // Fallback a datos demo si la API falla (para pruebas)
-                if (!personal || personal.length === 0) {
-                    console.warn('API de personal no disponible, usando datos de respaldo.');
-                    personal = [
-                        { nombre: 'Juan Romero', cargo: 'Supervisor', cuip: '181119880', curp: 'RONJ8811H8TLMVN08', estado: 'Activo', foto: '' },
-                        { nombre: 'María González', cargo: 'Guardia', cuip: '181119881', curp: 'GOMM850201MDFRN09', estado: 'Vacaciones', foto: '' },
-                        { nombre: 'Pedro Sánchez', cargo: 'Jefe de Turno', cuip: '181119882', curp: 'SAPE900305HDFRN10', estado: 'Activo', foto: '' }
-                    ];
-                }
-
+                const personal = await apiGetPersonal();
                 const cop = personal.find(p => 
                     (p.cuip && String(p.cuip).trim().toUpperCase() === String(idToSearch).trim().toUpperCase()) ||
-                    (p.id && String(p.id).trim().toUpperCase() === String(idToSearch).trim().toUpperCase()) ||
                     (p.nombre && p.nombre.trim().toUpperCase() === idToSearch.trim().toUpperCase())
                 );
 
                 if (cop) {
-                    const isActive = cop.estado.toLowerCase().includes('activo');
-                    const badgeText = isActive ? 'VALIDADO' : 'INACTIVO';
-                    const badgeClass = isActive ? '' : 'inactive';
-
+                    const isActive = (cop.estado || '').toLowerCase().includes('activo');
+                    
                     container.innerHTML = `
-                        <div class="status-badge ${badgeClass}">${badgeText}</div>
                         <div class="credencial-tzomp-ui">
-                            <div class="tzomp-header">
+                            <div class="status-stamp ${isActive ? '' : 'inactive'}">${isActive ? 'VALIDADO' : 'INACTIVO'}</div>
+                            
+                            <div class="tzomp-header-premium">
                                 <img src="assets/escudo_tzomp.png">
-                                <img src="assets/c2_logo.png">
                                 <img src="assets/SPT.png">
                             </div>
-                            <div class="tzomp-banner">SEGURIDAD PÚBLICA<br>TZOMPANTEPEC</div>
-                            <div class="tzomp-body">
-                                <div class="photo-frame">
-                                    <img src="${formatPhotoUrl(cop.foto, cop.cuip)}" 
-                                         onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(cop.nombre)}&background=1a3a6e&color=fff&size=200&bold=true'"
-                                         style="width:100%; height:100%; object-fit:cover;">
+                            
+                            <div class="tzomp-banner-solid">SEGURIDAD PÚBLICA<br>TZOMPANTEPEC</div>
+                            
+                            <div class="tzomp-body-premium">
+                                <div class="photo-container-premium">
+                                    <div class="photo-frame-premium">
+                                        <img src="${formatPhotoUrl(cop.foto, cop.cuip)}" 
+                                             onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(cop.nombre)}&background=0f172a&color=fff&size=300&bold=true'">
+                                    </div>
+                                    <div class="info-core-premium">
+                                        <div class="field-item-premium">
+                                            <span class="field-label-premium">Nombre del Elemento</span>
+                                            <span class="field-value-premium name">${cop.nombre}</span>
+                                        </div>
+                                        <div class="field-item-premium">
+                                            <span class="field-label-premium">Cargo Operativo</span>
+                                            <span class="field-value-premium">${cop.cargo}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="info-list">
-                                    <div class="info-item">
-                                        <span class="info-label">Nombre del Elemento:</span>
-                                        <span class="info-value name">${(function(){
-                                            const n = (cop.nombre || '').trim();
-                                            const a = (cop.apellidos || '').trim();
-                                            if (a && n.toLowerCase().endsWith(a.toLowerCase())) return n;
-                                            return a ? `${n} ${a}` : n;
-                                        })()}</span>
+
+                                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                                    <div class="field-item-premium">
+                                        <span class="field-label-premium">CUIP (Clave Única)</span>
+                                        <span class="field-value-premium" style="font-family:monospace; font-size:1rem;">${cop.cuip}</span>
                                     </div>
-                                    <div class="info-item">
-                                        <span class="info-label">Cargo Operativo:</span>
-                                        <span class="info-value">${cop.cargo}</span>
+                                    <div class="field-item-premium">
+                                        <span class="field-label-premium">CURP</span>
+                                        <span class="field-value-premium" style="font-size:0.95rem;">${cop.curp || '---'}</span>
                                     </div>
-                                    <div class="info-item">
-                                        <span class="info-label">CUIP (Clave Única):</span>
-                                        <span class="info-value" style="font-family:monospace;">${cop.cuip}</span>
+                                </div>
+
+                                <div class="field-item-premium">
+                                    <span class="field-label-premium">Vigencia SIBIM</span>
+                                    <span class="field-value-premium" style="color:var(--success);">OFICIAL TZOMPANTEPEC</span>
+                                </div>
+
+                                <div class="signature-grid-premium">
+                                    <div class="sig-container-premium">
+                                        <span class="field-label-premium">Firma Titular</span>
+                                        <div class="sig-box-premium">
+                                            ${cop.firma ? `<img src="${cop.firma}">` : '<i class="fas fa-pen-nib" style="opacity:0.2; font-size:2rem;"></i>'}
+                                        </div>
                                     </div>
-                                    <div class="info-item">
-                                        <span class="info-label">CURP:</span>
-                                        <span class="info-value">${cop.curp || '---'}</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label">Vigencia SIBIM:</span>
-                                        <span class="info-value" style="color:#10b981;">OFICIAL Tzompantepec</span>
+                                    <div class="sig-container-premium">
+                                        <span class="field-label-premium">Autorización</span>
+                                        <div class="sig-box-premium" style="flex-direction:column; background:white;">
+                                            <span style="font-family: Montserrat; font-weight: 800; font-size: 0.55rem; color: #000; text-align: center; line-height: 1.1; position: relative; z-index: 2;">
+                                                C.P. MARCELINO RAMOS MONTIEL<br>PRESIDENTE MUNICIPAL
+                                            </span>
+                                            <img src="assets/firma_presidencia.png" style="position:absolute; height: 50px; opacity: 0.8; z-index: 1;" onerror="this.style.display='none'">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                             
-                            <div class="signature-section">
-                                <div>
-                                    <span class="sig-label-ui">FIRMA TITULAR:</span>
-                                    <div class="sig-box-ui">
-                                        ${cop.firma 
-                                            ? `<img src="${cop.firma}" style="max-width: 100%; max-height: 100%; object-fit: contain; mix-blend-mode: multiply;">` 
-                                            : `<span style="font-size:0.7rem; color:#cbd5e1;">Pendiente de registro</span>`}
-                                    </div>
+                            <div class="footer-tactical-premium">
+                                <div class="footer-logo-premium">
+                                    <img src="assets/c2_logo.png">
+                                    <span>120488</span>
                                 </div>
-                                <div>
-                                    <span class="sig-label-ui">AUTORIZACIÓN:</span>
-                                    <div class="sig-box-ui" style="flex-direction: column; background: white;">
-                                        <div style="font-family: 'Dancing Script', cursive; font-size: 1.1rem; color: #1a3a6e; margin-bottom: 2px;">Marcelino Ramos M.</div>
-                                        <div style="font-size: 0.5rem; font-weight: 700; color: #000; text-align: center; line-height: 1.1;">C.P. MARCELINO RAMOS MONTIEL<br>PRESIDENTE MUNICIPAL</div>
-                                        <img src="assets/firma_presidencia.png" style="position: absolute; height: 35px; opacity: 0.7; pointer-events: none;" onerror="this.style.display='none'">
-                                    </div>
+                                <div class="footer-text-premium">PROPIEDAD DE GOBIERNO<br>DE TZOMPANTEPEC</div>
+                                <div class="footer-qr-mock">
+                                    <i class="fas fa-qrcode"></i>
                                 </div>
                             </div>
-                            
-                            <div class="tzomp-footer" style="margin-top:auto;">
-                                <svg class="wave-svg-ui" viewBox="0 0 450 60" preserveAspectRatio="none">
-                                    <path d="M0,40 C120,60 330,10 450,40 L450,60 L0,60 Z" fill="#1a3a6e" />
-                                    <path d="M0,45 C150,65 300,15 450,45" fill="none" stroke="#c5a059" stroke-width="3" />
-                                </svg>
-                                <div class="wave-bg-ui"></div>
-                                <div class="footer-content-ui">
-                                    <div class="footer-logo-group">
-                                        <img src="assets/c2_logo.png" style="height: 40px; filter: brightness(0) invert(1) sepia(1) saturate(5) hue-rotate(10deg);">
-                                        <span style="color: #c5a059; font-size: 0.6rem; font-weight: 900; margin-top: 2px; font-family: monospace;">120488</span>
-                                    </div>
-                                    <div class="footer-text-ui">PROPIEDAD DE GOBIERNO<br>DE TZOMPANTEPEC</div>
-                                    <div style="width: 60px; height: 60px; background: white; border-radius: 5px; padding: 4px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
-                                         <i class="fas fa-qrcode" style="font-size: 2.5rem; color: #1a3a6e;"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div style="text-align: center; margin-top: 20px; color: #64748b; font-size: 0.8rem;">
-                            <i class="fas fa-lock"></i> Información Protegida y Validada por Dirección de Seguridad Pública
                         </div>
                     `;
                 } else {
-                    container.innerHTML = `
-                        <div class="tzomp-banner" style="background:#ef4444; border-radius:15px; padding:40px;">
-                            <i class="fas fa-user-xmark" style="font-size: 3rem; margin-bottom: 15px;"></i>
-                            <h3>PERSONAL NO ENCONTRADO</h3>
-                            <p>El identificador ${idToSearch} no corresponde a un elemento activo o registrado.</p>
-                        </div>
-                    `;
+                    container.innerHTML = '<div style="background:var(--danger); color:white; padding:40px; border-radius:20px; text-align:center;"><h3>ERROR 404: NO REGISTRADO</h3><p>El identificador proporcionado no corresponde a ningún elemento del sistema.</p></div>';
                 }
             } catch (err) {
-                container.innerHTML = '<div class="tzomp-banner" style="background:#f59e0b; border-radius:15px; padding:40px;">ERROR DE CONEXIÓN CON EL SERVIDOR C2</div>';
+                console.error(err);
+                container.innerHTML = '<div style="background:var(--danger); color:white; padding:40px; border-radius:20px; text-align:center;"><h3>ERROR DE CONEXIÓN</h3><p>No se pudo establecer contacto con el servidor de seguridad.</p></div>';
             }
         });
     </script>
 </body>
+
+</html>
+
 
 </html>

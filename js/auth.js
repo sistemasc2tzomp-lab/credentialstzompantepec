@@ -71,6 +71,12 @@ const EMPLOYEE_STATUS = {
 };
 window.EMPLOYEE_STATUS = EMPLOYEE_STATUS;
 
+// --- REPOSITORIOS TÁCTICOS DATA (Global State) ---
+var _currentInventoryData = [];
+var _currentInventoryType = 'armas';
+window._currentInventoryType = _currentInventoryType;
+window._currentInventoryData = _currentInventoryData;
+
 // Configuración de reportes
 const reportConfig = {
     [REPORT_TYPES.MOVIMIENTOS]: {
@@ -4273,17 +4279,29 @@ function filterByVigencia(type) {
 // Cambiar vista (tabla/tarjetas)
 function togglePersonnelView(view) {
     currentView = view;
-    document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
-    document.querySelectorAll('.view-container').forEach(container => container.classList.remove('active'));
+    // Seleccionar botones de vista (pueden ser .view-btn tradicionales o .action-btn en la nueva barra táctica)
+    const viewButtons = document.querySelectorAll('.view-btn, .action-btn[onclick*="togglePersonnelView"]');
+    const viewContainers = document.querySelectorAll('.view-container');
+    
+    if (viewButtons.length > 0) {
+        viewButtons.forEach(btn => btn.classList.remove('active'));
+    }
+    
+    if (viewContainers.length > 0) {
+        viewContainers.forEach(container => container.classList.remove('active'));
+    }
 
     if (view === 'table') {
-        document.querySelector('.view-btn:first-child').classList.add('active');
-        document.getElementById('tableView').classList.add('active');
+        const tableBtn = document.getElementById('btnViewTable') || document.querySelector('.view-btn:first-child');
+        if (tableBtn) tableBtn.classList.add('active');
+        const tableView = document.getElementById('tableView');
+        if (tableView) tableView.classList.add('active');
         renderPersonnelTable();
     } else {
-        const viewBtn = document.querySelector('.view-btn:last-child');
-        if (viewBtn) viewBtn.classList.add('active');
-        document.getElementById('cardsView').classList.add('active');
+        const cardBtn = document.getElementById('btnViewCards') || document.querySelector('.view-btn:last-child');
+        if (cardBtn) cardBtn.classList.add('active');
+        const cardsView = document.getElementById('cardsView');
+        if (cardsView) cardsView.classList.add('active');
         renderPersonnelCards();
     }
 }
@@ -6612,6 +6630,7 @@ function exportReportToPDF() {
 
 window.getDirectorioSection = getDirectorioSection;
 window.refreshDashboard = refreshDashboard;
+window.refreshAllData = refreshDashboard; // Alias para compatibilidad
 window.exportInventoryExcel = exportInventoryExcel;
 window.exportReportToPDF = exportReportToPDF;
 window.initInventarioSection = initInventarioSection;
@@ -6623,9 +6642,8 @@ window.filterInventoryByType = filterInventoryByType;
 window.openInvResguardoModal = openInvResguardoModal;
 window.closeInvModal = closeInvModal;
 window.saveInvResguardo = saveInvResguardo;
+
 // --- REPOSITORIOS TÁCTICOS DATA ---
-let _currentInventoryData = [];
-let _currentInventoryType = 'armas';
 
 async function loadArmamentoData(type = 'armas') {
     const container = document.getElementById('armamentoContent');

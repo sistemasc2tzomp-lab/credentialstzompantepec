@@ -84,16 +84,42 @@ function loadLogsFromStorage() {
 function getFilteredLogs(filters = {}) {
     let filtered = [...auditLogs];
 
+    // Función auxiliar para parsear fechas de forma robusta
+    const parseDateSafe = (dateStr) => {
+        if (!dateStr) return null;
+        let d = new Date(dateStr);
+        if (!isNaN(d.getTime())) return d;
+        
+        // Fallback para DD/MM/YYYY o DD-MM-YYYY
+        const parts = dateStr.split(/[/-]/);
+        if (parts.length === 3) {
+            // Intentar DD, MM, YYYY
+            d = new Date(parts[2], parts[1] - 1, parts[0]);
+            if (!isNaN(d.getTime())) return d;
+        }
+        return null;
+    };
+
     if (filters.fechaInicio) {
-        const start = new Date(filters.fechaInicio);
-        start.setHours(0, 0, 0, 0); // Inicio del día local
-        filtered = filtered.filter(log => new Date(log.timestamp) >= start);
+        const start = parseDateSafe(filters.fechaInicio);
+        if (start) {
+            start.setHours(0, 0, 0, 0); 
+            filtered = filtered.filter(log => {
+                const logDate = parseDateSafe(log.timestamp);
+                return logDate && logDate >= start;
+            });
+        }
     }
 
     if (filters.fechaFin) {
-        const end = new Date(filters.fechaFin);
-        end.setHours(23, 59, 59, 999); // Fin del día local
-        filtered = filtered.filter(log => new Date(log.timestamp) <= end);
+        const end = parseDateSafe(filters.fechaFin);
+        if (end) {
+            end.setHours(23, 59, 59, 999);
+            filtered = filtered.filter(log => {
+                const logDate = parseDateSafe(log.timestamp);
+                return logDate && logDate <= end;
+            });
+        }
     }
 
     if (filters.usuario) {

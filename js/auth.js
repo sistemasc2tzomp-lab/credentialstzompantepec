@@ -92,7 +92,7 @@ function loadSection(section) {
                 subtitle: 'Control de Activos de Seguridad', 
                 icon: 'fa-gun',
                 actionsHtml: `
-                    <button class="btn-v2-nuevo" onclick="openArmamentoModal('arma')">
+                    <button class="btn-v2-nuevo" onclick="openArmamentoModal(_currentArmamentoTab || 'armas')">
                         <i class="fas fa-plus"></i> AGREGAR
                     </button>
                     <button class="btn-v2-actualizar" onclick="refreshInventory()">
@@ -6975,126 +6975,6 @@ function initVehiculosSection() {
     loadVehiculosData();
 }
 
-// --- GESTIÓN DE ARMAMENTO (MODALES Y GUARDADO) ---
-function openArmamentoModal(type = 'arma') {
-    const isEdit = !!window.editingArmamentoData;
-    const item = window.editingArmamentoData || {};
-    
-    // Auto-seleccionar tipo si es edición
-    let currentType = item.tipo || (type === 'radio' ? 'Radio Portátil' : type === 'chaleco' ? 'Chaleco Balístico' : 'Arma Corta');
-
-    const modalHtml = `
-        <div id="armamentoModal" class="modal-overlay" style="display:flex;">
-            <div class="modal-content card" style="max-width:600px; width:95%; border-radius: 20px; border: 1px solid rgba(197, 160, 89, 0.2); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-                    <h3 style="margin:0; color:#1e293b; font-size:1.5rem;"><i class="fas fa-gun" style="color:#c5a059;"></i> ${isEdit ? 'Actualizar' : 'Registrar Nuevo'} Equipo</h3>
-                    <button onclick="closeArmamentoModal()" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#94a3b8;">&times;</button>
-                </div>
-                <form id="formArmamento" onsubmit="saveArmamento(event)">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                        <div class="form-group">
-                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:0.85rem; color:#64748b;">Tipo de Equipo</label>
-                            <select id="inv-tipo" class="form-control" required style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem;">
-                                <option value="Arma Corta" ${currentType === 'Arma Corta' ? 'selected' : ''}>Arma Corta</option>
-                                <option value="Arma Larga" ${currentType === 'Arma Larga' ? 'selected' : ''}>Arma Larga</option>
-                                <option value="Radio Portátil" ${currentType === 'Radio Portátil' ? 'selected' : ''}>Radio Portátil</option>
-                                <option value="Radio Base" ${currentType === 'Radio Base' ? 'selected' : ''}>Radio Base</option>
-                                <option value="Chaleco Balístico" ${currentType === 'Chaleco Balístico' ? 'selected' : ''}>Chaleco Balístico</option>
-                                <option value="Fornitura" ${currentType === 'Fornitura' ? 'selected' : ''}>Fornitura</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:0.85rem; color:#64748b;">No. Serie / Matrícula</label>
-                            <input type="text" id="inv-serie" value="${item.serie || item.id || ''}" placeholder="Obligatorio" required class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem;">
-                        </div>
-                        <div class="form-group">
-                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:0.85rem; color:#64748b;">Marca / Fabricante</label>
-                            <input type="text" id="inv-marca" value="${item.marca || ''}" placeholder="Ej: Glock, Motorola" required class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem;">
-                        </div>
-                        <div class="form-group">
-                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:0.85rem; color:#64748b;">Modelo</label>
-                            <input type="text" id="inv-modelo" value="${item.modelo || ''}" placeholder="Ej: G17 Gen 4" required class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem;">
-                        </div>
-                        <div class="form-group">
-                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:0.85rem; color:#64748b;">Calibre / Nivel</label>
-                            <input type="text" id="inv-calibre" value="${item.calibre || item.nivel || ''}" placeholder="9mm, .223, Nivel III-A" class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem;">
-                        </div>
-                        <div class="form-group">
-                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:0.85rem; color:#64748b;">Estado Físico</label>
-                            <select id="inv-estado" class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem;">
-                                <option value="Operativo" ${item.estado === 'Operativo' ? 'selected' : ''}>Operativo</option>
-                                <option value="Regular" ${item.estado === 'Regular' ? 'selected' : ''}>Regular</option>
-                                <option value="Fuera de Servicio" ${item.estado === 'Fuera de Servicio' ? 'selected' : ''}>Fuera de Servicio</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label style="display:block; margin-bottom:5px; font-weight:700; font-size:0.85rem; color:#64748b;">Asignado A</label>
-                            <input type="text" id="inv-asignado" value="${item.asignado || ''}" placeholder="Nombre del oficial" class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem;">
-                        </div>
-                    </div>
-                    <div class="form-group" style="margin-top:15px;">
-                        <label style="display:block; margin-bottom:5px; font-weight:700; font-size:0.85rem; color:#64748b;">Observaciones Adicionales</label>
-                        <textarea id="inv-obs" rows="2" class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem; resize:none;">${item.observaciones || ''}</textarea>
-                    </div>
-                    <div style="margin-top: 25px; display: flex; gap: 10px; justify-content: flex-end;">
-                        <button type="button" onclick="closeArmamentoModal()" class="action-btn secondary" style="background:#f1f5f9; color:#64748b; border:none; padding:12px 20px; border-radius:12px; font-weight:700; cursor:pointer;">Cancelar</button>
-                        <button type="submit" class="action-btn" style="background:#c5a059; border:none; padding:12px 30px; border-radius:12px; font-weight:700; text-transform:uppercase; cursor:pointer;">${isEdit ? 'Actualizar Registro' : 'Guardar Registro'}</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    `;
-    const container = document.createElement('div');
-    container.id = 'armamentoModalContainer';
-    container.innerHTML = modalHtml;
-    document.body.appendChild(container);
-}
-
-function closeArmamentoModal() {
-    const m = document.getElementById('armamentoModalContainer');
-    if (m) m.remove();
-    window.editingArmamentoData = null; // Resetear datos de edición
-}
-
-async function saveArmamento(e) {
-    if (e) e.preventDefault();
-    const tipoVal = document.getElementById('inv-tipo').value;
-    // Derivar categoria para dirigir al sheet correcto
-    let categoria = 'armas';
-    if (tipoVal.toLowerCase().includes('radio')) categoria = 'radios';
-    else if (tipoVal.toLowerCase().includes('chaleco') || tipoVal.toLowerCase().includes('fornitura')) categoria = 'chalecos';
-
-    const datos = {
-        tipo: tipoVal,
-        marca: document.getElementById('inv-marca').value,
-        modelo: document.getElementById('inv-modelo').value,
-        serie: document.getElementById('inv-serie').value,
-        calibre: document.getElementById('inv-calibre').value,
-        estado: document.getElementById('inv-estado').value,
-        asignado: document.getElementById('inv-asignado').value,
-        observaciones: document.getElementById('inv-obs').value,
-        categoria: categoria
-    };
-
-    if(window.editingArmamentoData) {
-        datos.id = window.editingArmamentoData.id || window.editingArmamentoData.serie || window.editingArmamentoData.matricula;
-    }
-    
-    showNotification('Sincronizando equipo en arsenal...', 'info');
-    try {
-        const res = window.editingArmamentoData ? await window.apiActualizarArmamento(datos) : await window.apiGuardarArmamento(datos);
-        if (res.success) {
-            showNotification(window.editingArmamentoData ? 'Registro actualizado' : 'Equipo guardado correctamente', 'success');
-            closeArmamentoModal();
-            // Cambiar a la pestaña correspondiente y recargar
-            switchArmamentoTab(categoria);
-        } else {
-            showNotification('Error: ' + res.message, 'error');
-        }
-    } catch (err) {
-        showNotification('Error al guardar: ' + err.message, 'error');
-    }
-}
 
 // --- GESTIÓN DE VEHÍCULOS (MODALES Y GUARDADO) ---
 function openVehiculoModal() {
@@ -7303,7 +7183,16 @@ window.editArmamento = function(itemJson) {
     try {
         const item = JSON.parse(decodeURIComponent(itemJson));
         window.editingArmamentoData = item;
-        openArmamentoModal(item.categoria || (item.tipo.toLowerCase().includes('radio') ? 'radio' : item.tipo.toLowerCase().includes('chaleco') ? 'chaleco' : 'arma'));
+        // Derivar pestaña correcta (match con switchArmamentoTab)
+        let tab = 'armas';
+        if (item.categoria) {
+            tab = item.categoria; 
+        } else if (item.tipo) {
+            const t = item.tipo.toLowerCase();
+            if (t.includes('radio')) tab = 'radios';
+            else if (t.includes('chaleco') || t.includes('fornitura')) tab = 'chalecos';
+        }
+        openArmamentoModal(tab);
     } catch(e) {
         console.error('Error parsing item:', e);
     }
@@ -7779,13 +7668,25 @@ async function saveNewArma(e) {
     const formData = new FormData(form);
     const datos = Object.fromEntries(formData.entries());
     
+    // Auto-deriving category for backend routing
+    const categoriaHidden = datos.categoria || '';
+    let categoria = 'armas'; // default
+    if (categoriaHidden === 'radios') categoria = 'radios';
+    else if (categoriaHidden === 'chalecos') categoria = 'chalecos';
+    else if (categoriaHidden === 'vehiculos') { saveNewVehiculo(e); return; }
+    // Also check by tipo field if present
+    else if (datos.tipo_radio) categoria = 'radios'; // radio form has tipo_radio field
+    else if (datos.nivel) categoria = 'chalecos'; // chaleco form has nivel field
+    datos.categoria = categoria;
+    
     showNotification('Sincronizando equipo con inventario...', 'info');
     try {
         const res = await window.apiGuardarArmamento(datos);
         if(res.success) {
             showNotification('Equipo registrado correctamente', 'success');
             document.querySelector('.modal').remove();
-            loadArmamentoData();
+            switchArmamentoTab(categoria);
+            loadArmamentoData(categoria);
         } else {
             showNotification('Error: ' + res.message, 'error');
         }

@@ -709,6 +709,166 @@ body {
     outline: none !important;
 }
 
+/* ============================================================ */
+/* REINGENIERÍA REPOSITORIO DE PERSONAL (DIRECTORIO) */
+/* ============================================================ */
+
+.repo-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 0;
+    min-height: calc(100vh - 160px);
+    background: #f1f5f9;
+}
+
+.repo-sidebar {
+    background: #ffffff;
+    border-right: 1px solid #e2e8f0;
+    padding: 25px;
+    height: calc(100vh - 160px);
+    position: sticky;
+    top: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-shadow: 4px 0 15px rgba(0,0,0,0.02);
+}
+
+.repo-content {
+    padding: 30px;
+    overflow-y: auto;
+    height: calc(100vh - 160px);
+}
+
+.repo-stats-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.stat-item-mini {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.stat-item-mini:hover {
+    border-color: #c5a059;
+    background: #fff;
+    transform: translateX(5px);
+}
+
+.stat-item-mini i {
+    font-size: 1.25rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-item-mini .stat-val {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #0a192f;
+}
+
+.stat-item-mini .stat-lab {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+}
+
+.repo-filters-box {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 15px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.repo-filters-box h4 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    color: #0a192f;
+    margin: 0;
+}
+
+.repo-search-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+}
+
+.repo-search-input:focus {
+    border-color: #c5a059;
+    box-shadow: 0 0 0 4px rgba(197, 160, 89, 0.1);
+    outline: none;
+}
+
+/* Custom Scrollbars for Repo Sections */
+.repo-sidebar::-webkit-scrollbar,
+.repo-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.repo-sidebar::-webkit-scrollbar-thumb,
+.repo-content::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+/* Better Personnel Buttons */
+.action-btn.quick {
+    width: 38px;
+    height: 38px;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 8px !important;
+    font-size: 1rem !important;
+}
+
+/* Loader Styles */
+.repo-loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+    color: #64748b;
+}
+
+.spinner-repo {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(197, 160, 89, 0.1);
+    border-left-color: #c5a059;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
 
 
 /* Credential Styles */

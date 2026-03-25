@@ -760,6 +760,36 @@ function generateLogsRows(logs) {
     `).join('');
 }
 
+window.applyLogFilters = function() {
+    const filters = {};
+    const fi = document.getElementById('filterFechaInicio');
+    const ff = document.getElementById('filterFechaFin');
+    const u = document.getElementById('filterUsuario');
+    const a = document.getElementById('filterAccion');
+
+    if (fi && fi.value) filters.fechaInicio = fi.value;
+    if (ff && ff.value) {
+        // Ajustar al final del día para la fecha final
+        const endDate = new Date(ff.value);
+        endDate.setHours(23, 59, 59, 999);
+        filters.fechaFin = endDate.toISOString();
+    }
+    if (u && u.value) filters.usuario = u.value;
+    if (a && a.value) filters.accion = a.value;
+
+    const filtered = window.getFilteredLogs ? window.getFilteredLogs(filters) : [];
+    
+    const tbody = document.getElementById('logsTableBody');
+    if (tbody) {
+        tbody.innerHTML = generateLogsRows(filtered);
+    }
+    
+    const countEl = document.querySelector('.table-footer strong');
+    if (countEl) {
+        countEl.textContent = filtered.length;
+    }
+};
+
 // Sección de Reportes
 // Sección de Reportes
 function getReportesSection() {
@@ -1486,48 +1516,73 @@ function getInicioSection() {
 
 function getPersonalSection() {
     return `
-        <div class="gestion-personal-container fade-in" style="padding: 10px;">
-            <!-- Stats Cards Dinámicas -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-bottom: 28px;">
-                <div style="background: linear-gradient(135deg, #0a192f 0%, #1a3a6e 100%); padding: 22px 25px; border-radius: 18px; color: white; box-shadow: 0 8px 25px rgba(10,25,47,0.2);">
-                    <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8;">Fuerza Activa</span>
-                    <h3 style="font-size: 2.4rem; margin: 6px 0 4px; font-weight: 900;" id="statPersonalTotal">--</h3>
-                    <div style="font-size: 0.8rem; opacity: 0.9;"><i class="fas fa-shield-alt"></i> Elementos Validados</div>
+        <div class="repo-layout fade-in">
+            <!-- SIDEBAR DE REPOSITORIO -->
+            <div class="repo-sidebar">
+                <div class="repo-filters-box">
+                    <h4><i class="fas fa-search" style="color:var(--gold);"></i> Filtro Maestro</h4>
+                    <input type="text" id="searchGlobal" class="repo-search-input" placeholder="Nombre, CUIP o Cargo..." onkeyup="applyPersonnelFilters()">
                 </div>
-                <div style="background: linear-gradient(135deg, #b8941f 0%, #c5a059 100%); padding: 22px 25px; border-radius: 18px; color: white; box-shadow: 0 8px 25px rgba(197,160,89,0.2);">
-                    <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; opacity: 0.85;">Expedientes C2</span>
-                    <h3 style="font-size: 2.4rem; margin: 6px 0 4px; font-weight: 900;" id="statExpedientes">--</h3>
-                    <div style="font-size: 0.8rem; opacity: 0.9;"><i class="fas fa-cloud-upload-alt"></i> Sincronizados</div>
-                </div>
-                <div style="background: white; padding: 22px 25px; border-radius: 18px; border: 1px solid #fde2e2; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
-                    <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8;">Pendientes</span>
-                    <h3 style="font-size: 2.4rem; margin: 6px 0 4px; font-weight: 900; color: #ef4444;" id="statPendientes">0</h3>
-                    <div style="font-size: 0.8rem; color: #ef4444;"><i class="fas fa-exclamation-circle"></i> Sin Credencial</div>
-                </div>
-                <div style="background: white; padding: 22px 25px; border-radius: 18px; border: 1px solid #d1fae5; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
-                    <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8;">Sistema QR</span>
-                    <h3 style="font-size: 2.4rem; margin: 6px 0 4px; font-weight: 900; color: #10b981;">OK</h3>
-                    <div style="font-size: 0.8rem; color: #10b981;"><i class="fas fa-qrcode"></i> Encriptación Activa</div>
-                </div>
-            </div>
-            
-            <!-- Directorio Operativo -->
-            <div style="background: white; border-radius: 22px; box-shadow: 0 10px 40px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; overflow: hidden;">
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 22px 28px; border-bottom: 1px solid #f1f5f9; flex-wrap: wrap; gap: 12px;">
-                    <h3 style="margin: 0; font-weight: 800; color: #0a192f; display: flex; align-items: center; gap: 10px; font-size: 1.25rem;">
-                        <i class="fas fa-users" style="color: #c5a059;"></i> Directorio Operativo
-                    </h3>
-                    <div style="position: relative; width: 380px; max-width: 100%;">
-                        <i class="fas fa-search" style="position: absolute; left: 16px; top: 12px; color: #94a3b8; font-size: 0.9rem;"></i>
-                        <input type="text" id="searchPersonnel" placeholder="Buscar por nombre, CUIP o cargo..." oninput="filterPersonnelDirectory()" 
-                               style="width: 100%; padding: 11px 15px 11px 42px; border-radius: 12px; border: 2px solid #f1f5f9; background: #f8fafc; outline: none; font-size: 0.92rem; transition: border 0.3s;"
-                               onfocus="this.style.borderColor='#c5a059'" onblur="this.style.borderColor='#f1f5f9'">
+
+                <div class="repo-stats-vertical">
+                    <div class="stat-item-mini" onclick="filterByStatus('Activo')">
+                        <i class="fas fa-user-check" style="background:rgba(16, 185, 129, 0.1); color:#10b981;"></i>
+                        <div>
+                            <div class="stat-val" id="statsActivos">--</div>
+                            <div class="stat-lab">Fuerza Activa</div>
+                        </div>
+                    </div>
+                    <div class="stat-item-mini" onclick="filterByVigencia('vencido')">
+                        <i class="fas fa-calendar-times" style="background:rgba(239, 68, 68, 0.1); color:#ef4444;"></i>
+                        <div>
+                            <div class="stat-val" id="statsVencidos">--</div>
+                            <div class="stat-lab">Vencidos</div>
+                        </div>
+                    </div>
+                    <div class="stat-item-mini" onclick="filterByVigencia('por-vencer')">
+                        <i class="fas fa-hourglass-half" style="background:rgba(245, 158, 11, 0.1); color:#f59e0b;"></i>
+                        <div>
+                            <div class="stat-val" id="statsPorVencer">--</div>
+                            <div class="stat-lab">Por Vencer</div>
+                        </div>
+                    </div>
+                    <div class="stat-item-mini" onclick="filterByStatus('Baja')">
+                        <i class="fas fa-user-slash" style="background:rgba(100, 116, 139, 0.1); color:#64748b;"></i>
+                        <div>
+                            <div class="stat-val" id="statsBajas">--</div>
+                            <div class="stat-lab">Bajas / Bajas</div>
+                        </div>
                     </div>
                 </div>
-                <div id="personnelDirectory" style="padding: 20px 28px 28px; max-height: calc(100vh - 340px); overflow-y: auto;">
-                    <div style="text-align: center; padding: 60px 20px;">
-                        <div style="width: 50px; height: 50px; border: 4px solid #e2e8f0; border-top-color: #c5a059; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 20px;"></div>
-                        <p style="font-weight: 600; color: #64748b; font-size: 0.95rem;">Cargando directorio operativo...</p>
+
+                <div class="repo-filters-box" style="margin-top:auto; background:#0a192f; color:white; border:none;">
+                    <h4 style="color:var(--gold);"><i class="fas fa-cog"></i> Sistema Táctico</h4>
+                    <button class="action-btn" onclick="exportPersonnelData()" style="width:100%; justify-content:center; background:rgba(255,255,255,0.05); border:1px solid rgba(197,160,89,0.2); color:white;">
+                        <i class="fas fa-file-excel"></i> Exportar Base
+                    </button>
+                    <button class="action-btn" onclick="togglePersonnelView(currentView === 'table' ? 'cards' : 'table')" style="width:100%; justify-content:center; background:rgba(255,255,255,0.05); border:1px solid rgba(197,160,89,0.2); color:white;">
+                        <i class="fas fa-th-large"></i> Alternar Vista
+                    </button>
+                    <div style="font-size: 0.65rem; opacity: 0.5; margin-top: 10px; text-align: center;">
+                        <i class="fas fa-lock"></i> CONEXIÓN SEGURA ACTIVADA
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTENIDO PRINCIPAL -->
+            <div class="repo-content">
+                <div id="tableView" class="view-container active">
+                    <!-- Tabla de personal -->
+                </div>
+                <div id="cardsView" class="view-container">
+                    <!-- Tarjetas de personal -->
+                </div>
+                
+                <div class="pagination-container" style="margin-top:30px; padding-top:20px; border-top:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
+                    <span id="pageInfo" style="font-weight:700; color:#64748b; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px;">Cargando registros...</span>
+                    <div class="pagination-btns" style="display:flex; gap:12px;">
+                        <button id="prevPage" class="action-btn secondary" onclick="changePage('prev')" style="padding:10px 20px;"><i class="fas fa-chevron-left"></i> Anterior</button>
+                        <button id="nextPage" class="action-btn secondary" onclick="changePage('next')" style="padding:10px 20px;">Siguiente <i class="fas fa-chevron-right"></i></button>
                     </div>
                 </div>
             </div>
@@ -1576,77 +1631,50 @@ function getCredencialesSection() {
             /* --- FOTO DEL OFICIAL --- 
                Se ubica sobre el rectángulo gris del fondo.
                Background: foto inicia aprox 36% desde arriba, 7% desde izq 
-               Dimensiones: ~35% ancho x 29% alto del fondo */
+               Dimensiones calibradas para evitar solapamiento con etiquetas */
             .photo-frame-dynamic {
                 position: absolute;
-                top: 195px;   /* 35.5% de 550 */
-                left: 24px;   /* 6.7% de 360 */
-                width: 130px; /* 36% de 360 */
-                height: 160px;/* 29% de 550 */
-                border-radius: 5px;
-                background: rgba(240,242,245,0.5);
+                top: 192px;   
+                left: 22px;   
+                width: 120px; 
+                height: 150px;
+                border-radius: 4px;
+                background: rgba(240,242,245,0.7);
                 overflow: hidden;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                z-index: 5;
+                z-index: 10;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             }
             .photo-frame-dynamic img { 
                 width: 100%; 
                 height: 100%; 
-                object-fit: cover; 
-                filter: contrast(1.05) saturate(1.1);
+                object-fit: cover;
+                object-position: center top;
+                filter: contrast(1.02) saturate(1.05);
             }
             .photo-frame-dynamic i { font-size: 3.5rem; color: #cbd5e1; }
 
-            /* --- VALORES ABSOLUTOS ---
-               Las etiquetas (NOMBRE:, CARGO:, etc.) están impresas en el fondo.
-               Los valores se colocan DESPUÉS de cada etiqueta (a la derecha del ":").
-               
-               Mediciones del fondo (proporcionales a 360x550):
-               - "NOMBRE:" label termina en ~55% left
-               - Línea 1 (NOMBRE):   ~37.5% top = 206px
-               - Línea 2 (CARGO):    ~42.7% top = 235px  
-               - Línea 3 (CUIP):     ~48.0% top = 264px
-               - Línea 4 (CURP):     ~53.3% top = 293px
-               - Línea 5 (VIGENCIA): ~58.5% top = 322px
-               - Línea 6 (FECHA EXP):~63.1% top = 347px  (Multiline label)
-               Valores alineados a left ~47% = 170px */
-            .info-val-abs {
-                position: absolute;
-                background: transparent;
-                font-weight: 800;
-                color: #0f2b5e;
-                padding: 0;
-                z-index: 6;
-                text-align: left;
-                text-transform: uppercase;
-                line-height: 1.15;
-            }
-
-            /* --- Contenedor de Datos Dashboard (Transparente v2.4.0) --- */
+            /* --- Contenedor de Datos Dashboard (Calibración milimétrica) --- */
             .preview-data-column {
                 position: absolute;
-                top: 200px;
-                left: 155px;
-                width: 185px;
-                max-height: 190px; /* 5 grupos × 38px — NO cubre firma ni huella (top:400px) */
-                overflow: hidden;  /* Evita desbordamiento hacia zona de firma/huella */
+                top: 195px;
+                left: 152px;
+                width: 190px;
+                max-height: 195px; 
                 display: flex;
                 flex-direction: column;
-                gap: 0;
-                background: transparent !important; /* Fondo totalmente transparente */
-                background-color: transparent !important;
-                padding: 0;
-                z-index: 10;
+                gap: 2px;
+                background: transparent !important;
+                z-index: 20;
             }
 
             .preview-field-group {
                 position: relative;
-                height: 38px; /* Alto exacto, no más */
+                height: 33px; 
                 width: 100%;
                 background: transparent !important;
-                background-color: transparent !important;
             }
 
             .preview-field-label {
@@ -1654,51 +1682,43 @@ function getCredencialesSection() {
                 top: 0;
                 left: 0;
                 font-family: 'Montserrat', sans-serif;
-                font-size: 0.65rem;
+                font-size: 0.6rem;
                 font-weight: 800;
                 color: #1e3a6e;
                 text-transform: uppercase;
                 background: transparent !important;
-                background-color: transparent !important;
-                border: none !important;
-                padding: 0;
-                margin: 0;
+                opacity: 0.85;
             }
 
             .preview-field-value {
                 position: absolute;
-                top: 16px; /* Offset 16px desde la etiqueta */
+                top: 13px; 
                 left: 0;
                 width: 100%;
                 font-family: 'Inter', sans-serif;
-                font-size: 0.75rem;
-                font-weight: 700;
-                color: #1a1a2e; /* Negro oscuro — contraste sobre fondo azul */
+                font-size: 0.72rem;
+                font-weight: 900;
+                color: #0c1a35; 
                 text-transform: uppercase;
-                background: transparent !important; /* SIN FONDO BLANCO */
-                background-color: transparent !important;
-                border: none !important; /* SIN BORDE */
-                outline: none;
-                box-shadow: none;
-                padding: 0;
-                margin: 0;
+                background: transparent !important;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
+                letter-spacing: 0.2px;
             }
             
             /* --- FIRMA Y HUELLA ---
                Zonas críticas que nunca deben ser tapadas.
-               z-index alto y fondos transparentes. */
+               Posicionadas sobre las cintas de fondo. */
             .signature-box-abs {
                 position: absolute;
-                top: 405px;
-                left: 30px;
-                width: 130px;
-                height: 60px;
-                z-index: 50; 
+                top: 395px; 
+                left: 20px;
+                width: 145px;
+                height: 80px;
+                z-index: 100; 
                 background: transparent !important;
-                border: 1.5px dashed rgba(15, 43, 94, 0.2) !important;
+                border: 1px dashed rgba(15, 43, 94, 0.15) !important;
                 border-radius: 8px;
                 display: flex;
                 align-items: center;
@@ -1706,13 +1726,13 @@ function getCredencialesSection() {
             }
             .huella-abs {
                 position: absolute;
-                top: 405px;
-                right: 35px;
-                width: 110px;
-                height: 60px;
-                z-index: 50;
+                top: 400px;
+                right: 30px;
+                width: 115px;
+                height: 70px;
+                z-index: 100;
                 background: transparent !important;
-                border: 1.5px dashed rgba(15, 43, 94, 0.2) !important;
+                border: 1.5px dashed rgba(15, 43, 94, 0.25) !important;
                 border-radius: 8px;
             }
 
@@ -1731,6 +1751,39 @@ function getCredencialesSection() {
                 align-items: center;
                 justify-content: center;
                 z-index: 60; /* Above signature if overlaps */
+            }
+
+            /* Toolbar de Acciones */
+            .credential-actions-toolbar {
+                display: flex;
+                justify-content: center;
+                gap: 20px;
+                margin-top: 35px;
+                padding: 20px;
+                background: white;
+                border-radius: 15px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            }
+
+            .credential-actions-toolbar .action-btn {
+                padding: 12px 25px;
+                font-size: 0.9rem;
+                font-weight: 700;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                min-width: 180px;
+                justify-content: center;
+            }
+
+            .btn-preview { background: #334155; color: white; }
+            .btn-print { background: #0f172a; color: white; }
+            .btn-download { background: #c5a059; color: #0a192f; }
+            
+            .credential-actions-toolbar .action-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             }
             .qr-frontal-pos canvas {
                 width: 100% !important;
@@ -1819,6 +1872,19 @@ function getCredencialesSection() {
                     </div>
                 </div>
 
+            </div>
+
+            <!-- Toolbar de Acciones Solicitado -->
+            <div class="credential-actions-toolbar no-print">
+                <button class="action-btn btn-preview" onclick="window.previewFullCredential()">
+                    <i class="fas fa-eye"></i> PREVISUALIZAR
+                </button>
+                <button class="action-btn btn-print" onclick="window.printEnhancedCredential()">
+                    <i class="fas fa-print"></i> IMPRIMIR
+                </button>
+                <button class="action-btn btn-download" onclick="window.downloadCredential()">
+                    <i class="fas fa-download"></i> DESCARGAR
+                </button>
             </div>
 
             <div class="info-card-modern" style="margin-top: 30px; background: white; padding: 25px; border-radius: 15px; border-left: 5px solid #c5a059; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
@@ -3869,6 +3935,19 @@ window.toggleFABMenu = toggleFABMenu;
 
 // Cargar datos del repositorio
 async function loadPersonnelData() {
+    const container = document.getElementById('tableView') || document.getElementById('cardsView');
+    const originalContent = container ? container.innerHTML : '';
+    
+    if (container) {
+        container.innerHTML = `
+            <div class="repo-loader">
+                <div class="spinner-repo"></div>
+                <p>Estableciendo conexión segura con Google Sheets...</p>
+                <small>Sincronizando expedientes tácticos y credenciales</small>
+            </div>
+        `;
+    }
+
     try {
         currentPersonnelData = await loadGoogleSheetsData();
         filteredPersonnelData = [...currentPersonnelData];
@@ -3877,6 +3956,7 @@ async function loadPersonnelData() {
         logAction(ACTION_TYPES.VIEW, 'Consultó repositorio de personal');
     } catch (error) {
         console.error('Error cargando datos:', error);
+        showNotification('Error de conexión. Usando respaldo local.', 'warning');
         currentPersonnelData = getEnhancedMockData();
         filteredPersonnelData = [...currentPersonnelData];
         updatePersonnelStats();
@@ -3931,82 +4011,78 @@ function renderPersonnelTable() {
     const end = start + itemsPerPage;
     const pageData = filteredPersonnelData.slice(start, end);
 
-    const tbody = document.getElementById('tableBody');
-    if (!tbody) return;
+    const container = document.getElementById('tableView');
+    if (!container) return;
 
     if (pageData.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="12" class="text-center">No hay personal que coincida con los filtros</td></tr>';
+        container.innerHTML = `
+            <div style="text-align:center; padding:50px; background:white; border-radius:15px; border:1px solid #e2e8f0;">
+                <i class="fas fa-search" style="font-size:3rem; color:#cbd5e1; margin-bottom:15px; display:block;"></i>
+                <p style="color:#64748b; font-weight:600;">No se encontraron registros activos.</p>
+                <button class="action-btn secondary" onclick="clearPersonnelFilters()" style="margin-top:10px;">Limpiar Filtros</button>
+            </div>
+        `;
         return;
     }
 
-    tbody.innerHTML = pageData.map(person => {
-        const vigenciaDate = new Date(person.vigencia);
-        const today = new Date();
-        const vigenciaClass = vigenciaDate < today ? 'vencido' :
-            (vigenciaDate - today) / (1000 * 60 * 60 * 24) <= 30 ? 'por-vencer' : 'vigente';
-
-        const personStatus = person.estado || 'Activo';
-        const personPuesto = person.puesto || person.cargo || 'General';
-
-        const statusClass = String(personStatus).toLowerCase().replace(/\s+/g, '-');
-        const puestoClass = String(personPuesto).toLowerCase().replace(/\s+/g, '-');
-
-        return `
-        <tr class="estado-${statusClass}">
-            <td><span class="badge-id">${person.id || 'N/A'}</span></td>
-            <td>
-                <div class="avatar-mini">
-                    <img src="${person.foto || ''}" 
-                         onerror="this.src=(this.src.includes('assets/') ? 'https://ui-avatars.com/api/?name=${encodeURIComponent(person.nombre)}&background=0a192f&color=fff' : 'assets/FOTOGRAFIAS PERSONAL/${person.cuip ? person.cuip.trim() : 'NONE'}.png')"
-                         alt="foto" class="avatar-img">
-                </div>
-            </td>
-            <td>
-                <div class="person-name">
-                    <strong>${person.nombre} ${person.apellidos || ''}</strong>
-                    <span class="badge-${puestoClass}">${personPuesto}</span>
-                </div>
-            </td>
-            <td><span class="status-badge ${statusClass}">${personStatus}</span></td>
-
-            <td>${person.cuip || 'N/A'}</td>
-            <td>${person.numPlaca || person.placa || '---'}</td>
-            <td>${person.equipo || 'Básico'}</td>
-            <td>${person.vehiculo || '---'}</td>
-            <td>
-                <div class="row-actions">
-                    <button class="action-btn small" title="Ver detalles" onclick="viewEmployeeDetails('${person.cuip}')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    ${tienePermiso('editar') ? `
-                    <button class="action-btn small secondary" title="Editar Expediente Completo" onclick="modifyExpediente('${person.cuip}')">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    ` : ''}
-                    ${tienePermiso('consultar') ? `
-                    <button class="action-btn small" title="Generar Credencial" style="background: #c5a059;" onclick="generateEmployeeCredential('${person.cuip}')">
-                        <i class="fas fa-id-card"></i>
-                    </button>
-                    ` : ''}
-                    ${tienePermiso('editar') ? `
-                    <div class="dropdown">
-                        <button class="action-btn small secondary" onclick="toggleDropdown('dropdown-${person.cuip}')">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                        <div id="dropdown-${person.cuip}" class="dropdown-content">
-                            <a href="#" onclick="changeEmployeeStatus('${person.cuip}', 'Franco')"><i class="fas fa-bed"></i> Franco</a>
-                            ${tienePermiso('eliminar') ? `
-                            <a href="#" onclick="changeEmployeeStatus('${person.cuip}', 'Baja')" class="text-danger"><i class="fas fa-user-minus"></i> Dar de Baja</a>
-                            ` : ''}
-                            <a href="#" onclick="changeEmployeeStatus('${person.cuip}', 'Vacaciones')"><i class="fas fa-umbrella-beach"></i> Vacaciones</a>
-                            <a href="#" onclick="viewEmployeeHistory('${person.cuip}')"><i class="fas fa-history"></i> Historial</a>
-                        </div>
-                    </div>
-                    ` : ''}
-                </div>
-            </td>
-        </tr>
-        `}).join('');
+    container.innerHTML = `
+        <table class="inventory-table">
+            <thead>
+                <tr>
+                    <th style="width:60px;">ID</th>
+                    <th style="width:70px;">FOTO</th>
+                    <th>NOMBRE COMPLETO / CARGO</th>
+                    <th>CUIP</th>
+                    <th>SITUACIÓN</th>
+                    <th>ACCIONES TÁCTICAS</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${pageData.map(person => {
+                    const statusClass = (person.estado || 'Activo').toLowerCase().replace(/\s+/g, '-');
+                    const photoPath = person.foto && person.foto !== 'foto' ? person.foto : `assets/FOTOGRAFIAS PERSONAL/${person.cuip?.trim()}.png`;
+                    
+                    return `
+                        <tr class="estado-row-${statusClass}" style="${person.estado === 'Baja' ? 'opacity:0.6; background:#f8fafc;' : ''}">
+                            <td style="font-family:monospace; font-weight:600; color:#64748b;">${person.id || '---'}</td>
+                            <td>
+                                <div class="avatar-mini-pro" style="width:45px; height:50px; border-radius:6px; overflow:hidden; border:2px solid #e2e8f0; background:#f1f5f9;">
+                                    <img src="${photoPath}" 
+                                         onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(person.nombre || 'N')}&background=0a192f&color=fff&bold=true'"
+                                         style="width:100%; height:100%; object-fit:cover;">
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display:flex; flex-direction:column;">
+                                    <span style="font-weight:800; color:var(--police-navy);">${person.nombre}</span>
+                                    <span style="font-size:0.75rem; color:#64748b; font-weight:700; text-transform:uppercase;">${person.cargo || 'SIN CARGO'}</span>
+                                </div>
+                            </td>
+                            <td style="font-family:monospace; font-weight:600;">${person.cuip || 'N/A'}</td>
+                            <td>
+                                <span class="status-badge ${statusClass}" style="padding:4px 12px; border-radius:20px; font-weight:700; font-size:0.7rem;">
+                                    ${person.estado || 'Activo'}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="row-actions-v2" style="display:flex; gap:8px;">
+                                    <button class="action-btn quick" title="Ver Expediente Táctico" onclick="viewEmployeeDetails('${person.cuip}')" style="background:var(--police-navy); color:white;">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn quick" title="Emitir Credencial" onclick="generateEmployeeCredential('${person.cuip}')" style="background:#c5a059; color:#0a192f;">
+                                        <i class="fas fa-id-card"></i>
+                                    </button>
+                                    <button class="action-btn quick" title="Modificar Registro" onclick="editEmployee('${person.cuip}')" style="background:#64748b; color:white;">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('')}
+            </tbody>
+        </table>
+    `;
 }
 
 // Renderizar tarjetas de personal
@@ -4239,8 +4315,8 @@ function updatePagination() {
 
 // Ver detalles del empleado
 function viewEmployeeDetails(employeeId) {
-    // Buscar por ID o por CUIP
-    const employee = currentPersonnelData.find(e => e.id === employeeId || e.cuip === employeeId);
+    // Buscar por ID, CUIP o Nombre
+    const employee = currentPersonnelData.find(e => String(e.id) === String(employeeId) || e.cuip === employeeId || e.nombre === employeeId);
     if (!employee) return;
 
     // Lógica de Foto con fallback
@@ -4396,8 +4472,8 @@ window.previewEditPhoto = previewEditPhoto;
 
 // Generar credencial para empleado
 function generateEmployeeCredential(employeeId) {
-    // Buscar por ID o por CUIP para mayor robustez
-    const employee = currentPersonnelData.find(e => e.id === employeeId || e.cuip === employeeId);
+    // Buscar por ID, CUIP o Nombre para mayor robustez
+    const employee = currentPersonnelData.find(e => String(e.id) === String(employeeId) || e.cuip === employeeId || e.nombre === employeeId);
     if (!employee) {
         showNotification('No se encontró el registro del empleado', 'error');
         return;
@@ -7328,30 +7404,158 @@ function backupSystem() {
 }
 
 async function openArmamentoModal(type) {
+    if (type === 'vehiculos') {
+        openVehiculoModal();
+        return;
+    }
+
     const modal = document.createElement('div');
     modal.className = 'modal';
+    
+    let title = 'Agregar Equipo';
+    let icon = 'fa-plus-circle';
+    let formHtml = '';
+    
+    if (type === 'armas') {
+        title = 'Alta de Armamento Oficial';
+        icon = 'fa-gun';
+        formHtml = `
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                <div class="form-group"><label>Categoría</label>
+                    <select name="tipo" class="form-control" required>
+                        <option value="Arma Corta">Arma Corta (Pistola/Revólver)</option>
+                        <option value="Arma Larga">Arma Larga (Fusil/Subfusil)</option>
+                        <option value="Escopeta">Escopeta</option>
+                        <option value="Menos Letal">Dispositivo Menos Letal</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Marca</label><input type="text" name="marca" required class="form-control" placeholder="Ej: Glock / Sig Sauer"></div>
+                <div class="form-group"><label>Modelo</label><input type="text" name="modelo" required class="form-control" placeholder="Ej: 17 Gen 4 / MSX"></div>
+                <div class="form-group"><label>Calibre / Medida</label><input type="text" name="calibre" required class="form-control" placeholder="Ej: 9mm / 5.56mm"></div>
+                <div class="form-group"><label>Matrícula (Serie)</label><input type="text" name="serie" required class="form-control" placeholder="X-000000"></div>
+                <div class="form-group"><label>Folio SEDENA / Registro</label><input type="text" name="folio_sedena" class="form-control" placeholder="S-0000-XX"></div>
+                <div class="form-group"><label>Cargadores (Prov.)</label><input type="number" name="cargadores" class="form-control" value="2" min="0"></div>
+                <div class="form-group"><label>Munición (Cartuchos)</label><input type="number" name="municion" class="form-control" value="0" min="0"></div>
+                <div class="form-group"><label>Propiedad / Convenio</label>
+                    <select name="propiedad" class="form-control">
+                        <option value="Comodato">Comodato Tlaxcala (C4)</option>
+                        <option value="Municipal">Propiedad Municipal</option>
+                        <option value="Federal">Convenio Federal</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Estado Operativo</label>
+                    <select name="estado" class="form-control" required>
+                        <option value="Activo">Activo (En Cargo)</option>
+                        <option value="Bóveda">En Bóveda / Reserva</option>
+                        <option value="Mantenimiento">En Mantenimiento</option>
+                        <option value="Reparación">En Reparación (Taller)</option>
+                        <option value="Baja">Baja Definitiva</option>
+                    </select>
+                </div>
+                <div class="form-group" style="grid-column: span 2;"><label>Observaciones Tácticas</label>
+                    <textarea name="observaciones" class="form-control" style="height:60px;" placeholder="Detalles de desgaste, reparaciones o historial..."></textarea>
+                </div>
+            </div>`;
+    } else if (type === 'radios') {
+        title = 'Alta de Equipo de Comunicación';
+        icon = 'fa-walkie-talkie';
+        formHtml = `
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                <div class="form-group"><label>Tipo de Radio</label>
+                    <select name="tipo_radio" class="form-control">
+                        <option value="Portátil">Portátil (Matra/Analógico)</option>
+                        <option value="Móvil">Movíl (Patrulla)</option>
+                        <option value="Base">Base Fija</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Marca</label><input type="text" name="marca" required class="form-control" placeholder="Ej: Harris / Motorola"></div>
+                <div class="form-group"><label>Modelo</label><input type="text" name="modelo" required class="form-control" placeholder="Ej: APX 1000"></div>
+                <div class="form-group"><label>Número de Serie (SN)</label><input type="text" name="serie" required class="form-control" placeholder="SN-000000"></div>
+                <div class="form-group"><label>ID de Radio / Alias</label><input type="text" name="identificador" required class="form-control" placeholder="Ej: TZ-01 / COM"></div>
+                <div class="form-group"><label>Frecuencia / Canal</label><input type="text" name="frecuencia" class="form-control" placeholder="CH-01 / Digital"></div>
+                <div class="form-group"><label>Accesorios</label>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; font-size:0.75rem;">
+                        <label><input type="checkbox" name="acc_antena"> Antena</label>
+                        <label><input type="checkbox" name="acc_bateria"> Batería</label>
+                        <label><input type="checkbox" name="acc_clip"> Clip</label>
+                        <label><input type="checkbox" name="acc_cargador"> Cargador</label>
+                    </div>
+                </div>
+                <div class="form-group"><label>Estado General</label>
+                    <select name="estado" class="form-control" required>
+                        <option value="Activo">Activo</option>
+                        <option value="Mantenimiento">Mantenimiento</option>
+                        <option value="Baja">Baja</option>
+                    </select>
+                </div>
+                <div class="form-group" style="grid-column: span 2;"><label>Comentarios de Inventario</label>
+                    <textarea name="observaciones" class="form-control" style="height:50px;"></textarea>
+                </div>
+            </div>`;
+    } else if (type === 'chalecos') {
+        title = 'Alta de Chaleco Balístico';
+        icon = 'fa-vest-patches';
+        formHtml = `
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                <div class="form-group"><label>Marca / Fabricante</label><input type="text" name="marca" required class="form-control" placeholder="Ej: Miguel Caballero"></div>
+                <div class="form-group"><label>Lote / Contrato</label><input type="text" name="lote" class="form-control" placeholder="C-2023-SEG"></div>
+                <div class="form-group"><label>Nivel de Protección</label>
+                    <select name="nivel" class="form-control" required>
+                        <option value="IIIA">Nivel IIIA (Standard)</option>
+                        <option value="III">Nivel III (Táctico)</option>
+                        <option value="IV">Nivel IV (Placas Pesadas)</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Talla</label>
+                    <select name="talla" class="form-control" required>
+                        <option value="CH">Chica (S)</option>
+                        <option value="M">Mediana (M)</option>
+                        <option value="G">Grande (L)</option>
+                        <option value="XG">X-Grande (XL)</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Serie Placa Delantera</label><input type="text" name="serie_frontal" required class="form-control" placeholder="F-000000"></div>
+                <div class="form-group"><label>Serie Placa Trasera</label><input type="text" name="serie_trasera" required class="form-control" placeholder="B-000000"></div>
+                <div class="form-group"><label>Fecha Fabricación</label><input type="month" name="fecha_fab" class="form-control"></div>
+                <div class="form-group"><label>Fecha de Caducidad</label><input type="date" name="caducidad" required class="form-control"></div>
+                <div class="form-group"><label>Estado Físico</label>
+                    <select name="estado" class="form-control" required>
+                        <option value="Activo">Activo / Operativo</option>
+                        <option value="Mantenimiento">Limpieza/Ajuste</option>
+                        <option value="Caducado">Caducado / Inactivo</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Inv. Municipal ID</label><input type="text" name="inv_id" class="form-control" placeholder="TZ-CH-001"></div>
+            </div>`;
+    } else {
+        // Fallback default
+        formHtml = `
+            <div class="form-group"><label>Tipo/Modelo</label><input type="text" name="modelo" required class="form-control" placeholder="Ej: Glock 17"></div>
+            <div class="form-group"><label>Número de Serie</label><input type="text" name="serie" required class="form-control" placeholder="X-000000"></div>
+            <div class="form-group"><label>Estado</label>
+                <select name="estado" class="form-control" required>
+                    <option>Nuevo</option>
+                    <option>Excelente</option>
+                    <option>Regular</option>
+                    <option>En Mantenimiento</option>
+                </select>
+            </div>`;
+    }
+
     modal.innerHTML = `
-        <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-content" style="max-width: 600px;">
             <div class="modal-header">
-                <h3><i class="fas fa-plus-circle"></i> Agregar ${type === 'arma' ? 'Armamento' : 'Equipo'}</h3>
-                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+                <h3><i class="fas ${icon}"></i> ${title}</h3>
+                <button type="button" class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
             </div>
             <div class="modal-body">
                 <form id="addArmaForm">
-                    <div class="form-group"><label>Tipo/Modelo</label><input type="text" name="modelo" required class="form-control" placeholder="Ej: Glock 17"></div>
-                    <div class="form-group"><label>Número de Serie</label><input type="text" name="serie" required class="form-control" placeholder="X-000000"></div>
-                    <div class="form-group"><label>Estado</label>
-                        <select name="estado" class="form-control">
-                            <option>Nuevo</option>
-                            <option>Excelente</option>
-                            <option>Regular</option>
-                            <option>En Mantenimiento</option>
-                        </select>
-                    </div>
+                    <input type="hidden" name="categoria" value="${type}">
+                    ${formHtml}
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="action-btn" onclick="saveNewArma(event)">Guardar Equipo</button>
+                <button type="button" class="action-btn" onclick="saveNewArma(event)">Guardar Equipo</button>
             </div>
         </div>
     `;
@@ -7362,30 +7566,57 @@ async function openVehiculoModal() {
     const modal = document.createElement('div');
     modal.className = 'modal';
     modal.innerHTML = `
-        <div class="modal-content" style="max-width: 550px;">
+        <div class="modal-content" style="max-width: 650px;">
             <div class="modal-header">
-                <h3><i class="fas fa-plus-circle"></i> Registro de Unidad Vehicular</h3>
-                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+                <h3><i class="fas fa-car-side"></i> Registro de Unidad Vehicular</h3>
+                <button type="button" class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
             </div>
             <div class="modal-body">
                 <form id="addVehiculoForm">
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-                        <div class="form-group"><label>Marca</label><input type="text" name="marca" required class="form-control" placeholder="Ej: Dodge"></div>
-                        <div class="form-group"><label>Modelo</label><input type="text" name="modelo" required class="form-control" placeholder="Ej: Ram 2500"></div>
-                        <div class="form-group"><label>Placa</label><input type="text" name="placa" required class="form-control" placeholder="ABC-123-D"></div>
+                        <div class="form-group"><label>ID Unidad (Económico)</label><input type="text" name="unidad" required class="form-control" placeholder="Ej: SP-01"></div>
                         <div class="form-group"><label>Tipo</label>
-                            <select name="tipo" class="form-control">
-                                <option>Patrulla</option>
-                                <option>Motocicleta</option>
-                                <option>Civil</option>
-                                <option>Especializado</option>
+                            <select name="tipo" class="form-control" required>
+                                <option value="Patrulla">Patrulla Pick-Up</option>
+                                <option value="Sedan">Patrulla Sedán</option>
+                                <option value="Motocicleta">Motocicleta</option>
+                                <option value="Civil">Vehículo Civil / Cubierto</option>
+                                <option value="Especializado">Especializado</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label>Marca</label><input type="text" name="marca" required class="form-control" placeholder="Ej: Dodge"></div>
+                        <div class="form-group"><label>Modelo / Año</label><input type="text" name="modelo" required class="form-control" placeholder="Ej: Ram 2500 - 2023"></div>
+                        <div class="form-group"><label>Placas</label><input type="text" name="placa" required class="form-control" placeholder="ABC-123-D"></div>
+                        <div class="form-group"><label>Número de Serie (VIN)</label><input type="text" name="serie_vin" required class="form-control" placeholder="1B7..."></div>
+                        <div class="form-group"><label>Kilometraje Actual</label><input type="number" name="km" class="form-control" placeholder="0"></div>
+                        <div class="form-group"><label>Nivel de Blindaje</label>
+                            <select name="blindaje" class="form-control">
+                                <option value="N/A">Sin Blindaje</option>
+                                <option value="III">Nivel III</option>
+                                <option value="V">Nivel V</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label>Estado Físico</label>
+                            <select name="estado" class="form-control" required>
+                                <option value="Operativo">Operativo (En Servicio)</option>
+                                <option value="Mantenimiento">Mantenimiento Preventivo</option>
+                                <option value="Taller">Taller (Reparación)</option>
+                                <option value="Baja">Baja / Siniestro</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label>Asignación Física</label>
+                            <select name="asignado_a" class="form-control" required>
+                                <option value="General">Uso General</option>
+                                <option value="Mando">Mando / Dirección</option>
+                                <option value="Tránsito">Sector Tránsito</option>
+                                <option value="Táctico">G.O.E / Táctico</option>
                             </select>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="action-btn" onclick="saveNewVehiculo(event)">Dar de Alta Unidad</button>
+                <button type="button" class="action-btn" onclick="saveNewVehiculo(event)">Dar de Alta Unidad</button>
             </div>
         </div>
     `;

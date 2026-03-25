@@ -85,11 +85,15 @@ function getFilteredLogs(filters = {}) {
     let filtered = [...auditLogs];
 
     if (filters.fechaInicio) {
-        filtered = filtered.filter(log => new Date(log.timestamp) >= new Date(filters.fechaInicio));
+        const start = new Date(filters.fechaInicio);
+        start.setHours(0, 0, 0, 0); // Inicio del día local
+        filtered = filtered.filter(log => new Date(log.timestamp) >= start);
     }
 
     if (filters.fechaFin) {
-        filtered = filtered.filter(log => new Date(log.timestamp) <= new Date(filters.fechaFin));
+        const end = new Date(filters.fechaFin);
+        end.setHours(23, 59, 59, 999); // Fin del día local
+        filtered = filtered.filter(log => new Date(log.timestamp) <= end);
     }
 
     if (filters.usuario) {

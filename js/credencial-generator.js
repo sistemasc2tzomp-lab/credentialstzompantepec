@@ -424,9 +424,120 @@ async function downloadCredential() {
     }
 }
 
+async function previewFullCredential() {
+    if (!currentPersonData) {
+        showNotification('Selecciona un empleado primero', 'warning');
+        return;
+    }
+
+    showNotification('Generando previsualización en nueva pestaña...', 'info');
+    
+    // Clonar los elementos actuales
+    const front = document.getElementById('tzompFront').outerHTML;
+    const back = document.getElementById('tzompBack').outerHTML;
+    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
+        .map(s => s.outerHTML)
+        .join('\n');
+
+    const previewWindow = window.open('', '_blank');
+    previewWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <title>Previsualización SIBIM - ${currentPersonData.nombre}</title>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Montserrat:wght@800&display=swap" rel="stylesheet">
+            ${styles}
+            <style>
+                body { 
+                    background: #0a192f; 
+                    display: flex; 
+                    flex-direction: column; 
+                    align-items: center; 
+                    padding: 50px; 
+                    margin: 0;
+                    color: white;
+                    font-family: 'Inter', sans-serif;
+                }
+                .preview-header {
+                    margin-bottom: 40px;
+                    text-align: center;
+                }
+                .preview-header h1 { color: #c5a059; margin: 0; font-size: 1.5rem; }
+                .preview-container { 
+                    display: flex; 
+                    gap: 40px; 
+                    flex-wrap: wrap;
+                    justify-content: center;
+                }
+                .card-wrapper {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 15px;
+                }
+                .card-label { 
+                    font-weight: 800; 
+                    letter-spacing: 2px;
+                    color: #c5a059;
+                    font-size: 0.8rem;
+                }
+                @media print {
+                    .no-print { display: none; }
+                    body { background: white; padding: 0; }
+                }
+                .btn-print-floating {
+                    position: fixed;
+                    bottom: 30px;
+                    right: 30px;
+                    background: #c5a059;
+                    color: #0a192f;
+                    border: none;
+                    padding: 15px 30px;
+                    border-radius: 50px;
+                    font-weight: 900;
+                    cursor: pointer;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    transition: all 0.3s ease;
+                }
+                .btn-print-floating:hover { transform: scale(1.05); background: #b08945; }
+            </style>
+        </head>
+        <body>
+            <div class="preview-header no-print">
+                <h1>DOCUMENTO DE PREVISUALIZACIÓN TÁCTICA</h1>
+                <p>Verifique los datos antes de proceder con el timbrado e impresión física.</p>
+            </div>
+            
+            <div class="preview-container">
+                <div class="card-wrapper">
+                    <span class="card-label">VISTA FRONTAL</span>
+                    ${front}
+                </div>
+                <div class="card-wrapper">
+                    <span class="card-label">VISTA TRASERA</span>
+                    ${back}
+                </div>
+            </div>
+
+            <button class="btn-print-floating no-print" onclick="window.print()">
+                <i class="fas fa-print"></i> PROCESAR IMPRESIÓN
+            </button>
+        </body>
+        </html>
+    `);
+    previewWindow.document.close();
+}
+
 // Hacer funciones globales
 window.selectForCredential = selectForCredential;
 window.printEnhancedCredential = printEnhancedCredential;
+window.downloadCredential = downloadCredential;
+window.previewFullCredential = previewFullCredential;
 window.generateCredential = function () {
     printEnhancedCredential();
 };

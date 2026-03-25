@@ -7,13 +7,16 @@
 
 // CONFIGURACIÓN GLOBAL
 var SPREADSHEET_ID = '12_nohX3MHsU8WrvhDKLYbQYr0uoMFvlx30ICjjJsT2M';
-var SHEET_PERSONAL = 'PERSONAL';
-var SHEET_USUARIOS = 'USUARIOS';
+var SHEET_PERSONAL  = 'PERSONAL';
+var SHEET_USUARIOS  = 'USUARIOS';
 var SHEET_ARMAMENTO = 'ARMAMENTO';
 var SHEET_VEHICULOS = 'VEHICULOS';
-var SHEET_RADIO = 'RADIO';
-var SHEET_CHALECOS = 'CHALECOS';
-var SHEET_REPORTES = 'REPORTES';
+var SHEET_RADIO     = 'RADIO';
+var SHEET_CHALECOS  = 'CHALECOS';
+var SHEET_REPORTES  = 'REPORTES';
+var SHEET_MULTAS    = 'MULTAS';
+var SHEET_BITACORA  = 'BITACORA';
+var SHEET_C3        = 'C3';
 // CONFIGURACIÓN DE GOOGLE DRIVE (IDs proporcionados por el usuario)
 const FOLDER_ID_FOTOS = '1jgEvqN01I3eH0aGjGJdODxLkRlusiD59';
 const FOLDER_ID_DOCS = '1oxAmRdspivrL7LLG7WD01kMym19RJbs-';
@@ -34,6 +37,12 @@ function doGet(e) {
         break;
       case 'getUsuarios':
         result = getUsuarios();
+        break;
+      case 'getC3Data':
+        result = getC3Data();
+        break;
+      case 'getLogs':
+        result = getLogs();
         break;
       case 'getArmamento':
         result = getSheetData(SHEET_ARMAMENTO);
@@ -136,11 +145,22 @@ function doPost(e) {
       case 'eliminarvehiculo':
         result = eliminarVehiculo(params.id || e.parameter.id);
         break;
+      case 'savelog':
+        result = saveLog(params);
+        break;
+      case 'updatec3status':
+        result = updateC3Status(params);
+        break;
       default:
         result = { success: false, message: 'Acción POST no reconocida: ' + action + ' (Intentado: ' + actionLower + ')' };
     }
   } catch (err) {
     result = { success: false, message: 'Error en POST: ' + err.toString() };
+  }
+  
+  // Registrar en bitácora si es una acción de escritura (opcional)
+  if(actionLower.includes('guardar') || actionLower.includes('actualizar') || actionLower.includes('eliminar')) {
+      // console.log('Acción de escritura detectada:', action);
   }
   
   return ContentService.createTextOutput(JSON.stringify(result))
@@ -1392,5 +1412,123 @@ function eliminarVehiculo(id) {
   } catch (e) {
     return { success: false, message: e.toString() };
   }
+}
+
+// ============================================================
+// FUNCIÓN: Gestión de Bitácora (Servidor)
+// ============================================================
+function saveLog(log) {
+  try {
+    var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    var sheet = ss.getSheetByName(SHEET_BITACORA);
+    if (!sheet) {
+      sheet = ss.insertSheet(SHEET_BITACORA);
+      sheet.appendRow(['ID', 'TIMESTAMP', 'USUARIO', 'ROL', 'ACCION', 'DETALLES', 'IP']);
+      sheet.getRange(1,1,1,7).setBackground('#0a192f').setFontColor('#c5a059').setFontWeight('bold');
+    }
+    
+    sheet.appendRow([
+      log.id || ('LOG'+Date.now()),
+      new Date().toISOString(),
+      log.usuario || 'Sistema',
+      log.rol || 'N/A',
+      log.accion || 'ACCION',
+      log.detalles || '',
+      log.ip || ''
+    ]);
+    return { success: true };
+  } catch(e) {
+    return { success: false, error: e.toString() };
+  }
+}
+
+function getLogs() {
+  try {
+    var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    var sheet = ss.getSheetByName(SHEET_BITACORA);
+    if (!sheet) return [];
+    
+    var data = sheet.getDataRange().getValues();
+    if (data.length <= 1) return [];
+    
+    var headers = data[0];
+    var rows = data.slice(1).reverse().slice(0, 1000); // Últimos 1000
+    
+    return rows.map(function(row) {
+      var obj = {};
+      headers.forEach(function(h, i) {
+        obj[h.toLowerCase()] = row[i];
+      });
+      return obj;
+    });
+  } catch(e) {
+    return { error: e.toString() };
+  }
+}
+
+// ============================================================
+// FUNCIÓN: Gestión de Control de Confianza (C3)
+// ============================================================
+function getC3Data() {
+  try {
+    var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    var sheet = ss.getSheetByName(SHEET_C3);
+    if (!sheet) {
+        // Inicializar C3 con datos de PERSONAL si no existe
+        inicializarC3();
+        sheet = ss.getSheetByName(SHEET_C3);
+    }
+    
+    var data = sheet.getDataRange().getValues();
+    if (data.length <= 1) return [];
+    
+    var headers = data[0];
+    return data.slice(1).map(function(row) {
+      var obj = {};
+      headers.forEach(function(h, i) {
+        obj[h.toLowerCase().replace(/\s+/g, '_')] = row[i];
+      });
+      return obj;
+    });
+  } catch(e) {
+    return { error: e.toString() };
+  }
+}
+
+function inicializarC3() {
+    var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    var sheet = ss.insertSheet(SHEET_C3);
+    sheet.appendRow(['CUIP', 'NOMBRE', 'FECHA EVALUACION', 'RESULTADO', 'VIGENCIA', 'OBSERVACIONES']);
+    sheet.getRange(1,1,1,6).setBackground('#0a192f').setFontColor('#c5a059').setFontWeight('bold');
+    
+    // Importar personal actual
+    var personal = getPersonal();
+    personal.forEach(function(p) {
+        if(p.cuip && p.cuip !== 'ADMINISTRATIVO') {
+            sheet.appendRow([p.cuip, p.nombre + ' ' + p.apellidos, '', 'PENDIENTE', '', '']);
+        }
+    });
+}
+
+function updateC3Status(datos) {
+    try {
+        var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+        var sheet = ss.getSheetByName(SHEET_C3);
+        if(!sheet) return { success: false };
+        
+        var data = sheet.getDataRange().getValues();
+        for(var i=1; i<data.length; i++) {
+            if(data[i][0] == datos.cuip) {
+                if(datos.fecha) sheet.getRange(i+1, 3).setValue(datos.fecha);
+                if(datos.resultado) sheet.getRange(i+1, 4).setValue(datos.resultado);
+                if(datos.vigencia) sheet.getRange(i+1, 5).setValue(datos.vigencia);
+                if(datos.observaciones) sheet.getRange(i+1, 6).setValue(datos.observaciones);
+                return { success: true };
+            }
+        }
+        return { success: false, message: 'No encontrado' };
+    } catch(e) {
+        return { success: false, error: e.toString() };
+    }
 }
 

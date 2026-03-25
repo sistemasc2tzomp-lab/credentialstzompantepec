@@ -4,13 +4,248 @@
  * @param {string} section - El ID de la sección a cargar
  */
 function navigateTo(section) {
-    if (typeof loadSection === 'function') {
+    if (typeof window.loadSection === 'function') {
+        window.loadSection(section);
+    } else if (typeof loadSection === 'function') {
         loadSection(section);
     } else {
         console.error('Error: function loadSection not found');
+        // Reintentar si es un problema de carga
+        setTimeout(() => {
+            if (typeof window.loadSection === 'function') window.loadSection(section);
+        }, 500);
     }
 }
 window.navigateTo = navigateTo;
+
+/**
+ * Carga una sección específica en el área de contenido
+ * @param {string} section - El ID de la sección
+ */
+function loadSection(section) {
+    const rol = getCurrentUserRole();
+
+    // Validar permisos de acceso a secciones completas
+    if (section === 'usuarios' && !tienePermiso('usuarios')) {
+        showNotification('Acceso restringido: Solo Administradores pueden gestionar usuarios.', 'error');
+        return;
+    }
+
+    if (section === 'configuracion' && rol !== 'ADMIN') {
+        showNotification('Acceso restringido: Configuración solo disponible para Administradores.', 'error');
+        return;
+    }
+
+    const contentArea = document.getElementById('contentArea');
+    if (!contentArea) {
+        console.error('Error: contentArea not found');
+        return;
+    }
+
+    let sectionHtml = '';
+    let headerConfig = { title: '', subtitle: '', icon: 'fa-shield-halved', actionsHtml: '' };
+
+    switch (section) {
+        case 'inicio':
+            headerConfig = { 
+                title: 'Panel Control', 
+                subtitle: 'Dashboard Principal', 
+                icon: 'fa-th-large',
+                actionsHtml: `
+                    <button class="btn-v2-actualizar" onclick="refreshDashboard()">
+                        <i class="fa-solid fa-rotate"></i> ACTUALIZAR
+                    </button>
+                    ${typeof window.print === 'function' ? `
+                    <button class="btn-v2-nuevo" onclick="window.print()">
+                        <i class="fas fa-print"></i> IMPRIMIR
+                    </button>` : ''}
+                `
+            };
+            sectionHtml = getInicioSection();
+            break;
+        case 'personal':
+            headerConfig = { 
+                title: 'Gestión de Personal', 
+                subtitle: 'Administración de Elementos', 
+                icon: 'fa-users-viewfinder',
+                actionsHtml: `
+                    <button class="btn-v2-nuevo" onclick="showAddEmployeeModal()">
+                        <i class="fas fa-plus"></i> NUEVO
+                    </button>
+                    <button class="btn-v2-actualizar" onclick="refreshAllData()">
+                        <i class="fas fa-sync"></i> ACTUALIZAR
+                    </button>
+                    <button class="btn-v2-actualizar" style="border-color:#fff;" onclick="window.print()">
+                        <i class="fas fa-print"></i> EMISIÓN
+                    </button>
+                `
+            };
+            sectionHtml = getPersonalSection();
+            setTimeout(() => {
+                if (typeof updatePersonnelTable === 'function') updatePersonnelTable();
+                else if (typeof loadPersonnelTable === 'function') loadPersonnelTable();
+            }, 100);
+            break;
+        case 'armamento':
+            headerConfig = { 
+                title: 'Armamento y Equipo', 
+                subtitle: 'Control de Activos de Seguridad', 
+                icon: 'fa-gun',
+                actionsHtml: `
+                    <button class="btn-v2-nuevo" onclick="openArmamentoModal('arma')">
+                        <i class="fas fa-plus"></i> AGREGAR
+                    </button>
+                    <button class="btn-v2-actualizar" onclick="refreshInventory()">
+                        <i class="fas fa-sync"></i> ACTUALIZAR
+                    </button>
+                    <button class="btn-v2-actualizar" style="border-color:#fff;" onclick="window.print()">
+                        <i class="fas fa-print"></i> IMPRIMIR
+                    </button>
+                `
+            };
+            sectionHtml = getArmamentoSection();
+            break;
+        case 'vehiculos':
+            headerConfig = { 
+                title: 'Flota Vehicular', 
+                subtitle: 'Control de Unidades y Patrullas', 
+                icon: 'fa-car-side',
+                actionsHtml: `
+                    <button class="btn-v2-nuevo" onclick="openVehiculoModal()">
+                        <i class="fas fa-plus"></i> AGREGAR
+                    </button>
+                    <button class="btn-v2-actualizar" onclick="refreshInventory()">
+                        <i class="fas fa-sync"></i> ACTUALIZAR
+                    </button>
+                    <button class="btn-v2-actualizar" style="border-color:#fff;" onclick="window.print()">
+                        <i class="fas fa-print"></i> IMPRIMIR
+                    </button>
+                `
+            };
+            sectionHtml = getVehiculosSection();
+            break;
+        case 'credenciales':
+            headerConfig = { 
+                title: 'Emisión Credenciales', 
+                subtitle: 'Generación de Identificaciones Oficiales con QR', 
+                icon: 'fa-id-card-clip',
+                actionsHtml: `
+                    <button class="action-btn" onclick="showNewCredentialForm()" style="background:var(--police-gold); color:var(--police-navy); font-weight:700;">
+                        <i class="fas fa-plus"></i> NUEVA CREDENCIAL
+                    </button>
+                `
+            };
+            sectionHtml = getCredencialesSection();
+            setTimeout(initCredencialesSection, 100);
+            break;
+        case 'repositorio':
+            headerConfig = { title: 'Repositorio Central', subtitle: 'Base de Datos Maestra de Seguridad Pública', icon: 'fa-database' };
+            sectionHtml = getRepositorioSection();
+            setTimeout(() => {
+                if (typeof updatePersonnelTable === 'function') updatePersonnelTable();
+                else if (typeof loadPersonnelData === 'function') loadPersonnelData();
+            }, 100);
+            break;
+        case 'c3':
+            headerConfig = { title: 'Control de Confianza', subtitle: 'Estatus de Evaluaciones y Certificaciones C3', icon: 'fa-user-shield' };
+            sectionHtml = getC3Section();
+            // initC3Section ya se llama con un setTimeout dentro de getC3Section para asegurar carga
+            break;
+        case 'directorio':
+            headerConfig = { 
+                title: 'Directorio Operativo', 
+                subtitle: 'Mandos y Contactos de Emergencia Tzompantepec', 
+                icon: 'fa-phone-volume',
+                actionsHtml: `<button class="action-btn" onclick="window.print()" style="background:var(--police-navy); color:white;"><i class="fas fa-print"></i> IMPRIMIR DIRECTORIO</button>`
+            };
+            sectionHtml = getDirectorioSection();
+            break;
+        case 'c5i':
+            headerConfig = { title: 'Inteligencia C5i', subtitle: 'Terminal Activa de Despacho y Videovigilancia', icon: 'fa-microchip' };
+            sectionHtml = getC5iSection();
+            setTimeout(() => initC5iSection(), 100);
+            break;
+        case 'movimientos':
+            headerConfig = { 
+                title: 'Bitácora de Auditoría', 
+                subtitle: 'Registro Histórico de Acciones en el Sistema', 
+                icon: 'fa-history',
+                actionsHtml: `
+                    <button class="action-btn" onclick="printSystemLogs()" style="background:var(--police-navy); color:white;">
+                        <i class="fas fa-print"></i> IMPRIMIR BITÁCORA
+                    </button>
+                `
+            };
+            sectionHtml = getMovimientosSection();
+            setTimeout(async () => {
+                if (typeof apiGetLogs === 'function') {
+                    const remoteLogs = await apiGetLogs();
+                    if (Array.isArray(remoteLogs)) {
+                        systemLogs = remoteLogs;
+                        const tbody = document.getElementById('logsTableBody');
+                        if (tbody) tbody.innerHTML = generateLogsRows(systemLogs);
+                    }
+                }
+            }, 100);
+            break;
+        case 'reportes':
+            headerConfig = { 
+                title: 'Análisis y Reportes', 
+                subtitle: 'Estadísticas delictivas y Operativas', 
+                icon: 'fa-chart-pie',
+                actionsHtml: `
+                    <button class="action-btn" onclick="generateGeneralReport()" style="background:var(--police-navy); color:white;">
+                        <i class="fas fa-file-pdf"></i> PDF GENERAL
+                    </button>
+                `
+            };
+            sectionHtml = getReportesSection();
+            setTimeout(initReportesSection, 100);
+            break;
+        case 'usuarios':
+            headerConfig = { 
+                title: 'Gestión de Acceso', 
+                subtitle: 'Control de Usuarios y Privilegios', 
+                icon: 'fa-user-gear',
+                actionsHtml: `
+                    <button class="btn-v2-nuevo" onclick="showAddUserModal()">
+                        <i class="fas fa-user-plus"></i> NUEVO USUARIO
+                    </button>
+                `
+            };
+            sectionHtml = getUsuariosSection();
+            setTimeout(loadUsersTable, 100);
+            break;
+        case 'configuracion':
+            headerConfig = { title: 'Configuración', subtitle: 'Parámetros del Sistema y Seguridad', icon: 'fa-gears' };
+            sectionHtml = getConfiguracionSection();
+            break;
+        default:
+            headerConfig = { title: 'Error', subtitle: 'Sección no encontrada', icon: 'fa-circle-exclamation' };
+            sectionHtml = '<div class="error-container"><h2>Error 404</h2><p>La sección solicitada no existe.</p></div>';
+    }
+
+    // Renderizar página completa orientada a objetos (Dashboard V2)
+    contentArea.innerHTML = `
+        <div class="dashboard-v2-container">
+            ${generateHeaderV2(headerConfig.title, headerConfig.subtitle, headerConfig.icon, headerConfig.actionsHtml)}
+            <div class="section-content-wrapper">
+                ${sectionHtml}
+            </div>
+        </div>
+    `;
+
+    // Actualizar sidebar active state
+    document.querySelectorAll('.sidebar-nav-v2 li').forEach(li => {
+        li.classList.remove('active');
+        if (li.getAttribute('onclick')?.includes(`'${section}'`)) {
+            li.classList.add('active');
+        }
+    });
+
+    logAction(ACTION_TYPES.VIEW, `Accedió a la sección: ${section}`);
+}
+window.loadSection = loadSection;
 
 const users = {
     admin: {
@@ -39,7 +274,8 @@ var ACTION_TYPES = {
     DOWNLOAD: 'Descarga',
     SEARCH: 'Búsqueda',
     EXPORT: 'Exportación',
-    GENERATE: 'Generación'
+    GENERATE: 'Generación',
+    SECURITY: 'Seguridad C3'
 };
 window.ACTION_TYPES = ACTION_TYPES;
 
@@ -122,7 +358,7 @@ var currentView = 'table';
 
 
 // Función para registrar acciones
-function logAction(accion, detalles, usuario = null) {
+async function logAction(accion, detalles, usuario = null) {
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     const now = new Date();
 
@@ -136,11 +372,17 @@ function logAction(accion, detalles, usuario = null) {
         detalles: detalles
     };
 
-    systemLogs.push(logEntry);
+    // Almacenamiento local para respuesta inmediata
+    systemLogs.unshift(logEntry);
+    if (systemLogs.length > 1000) systemLogs.pop();
 
-    // Mantener solo los últimos 1000 logs
-    if (systemLogs.length > 1000) {
-        systemLogs = systemLogs.slice(-1000);
+    // PERSISTENCIA EN GOOGLE SHEETS
+    try {
+        if (typeof apiSaveLog === 'function') {
+            await apiSaveLog(logEntry);
+        }
+    } catch (e) {
+        console.warn('⚠️ Error al persistir log en la nube:', e);
     }
 
     console.log('LOG:', logEntry);
@@ -1640,8 +1882,8 @@ function getCredencialesSection() {
                Dimensiones calibradas para evitar solapamiento con etiquetas */
             .photo-frame-dynamic {
                 position: absolute;
-                top: 185px;   
-                left: 28px;   
+                top: 176px;   /* Ajustado arriba */
+                left: 38px;   /* Ajustado derecha */
                 width: 120px; 
                 height: 150px;
                 border-radius: 4px;
@@ -1665,9 +1907,9 @@ function getCredencialesSection() {
             /* --- Contenedor de Datos Dashboard (Calibración milimétrica) --- */
             .preview-data-column {
                 position: absolute;
-                top: 195px;
-                left: 152px;
-                width: 190px;
+                top: 185px;
+                left: 165px; /* Shifted right */
+                width: 175px;
                 max-height: 195px; 
                 display: flex;
                 flex-direction: column;
@@ -1718,10 +1960,10 @@ function getCredencialesSection() {
                Posicionadas sobre las cintas de fondo. */
             .signature-box-abs {
                 position: absolute;
-                top: 395px; 
-                left: 20px;
-                width: 145px;
-                height: 80px;
+                top: 388px; /* Ajustado */
+                left: 25px;
+                width: 150px;
+                height: 75px;
                 z-index: 100; 
                 background: transparent !important;
                 border: 1px dashed rgba(15, 43, 94, 0.1) !important;
@@ -2044,68 +2286,72 @@ function getC3Section() {
     // Definir la función de inicialización si no existe
     if (!window.initC3Section) {
         window.initC3Section = async function () {
-            const tbody = document.getElementById('tableBody');
+            const tbody = document.getElementById('c3TableBody');
             if (tbody) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:40px;"><i class="fas fa-spinner fa-spin"></i> Sincronizando con servidor Control de Confianza Tlaxcala...</td></tr>';
-                const personnel = await loadGoogleSheetsData();
-                if (personnel && personnel.length > 0) {
-                    let totalAprobados = 0;
-                    let totalPendientes = 0;
-                    
-                    const rowsHtml = personnel.map(p => {
-                        // Use actual dynamic data if present, otherwise fallback
-                        const c3Status = p.c3_status || (p.estado === 'Activo' ? 'Aprobado' : 'Pendiente');
-                        const vigencia = p.c3_vigencia || p.vigencia || 'N/A';
-                        const resultado = p.c3_resultado || (c3Status === 'Aprobado' ? 'Básico' : '---');
-                        const statusVisual = c3Status === 'Aprobado' ? 'CERTIFICADO' : c3Status.toUpperCase();
-                        const isApproved = c3Status === 'Aprobado';
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:40px;"><i class="fas fa-spinner fa-spin"></i> Sincronizando con servidor Control de Confianza Tlaxcala...</td></tr>';
+                
+                try {
+                    // USO DE API REAL-TIME C3
+                    const c3Data = await apiGetC3Data();
+                    console.log('📊 C3 Data Recibida:', c3Data);
+
+                    if (c3Data && c3Data.length > 0) {
+                        let totalAprobados = 0;
+                        let totalPendientes = 0;
                         
-                        if (isApproved) totalAprobados++;
-                        else totalPendientes++;
+                        const rowsHtml = c3Data.map(p => {
+                            const c3Status = (p.resultado || '').toUpperCase();
+                            const isApproved = c3Status === 'APROBADO';
+                            const vigencia = p.vigencia || '---';
+                            const fechaEval = p.fecha_evaluacion || '---';
+                            
+                            if (isApproved) totalAprobados++;
+                            else totalPendientes++;
 
-                        return `
-                        <tr>
-                            <td><span class="badge-id" style="font-family:monospace;">${p.identificador || p.cuip || p.id || 'C3-TX'}</span></td>
-                            <td>
-                                <div style="display:inline-flex; align-items:center; justify-content:center; width:35px; height:35px; border-radius:50%; background:${isApproved ? '#1e293b' : '#f59e0b'}; color:white; font-weight:bold; font-size:0.8rem;" title="${statusVisual}">
-                                    ${p.nombre.substring(0,1)}${(p.apellidos || p.nombre).substring(0,1)}
-                                </div>
-                            </td>
-                            <td>
-                                <div style="font-weight:700; color:#0f172a;">${p.nombre} ${p.apellidos || ''}</div>
-                                <div style="font-size:0.75rem; color:#64748b;">${p.cargo || 'Oficial'}</div>
-                            </td>
-                            <td><span style="font-size:0.85rem; background:#eff6ff; color:#1e40af; padding:4px 10px; border-radius:6px; font-family:monospace;">${p.cuip || 'En Trámite'}</span></td>
-                            <td>${vigencia}</td>
-                            <td><span style="color:${isApproved ? '#10b981' : '#f59e0b'}; font-weight:800;">${resultado}</span></td>
-                            <td>
-                                <div style="display:flex; gap:5px;">
-                                    <button class="action-btn small" style="background:#3b82f6;" onclick="useQRForCredential('${p.nombre}', '${p.cargo}', '${p.cuip}', '${p.curp}', '${p.foto}')" title="Previsualizar Credencial">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="action-btn small secondary" onclick="printSingleCredential('${p.cuip}')" title="Impresión Directa">
-                                        <i class="fas fa-print"></i>
-                                    </button>
-                                    <button class="action-btn small primary" onclick="printReceipt('credencial', '${encodeURIComponent(JSON.stringify(p))}')" title="Imprimir Vale de Credencial">
-                                        <i class="fas fa-file-signature"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        `;
-                    }).join('');
+                            return `
+                            <tr>
+                                <td><span class="badge-id" style="font-family:monospace;">${p.cuip || 'C3-TX'}</span></td>
+                                <td>
+                                    <div style="display:inline-flex; align-items:center; justify-content:center; width:35px; height:35px; border-radius:50%; background:${isApproved ? '#10b981' : '#f59e0b'}; color:white; font-weight:bold; font-size:0.8rem;">
+                                        ${(p.nombre || 'U').substring(0,1)}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="font-weight:700; color:#0f172a;">${p.nombre || '---'}</div>
+                                    <div style="font-size:0.75rem; color:#64748b;">${p.puesto || 'Oficial'}</div>
+                                </td>
+                                <td><span style="font-size:0.85rem; background:#eff6ff; color:#1e40af; padding:4px 10px; border-radius:6px; font-family:monospace;">${p.cuip || '---'}</span></td>
+                                <td>${vigencia}</td>
+                                <td><span style="color:${isApproved ? '#10b981' : '#f59e0b'}; font-weight:800;">${c3Status}</span></td>
+                                <td>
+                                    <div style="display:flex; gap:5px;">
+                                        <button class="action-btn small" style="background:#3b82f6;" onclick="showC3Details('${p.cuip}')" title="Ver Expediente C3">
+                                            <i class="fas fa-file-medical-alt"></i>
+                                        </button>
+                                        <button class="action-btn small secondary" onclick="updateC3Prompt('${p.cuip}')" title="Actualizar Estatus">
+                                            <i class="fas fa-sync-alt"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            `;
+                        }).join('');
 
-                    tbody.innerHTML = rowsHtml;
-                    
-                    // Update stats
-                    const evalCards = document.querySelectorAll('.repositorio-c3 .stats-overview .card p');
-                    if (evalCards.length >= 3) {
-                        evalCards[0].textContent = personnel.length;
-                        evalCards[1].textContent = totalAprobados;
-                        evalCards[2].textContent = totalPendientes;
+                        tbody.innerHTML = rowsHtml;
+                        
+                        // Update stats
+                        const evalCards = document.querySelectorAll('.repositorio-c3 .stats-overview .card p');
+                        if (evalCards.length >= 3) {
+                            evalCards[0].textContent = c3Data.length;
+                            evalCards[1].textContent = totalAprobados;
+                            evalCards[2].textContent = totalPendientes;
+                        }
+                    } else {
+                        tbody.innerHTML = '<tr><td colspan="7" class="text-center" style="padding:40px;">No hay registros en el módulo C3.</td></tr>';
                     }
-                } else {
-                     tbody.innerHTML = '<tr><td colspan="7" class="text-center" style="padding:40px;">No hay personal registrado en la base de datos.</td></tr>';
+                } catch (error) {
+                    console.error('Error al cargar C3:', error);
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center" style="padding:40px; color:red;">Error de conexión con el servidor C3 Tlaxcala.</td></tr>';
                 }
             }
         };
@@ -2144,7 +2390,7 @@ function getC3Section() {
                             <th>ACCIONES</th>
                         </tr>
                     </thead>
-                    <tbody id="tableBody">
+                    <tbody id="c3TableBody">
                         <tr><td colspan="6" class="text-center" style="padding:40px;">Accediendo a la red segura de Control de Confianza Tlaxcala...</td></tr>
                     </tbody>
                 </table>
@@ -2152,6 +2398,104 @@ function getC3Section() {
         </div>
         `;
 }
+
+// ============================================
+// FUNCIONES AUXILIARES C3
+// ============================================
+
+async function updateC3Prompt(cuip) {
+    const res = await apiGetC3Data();
+    const element = res.find(p => p.cuip === cuip);
+    if (!element) return showNotification('No se encontró el elemento en C3', 'error');
+
+    const modalHtml = `
+        <div id="c3UpdateModal" class="modal-sibim" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); display:flex; align-items:center; justify-content:center; z-index:9999; backdrop-filter:blur(10px);">
+            <div class="modal-content" style="background:#fff; width:450px; border-radius:20px; overflow:hidden; border:2px solid var(--police-gold); box-shadow:0 0 50px rgba(197,160,89,0.3);">
+                <div class="modal-header" style="background:var(--police-navy); padding:20px; color:white; display:flex; justify-content:space-between; align-items:center;">
+                    <h3 style="margin:0; font-size:1.1rem;"><i class="fas fa-sync-alt"></i> ACTUALIZAR ESTATUS C3</h3>
+                    <button onclick="document.getElementById('c3UpdateModal').remove()" style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;">&times;</button>
+                </div>
+                <div class="modal-body" style="padding:25px;">
+                    <p style="margin-bottom:15px; font-weight:700;">Elemento: <span style="color:var(--police-navy);">${element.nombre}</span></p>
+                    
+                    <div class="form-group-v2">
+                        <label>Resultado Evaluación:</label>
+                        <select id="c3NewStatus" class="form-input-v2">
+                            <option value="APROBADO" ${element.resultado === 'APROBADO' ? 'selected' : ''}>APROBADO</option>
+                            <option value="REPROBADO" ${element.resultado === 'REPROBADO' ? 'selected' : ''}>REPROBADO</option>
+                            <option value="PENDIENTE" ${element.resultado === 'PENDIENTE' ? 'selected' : ''}>PENDIENTE</option>
+                            <option value="VENCIDO" ${element.resultado === 'VENCIDO' ? 'selected' : ''}>VENCIDO</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group-v2">
+                        <label>Vigencia Certificado:</label>
+                        <input type="date" id="c3NewVigencia" class="form-input-v2" value="${element.vigencia || ''}">
+                    </div>
+
+                    <div class="form-group-v2">
+                        <label>Observaciones:</label>
+                        <textarea id="c3NewObs" class="form-input-v2" style="height:80px;">${element.observaciones || ''}</textarea>
+                    </div>
+
+                    <div style="margin-top:25px; display:flex; gap:10px;">
+                        <button class="btn-v2-actualizar" style="flex:1;" onclick="processC3Update('${cuip}')">
+                            <i class="fas fa-save"></i> GUARDAR CAMBIOS
+                        </button>
+                        <button class="btn-v2-cerrar" style="flex:1;" onclick="document.getElementById('c3UpdateModal').remove()">
+                            CANCELAR
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+window.updateC3Prompt = updateC3Prompt;
+
+async function processC3Update(cuip) {
+    const status = document.getElementById('c3NewStatus').value;
+    const vigencia = document.getElementById('c3NewVigencia').value;
+    const obs = document.getElementById('c3NewObs').value;
+
+    showNotification('Sincronizando con base de datos C3...', 'info');
+    
+    try {
+        const result = await apiUpdateC3Status({
+            cuip: cuip,
+            resultado: status,
+            vigencia: vigencia,
+            observaciones: obs,
+            fecha: new Date().toISOString().split('T')[0]
+        });
+
+        if (result.success) {
+            showNotification('Estatus C3 actualizado correctamente', 'success');
+            document.getElementById('c3UpdateModal').remove();
+            if (typeof window.initC3Section === 'function') window.initC3Section();
+            logAction(ACTION_TYPES.SECURITY, `Actualizó estatus C3 para CUIP: ${cuip} a ${status}`);
+        } else {
+            showNotification('Error al sincronizar con Google Sheets', 'error');
+        }
+    } catch (e) {
+        showNotification('Error técnico: ' + e.message, 'error');
+    }
+}
+window.processC3Update = processC3Update;
+
+function showC3Details(cuip) {
+    showNotification('Generando expediente táctico C3...', 'info');
+    // Implementación futura: PDF o Vista Detallada
+    apiGetC3Data().then(data => {
+        const item = data.find(p => p.cuip === cuip);
+        if (item) {
+            alert(`EXPEDIENTE C3 - ${item.nombre}\n\nCUIP: ${item.cuip}\nRFC: ${item.rfc || '---'}\nStatus: ${item.resultado}\nVigencia: ${item.vigencia}\nObservaciones: ${item.observaciones || 'Sin registros'}`);
+        }
+    });
+}
+window.showC3Details = showC3Details;
 
 function getC5iSection() {
     return `
@@ -3466,6 +3810,59 @@ function deleteUser(username) {
     }
 }
 
+function editUserPermissions(username) {
+    if (!username) return;
+    showNotification(`Abriendo panel de permisos para @${username}...`, 'info');
+    // Implementación del modal de edición de permisos
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-shield"></i> Gestionar Permisos: @${username}</h3>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editPermisosForm">
+                    <input type="hidden" name="usuario" value="${username}">
+                    <div class="form-group">
+                        <label>Nivel de Acceso</label>
+                        <select name="rol" class="form-control" id="permisoRolSelect">
+                            <option value="OPERADOR">Operador (Edición)</option>
+                            <option value="AUDITOR">Auditor (Lectura)</option>
+                            <option value="ADMIN">Administrador (Total)</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="action-btn" onclick="guardarPermisos(event)">Actualizar Permisos</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+async function guardarPermisos(e) {
+    e.preventDefault();
+    const form = document.getElementById('editPermisosForm');
+    const datos = Object.fromEntries(new FormData(form).entries());
+    
+    showNotification('Sincronizando privilegios...', 'info');
+    try {
+        const res = await window.apiActualizarUsuario(datos);
+        if(res.success) {
+            showNotification('Privilegios actualizados con éxito', 'success');
+            document.querySelector('.modal').remove();
+            loadUsersRepo();
+        } else {
+            showNotification('Error al actualizar: ' + res.message, 'error');
+        }
+    } catch(err) {
+        showNotification('Error de conexión con el servidor', 'error');
+    }
+}
+
 window.showAddUserModal = showAddUserModal;
 window.closeUserModal = closeUserModal;
 window.editUserPermissions = editUserPermissions;
@@ -3624,274 +4021,7 @@ function getStandardHeader(title, subtitle, icon = 'fa-shield-halved', actionsHt
     `;
 }
 
-function loadSection(section) {
 
-    const rol = getCurrentUserRole();
-
-    // Validar permisos de acceso a secciones completas
-    if (section === 'usuarios' && !tienePermiso('usuarios')) {
-        showNotification('Acceso restringido: Solo Administradores pueden gestionar usuarios.', 'error');
-        return;
-    }
-
-    if (section === 'configuracion' && rol !== 'ADMIN') {
-        showNotification('Acceso restringido: Configuración solo disponible para Administradores.', 'error');
-        return;
-    }
-
-    const contentArea = document.getElementById('contentArea');
-    let sectionHtml = '';
-    let headerConfig = { title: '', subtitle: '', icon: 'fa-shield-halved', actionsHtml: '' };
-
-    switch (section) {
-        case 'inicio':
-            headerConfig = { 
-                title: 'Panel Control', 
-                subtitle: 'Dashboard Principal', 
-                icon: 'fa-th-large',
-                actionsHtml: `
-                    <button class="btn-v2-actualizar" onclick="refreshDashboard()">
-                        <i class="fa-solid fa-rotate"></i> ACTUALIZAR
-                    </button>
-                    <button class="btn-v2-nuevo" onclick="window.print()">
-                        <i class="fas fa-print"></i> IMPRIMIR
-                    </button>
-                `
-            };
-            sectionHtml = getInicioSection();
-            break;
-        case 'personal':
-            headerConfig = { 
-                title: 'Gestión de Personal', 
-                subtitle: 'Administración de Elementos', 
-                icon: 'fa-users-viewfinder',
-                actionsHtml: `
-                    <button class="btn-v2-nuevo" onclick="showAddEmployeeModal()">
-                        <i class="fas fa-plus"></i> NUEVO
-                    </button>
-                    <button class="btn-v2-actualizar" onclick="refreshAllData()">
-                        <i class="fas fa-sync"></i> ACTUALIZAR
-                    </button>
-                    <button class="btn-v2-actualizar" style="border-color:#fff;" onclick="window.print()">
-                        <i class="fas fa-print"></i> EMISIÓN
-                    </button>
-                `
-            };
-            sectionHtml = getPersonalSection();
-            setTimeout(loadPersonnelTable, 100);
-            break;
-        case 'armamento':
-            headerConfig = { 
-                title: 'Armamento y Equipo', 
-                subtitle: 'Control de Activos de Seguridad', 
-                icon: 'fa-gun',
-                actionsHtml: `
-                    <button class="btn-v2-nuevo" onclick="openArmamentoModal('arma')">
-                        <i class="fas fa-plus"></i> AGREGAR
-                    </button>
-                    <button class="btn-v2-actualizar" onclick="refreshInventory()">
-                        <i class="fas fa-sync"></i> ACTUALIZAR
-                    </button>
-                    <button class="btn-v2-actualizar" style="border-color:#fff;" onclick="window.print()">
-                        <i class="fas fa-print"></i> IMPRIMIR
-                    </button>
-                `
-            };
-            sectionHtml = getArmamentoSection();
-            break;
-        case 'vehiculos':
-            headerConfig = { 
-                title: 'Flota Vehicular', 
-                subtitle: 'Control de Unidades y Patrullas', 
-                icon: 'fa-car-side',
-                actionsHtml: `
-                    <button class="btn-v2-nuevo" onclick="openVehiculoModal()">
-                        <i class="fas fa-plus"></i> AGREGAR
-                    </button>
-                    <button class="btn-v2-actualizar" onclick="refreshInventory()">
-                        <i class="fas fa-sync"></i> ACTUALIZAR
-                    </button>
-                    <button class="btn-v2-actualizar" style="border-color:#fff;" onclick="window.print()">
-                        <i class="fas fa-print"></i> IMPRIMIR
-                    </button>
-                `
-            };
-            sectionHtml = getVehiculosSection();
-            break;
-        case 'credenciales':
-            headerConfig = { 
-                title: 'Emisión Credenciales', 
-                subtitle: 'Generación de Identificaciones Oficiales con QR', 
-                icon: 'fa-id-card-clip',
-                actionsHtml: `
-                    <button class="action-btn" onclick="showNewCredentialForm()" style="background:var(--police-gold); color:var(--police-navy); font-weight:700;">
-                        <i class="fas fa-plus"></i> NUEVA CREDENCIAL
-                    </button>
-                `
-            };
-            sectionHtml = getCredencialesSection();
-            setTimeout(initCredencialesSection, 100);
-            break;
-        case 'repositorio':
-            headerConfig = { title: 'Repositorio Central', subtitle: 'Base de Datos Maestra de Seguridad Pública', icon: 'fa-database' };
-            sectionHtml = getRepositorioSection();
-            setTimeout(loadPersonnelData, 100);
-            break;
-        case 'c3':
-            headerConfig = { title: 'Control de Confianza', subtitle: 'Estatus de Evaluaciones y Certificaciones C3', icon: 'fa-user-shield' };
-            sectionHtml = getC3Section();
-            setTimeout(loadPersonnelData, 100);
-            break;
-        case 'directorio':
-            headerConfig = { 
-                title: 'Directorio Operativo', 
-                subtitle: 'Mandos y Contactos de Emergencia Tzompantepec', 
-                icon: 'fa-phone-volume',
-                actionsHtml: `<button class="action-btn" onclick="window.print()" style="background:var(--police-navy); color:white;"><i class="fas fa-print"></i> IMPRIMIR DIRECTORIO</button>`
-            };
-            sectionHtml = getDirectorioSection();
-            break;
-        case 'c5i':
-            headerConfig = { title: 'Inteligencia C5i', subtitle: 'Terminal Activa de Despacho y Videovigilancia', icon: 'fa-microchip' };
-            sectionHtml = getC5iSection();
-            setTimeout(() => initC5iSection(), 100);
-            break;
-        case 'movimientos':
-            headerConfig = { 
-                title: 'Bitácora Sistema', 
-                subtitle: 'Registro de Auditoría y Movimientos de Usuarios', 
-                icon: 'fa-clock-rotate-left',
-                actionsHtml: `
-                    <button class="action-btn" onclick="printSystemLogs()" style="background:var(--police-navy); color:white;">
-                        <i class="fas fa-print"></i> IMPRIMIR BITÁCORA
-                    </button>
-                `
-            };
-            sectionHtml = getMovimientosSection();
-            break;
-        case 'reportes':
-            headerConfig = { 
-                title: 'Análisis y Reportes', 
-                subtitle: 'Estadísticas delictivas y Operativas', 
-                icon: 'fa-chart-pie',
-                actionsHtml: `
-                    <button class="action-btn" onclick="exportReportToPDF()" style="background:var(--red-mx); color:white;">
-                        <i class="fas fa-file-pdf"></i> IMPRIMIR PDF
-                    </button>
-                `
-            };
-            sectionHtml = getReportesSection();
-            break;
-        case 'usuarios':
-            headerConfig = { 
-                title: 'Gestión de Usuarios', 
-                subtitle: 'Control de Acceso y Roles', 
-                icon: 'fa-user-gear',
-                actionsHtml: `
-                    <button class="btn-v2-nuevo" onclick="openNewUserModal()">
-                        <i class="fas fa-user-plus"></i> NUEVO
-                    </button>
-                    <button class="btn-v2-actualizar" onclick="loadUsersRepo()">
-                        <i class="fas fa-sync"></i> ACTUALIZAR
-                    </button>
-                    <button class="btn-v2-actualizar" style="border-color:#fff;" onclick="window.print()">
-                        <i class="fas fa-print"></i> IMPRIMIR
-                    </button>
-                `
-            };
-            sectionHtml = getUsuariosSection();
-            break;
-        case 'qr-repo':
-            headerConfig = { 
-                title: 'Repositorio QR', 
-                subtitle: 'Códigos de Validación de Credenciales SIBIM', 
-                icon: 'fa-qrcode',
-                actionsHtml: `<button class="action-btn" onclick="window.print()" style="background:var(--police-navy); color:white;"><i class="fa-solid fa-print"></i> Imprimir Galería</button>`
-            };
-            sectionHtml = getQRRepoSection();
-            break;
-        case 'inventario':
-            headerConfig = { 
-                title: 'Inventario General', 
-                subtitle: 'Control de Activos y Suministros', 
-                icon: 'fa-box-open',
-                actionsHtml: `
-                    <button class="btn-v2-nuevo" onclick="exportInventoryExcel()">
-                        <i class="fa-solid fa-file-excel"></i> EXCEL
-                    </button>
-                    <button class="btn-v2-actualizar" onclick="refreshInventory()">
-                        <i class="fa-solid fa-rotate"></i> SINCRONIZAR
-                    </button>
-                    <button class="btn-v2-actualizar" style="border-color:#fff;" onclick="window.print()">
-                        <i class="fas fa-print"></i> IMPRIMIR
-                    </button>
-                `
-            };
-            sectionHtml = getInventarioSection();
-            break;
-        case 'multas':
-            headerConfig = { 
-                title: 'Control de Multas', 
-                subtitle: 'Gestión de Infracciones de Tránsito', 
-                icon: 'fa-receipt',
-                actionsHtml: `
-                    <button class="btn-v2-nuevo" onclick="showNewFineModal()">
-                        <i class="fas fa-plus"></i> NUEVA
-                    </button>
-                    <button class="btn-v2-actualizar" onclick="loadFinesRepo()">
-                        <i class="fas fa-sync"></i> ACTUALIZAR
-                    </button>
-                    <button class="btn-v2-actualizar" style="border-color:#fff;" onclick="window.print()">
-                        <i class="fas fa-print"></i> IMPRIMIR
-                    </button>
-                `
-            };
-            sectionHtml = getMultasSection();
-            break;
-        case 'documentacion':
-            headerConfig = { 
-                title: 'Expedientes Digitales', 
-                subtitle: 'Resguardo de Documentación Oficial', 
-                icon: 'fa-folder-tree',
-                actionsHtml: `
-                    <button class="btn-v2-nuevo" onclick="showAddExpedienteModal()">
-                        <i class="fas fa-file-circle-plus"></i> AGREGAR
-                    </button>
-                    <button class="btn-v2-actualizar" onclick="refreshPersonnelData()">
-                        <i class="fas fa-sync"></i> ACTUALIZAR
-                    </button>
-                `
-            };
-            sectionHtml = getDocumentacionSection();
-            break;
-        case 'configuracion':
-            headerConfig = { title: 'Configuración', subtitle: 'Parámetros Globales del Sistema SIBIM', icon: 'fa-sliders' };
-            sectionHtml = getConfiguracionSection();
-            setTimeout(initConfiguracionSection, 100);
-            break;
-        default:
-            sectionHtml = `<h2>Sección ${section} en construcción</h2>`;
-    }
-
-    // Inyectar encabezado + contenido
-    contentArea.innerHTML = getStandardHeader(headerConfig.title, headerConfig.subtitle, headerConfig.icon, headerConfig.actionsHtml) + sectionHtml;
-
-
-    // Disparar evento de sección cargada
-
-    document.dispatchEvent(new CustomEvent('sectionLoaded', { detail: section }));
-
-    // Registrar la visualización de la sección
-    logAction(ACTION_TYPES.VIEW, `Navegó a sección: ${section} `);
-}
-
-// Asegurar que el evento sectionLoaded se dispare (versión alternativa para compatibilidad)
-const originalLoadSection = window.loadSection || function () { };
-window.loadSection = function (section) {
-    if (typeof originalLoadSection === 'function') {
-        originalLoadSection(section);
-    }
-};
 
 // Verificar que los archivos JS se cargaron
 document.addEventListener('DOMContentLoaded', function () {
@@ -7835,14 +7965,52 @@ function showNewCredentialForm() {
     }, 200);
 }
 
-window.openNewUserModal = openNewUserModal;
-window.saveNewUser = saveNewUser;
-window.showAddExpedienteModal = showAddExpedienteModal;
-window.uploadDocument = uploadDocument;
-window.printSystemLogs = printSystemLogs;
-window.showNewCredentialForm = showNewCredentialForm;
-window.openArmamentoModal = openArmamentoModal;
-window.openVehiculoModal = openVehiculoModal;
+// --- ASIGNACIÓN DE FUNCIONES GLOBALES (HOISTING SAFE) ---
+
+function initGlobals() {
+    window.openNewUserModal = openNewUserModal;
+    window.saveNewUser = saveNewUser;
+    window.showAddExpedienteModal = showAddExpedienteModal;
+    window.uploadDocument = uploadDocument;
+    window.printSystemLogs = printSystemLogs;
+    window.showNewCredentialForm = showNewCredentialForm;
+    window.openArmamentoModal = openArmamentoModal;
+    window.openVehiculoModal = openVehiculoModal;
+    window.editUser = editUser;
+    window.editUserPermissions = editUserPermissions;
+    window.printReceipt = printReceipt;
+    window.editArmamento = editArmamento;
+    window.editVehiculo = editVehiculo;
+    window.showC3Details = showC3Details;
+    window.updateC3Prompt = updateC3Prompt;
+}
+
+// FUNCIONES DE APOYO C3
+function showC3Details(cuip) {
+    showNotification(`Accediendo al expediente C3 de ${cuip}...`, 'info');
+}
+
+async function updateC3Prompt(cuip) {
+    const res = prompt(`Actualizar Estatus C3 para ${cuip}\nIngrese (APROBADO/PENDIENTE/REPROBADO):`);
+    if (res) {
+        const status = res.toUpperCase();
+        showNotification('Sincronizando con servidor C3...', 'info');
+        try {
+            const success = await apiUpdateC3Status({ cuip: cuip, resultado: status });
+            if (success) {
+                showNotification('Estatus actualizado correctamente', 'success');
+                if (window.initC3Section) window.initC3Section();
+            } else {
+                showNotification('Error al actualizar en el servidor', 'error');
+            }
+        } catch (e) {
+            showNotification('Error de conexión', 'error');
+        }
+    }
+}
+
+// Ejecutar inicialización de globales
+initGlobals();
 
 function syncSheets() {
     showNotification('Iniciando sincronización bidireccional...', 'info');
@@ -7858,8 +8026,8 @@ function clearLogs() {
 }
 
 function checkUpdates() {
-    showNotification('El sistema ya cuenta con la versión más reciente (2.6.5-PRO)', 'success');
+    showNotification('El sistema ya cuenta con la versión más reciente (v2.7.0-STABLE)', 'success');
 }
 
 // --- FIN DEL MÓDULO DE AUTENTICACIÓN Y GESTIÓN ---
-console.log('✅ Sistema Central Tzompantepec v2.6.5-PRO Operativo');
+console.log('✅ Sistema Central Tzompantepec v2.7.0-STABLE Operativo');

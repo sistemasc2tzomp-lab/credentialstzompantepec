@@ -391,6 +391,58 @@ async function apiEliminarVehiculo(id) {
     }
 }
 
+/**
+ * POST: Guardar en Bitácora
+ */
+async function apiSaveLog(log) {
+    if (!checkWebAppConfig()) return { success: false };
+    try {
+        const payload = { action: 'saveLog', ...log };
+        await fetch(GAS_WEBAPP_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify(payload)
+        });
+        return { success: true };
+    } catch (e) {
+        return { success: false };
+    }
+}
+
+/**
+ * GET: Obtener Bitácora
+ */
+async function apiGetLogs() {
+    return await apiGetSheetData('getLogs');
+}
+
+/**
+ * GET: Obtener datos C3
+ */
+async function apiGetC3Data() {
+    return await apiGetSheetData('getC3Data');
+}
+
+/**
+ * POST: Actualizar estado C3
+ */
+async function apiUpdateC3Status(datos) {
+    if (!checkWebAppConfig()) return { success: false };
+    try {
+        const payload = { action: 'updateC3Status', ...datos };
+        const response = await fetch(GAS_WEBAPP_URL, {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+        });
+        return { success: true };
+    } catch (e) {
+        return { success: false };
+    }
+}
+
 // Globales
 window.apiGetUsuarios = apiGetUsuarios;
 window.apiGuardarUsuario = apiGuardarUsuario;
@@ -409,3 +461,7 @@ window.apiActualizarArmamento = apiActualizarArmamento;
 window.apiActualizarVehiculo = apiActualizarVehiculo;
 window.apiEliminarArmamento = apiEliminarArmamento;
 window.apiEliminarVehiculo = apiEliminarVehiculo;
+window.apiSaveLog = apiSaveLog;
+window.apiGetLogs = apiGetLogs;
+window.apiGetC3Data = apiGetC3Data;
+window.apiUpdateC3Status = apiUpdateC3Status;

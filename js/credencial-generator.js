@@ -121,14 +121,14 @@ function updateEnhancedCredential(data) {
         if (container) {
             container.innerHTML = '';
             const qrCanvas = document.createElement('canvas');
-            // QR de la parte trasera con tamaño óptimo y margen para lectura rápida
+            // QR con tamaño óptimo y margen para lectura rápida
             const size = container.id === 'backQR' ? 75 : 80; 
 
             if (typeof QRCode !== 'undefined' && typeof QRCode.toCanvas === 'function') {
                 QRCode.toCanvas(qrCanvas, validationUrl, {
                     width: size,
-                    margin: 2,
-                    errorCorrectionLevel: 'M',
+                    margin: 1, /* Menor margen para que luzca mejor */
+                    errorCorrectionLevel: 'H', /* Mayor nivel de error */
                     color: {
                         dark: '#000000',
                         light: '#ffffff'
@@ -222,10 +222,10 @@ function printEnhancedCredential() {
                 */
                 .photo-oficial {
                     position: absolute;
-                    top: 172px;
-                    left: 52px;
-                    width: 88px;
-                    height: 110px;
+                    top: 160px; /* Shifting up */
+                    left: 65px; /* Shifting right */
+                    width: 90px;
+                    height: 112px;
                     border-radius: 4px;
                     overflow: hidden;
                     border: 1px solid rgba(0,0,0,0.1);
@@ -237,12 +237,12 @@ function printEnhancedCredential() {
                 /* --- Contenedor de Datos (Derecha de la foto) --- */
                 .data-column {
                     position: absolute;
-                    top: 180px;
-                    left: 145px;
+                    top: 175px; 
+                    left: 160px; /* Shifted right */
                     width: 155px;
                     display: flex;
                     flex-direction: column;
-                    gap: 4px;
+                    gap: 3px;
                     z-index: 10;
                 }
 
@@ -277,15 +277,15 @@ function printEnhancedCredential() {
                 /* --- Firma y Huella --- */
                 .firma-oficial {
                     position: absolute;
-                    bottom: 85px;
-                    left: 44px;
+                    bottom: 82px;
+                    left: 48px;
                     width: 125px;
-                    height: 48px;
+                    height: 52px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     z-index: 15;
-                    border-bottom: 1.5px solid rgba(0,0,0,0.4);
+                    border-bottom: 2px solid rgba(0,0,0,0.5); /* Más visible */
                 }
                 .firma-oficial img { 
                     max-width: 95%; 
@@ -368,6 +368,11 @@ function printEnhancedCredential() {
                 <!-- Zona de Firma -->
                 <div class="firma-oficial">
                     ${data.firma ? `<img src="${data.firma}">` : ''}
+                </div>
+
+                <!-- QR Frontal -->
+                <div style="position:absolute; bottom:15px; left:48px; width:55px; height:55px; background:white; padding:3px; border-radius:4px; display:flex; align-items:center; justify-content:center; z-index:100;">
+                    <img src="${qrDataUrl}" style="width:100%; height:100%;">
                 </div>
 
                 <!-- Reservado para Huella (Fisica o Digital) -->

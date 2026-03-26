@@ -1955,7 +1955,7 @@ function getCredencialesSection() {
             .photo-frame-dynamic {
                 position: absolute;
                 top: 176px;   /* Ajustado arriba */
-                left: 38px;   /* Ajustado derecha */
+                left: 20px;   /* Mover a la izquierda solicitado */
                 width: 120px; 
                 height: 150px;
                 border-radius: 4px;
@@ -2016,9 +2016,9 @@ function getCredencialesSection() {
                 left: 0;
                 width: 100%;
                 font-family: 'Inter', sans-serif;
-                font-size: 0.72rem;
+                font-size: 0.85rem;  /* Letras más grandes */
                 font-weight: 900;
-                color: #0c1a35; 
+                color: black;        /* Color negro solicitado */
                 text-transform: uppercase;
                 background: transparent !important;
                 white-space: nowrap;
@@ -2065,7 +2065,7 @@ function getCredencialesSection() {
                 left: 48px;
                 width: 55px;
                 height: 55px;
-                background: white;
+                background: transparent !important; /* Quitar recuadro blanco */
                 padding: 2px;
                 border-radius: 4px;
                 display: flex;
@@ -2120,7 +2120,7 @@ function getCredencialesSection() {
                 right: 18px;
                 width: 65px;
                 height: 65px;
-                background: white;
+                background: transparent !important; /* Quitar recuadro blanco */
                 padding: 3px;
                 border-radius: 6px;
                 display: flex;
@@ -2182,7 +2182,7 @@ function getCredencialesSection() {
                         <div class="signature-box-abs" id="previewSignature"></div>
                         <div class="huella-abs" id="previewHuella"></div>
 
-                        <div class="qr-frontal-pos" id="previewQR" style="background:#fff;"></div>
+                        <div class="qr-frontal-pos" id="previewQR"></div>
                     </div>
                 </div>
 
@@ -2303,7 +2303,7 @@ function renderExpedientesTable(data) {
                                 <button class="action-btn" title="Cargar a Drive" onclick="uploadToExpediente('${p.cuip}')" style="background:#0ea5e9; color:white;">
                                     <i class="fas fa-cloud-arrow-up"></i>
                                 </button>
-                                <button class="action-btn" title="Ver Carpeta Drive" onclick="viewExpedienteFolder('${p.cuip}')" style="background:#1e3a6e; color:white;">
+                                <button class="action-btn" title="Ver Carpeta Drive" onclick="viewExpedienteFolder('${p.cuip}', '${p.folder_link || ''}')" style="background:#1e3a6e; color:white;">
                                     <i class="fas fa-folder-tree"></i>
                                 </button>
                                 <button class="action-btn" title="Actualizar Datos" onclick="editEmployee('${p.cuip || p.id}')" style="background:#f59e0b; color:white;">
@@ -2332,15 +2332,19 @@ function uploadToExpediente(cuip) {
     }, 100);
 }
 
-function viewExpedienteFolder(cuip) {
-    const employee = currentPersonnelData.find(e => e.cuip === cuip || e.id === cuip);
-    if (employee && employee.drive_folder_id) {
-        window.open(`https://drive.google.com/drive/folders/${employee.drive_folder_id}`, '_blank');
+function viewExpedienteFolder(cuip, folderLink) {
+    if (folderLink && folderLink.startsWith('http')) {
+        window.open(folderLink, '_blank');
+        return;
+    }
+    const employee = (currentPersonnelData || []).find(e => e.cuip === cuip || e.id === cuip);
+    if (employee && employee.folder_link) {
+        window.open(employee.folder_link, '_blank');
         return;
     }
     showNotification('Generando acceso a la carpeta en la nube...', 'info');
-    // Fallback al backend si no hay ID directo
-    window.open(GAS_WEBAPP_URL + '?action=openFolder&cuip=' + cuip, '_blank');
+    // Redirigir via script para resolver folder si no existe
+    window.open(GAS_WEBAPP_URL + '?action=openFolder&folderId=' + cuip, '_blank');
 }
 
 async function deletePersonnelRecord(id) {

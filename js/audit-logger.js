@@ -46,9 +46,12 @@ function logAction(actionType, details, additionalInfo = {}) {
     };
 
     auditLogs.push(logEntry);
-
-    // Guardar en localStorage (temporal, en producción usar backend)
     saveLogsToStorage();
+
+    // Enviar al backend de Google Sheets
+    if (typeof apiSaveLog === 'function') {
+        apiSaveLog(logEntry);
+    }
 
     // Disparar evento para actualizar UI si es necesario
     document.dispatchEvent(new CustomEvent('newLogEntry', { detail: logEntry }));

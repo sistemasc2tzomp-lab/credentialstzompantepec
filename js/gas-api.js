@@ -445,7 +445,17 @@ async function apiSaveLog(log) {
  * GET: Obtener Bitácora
  */
 async function apiGetLogs() {
-    return await apiGetSheetData('getLogs');
+    const rawLogs = await apiGetSheetData('getLogs');
+    if (!rawLogs || !Array.isArray(rawLogs)) return [];
+    
+    return rawLogs.map(log => {
+        if (!log.fecha && log.timestamp) {
+            const dateObj = new Date(log.timestamp);
+            log.fecha = dateObj.toLocaleDateString('es-MX');
+            log.hora = dateObj.toLocaleTimeString('es-MX');
+        }
+        return log;
+    });
 }
 
 /**

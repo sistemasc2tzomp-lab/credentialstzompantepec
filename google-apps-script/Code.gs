@@ -66,6 +66,8 @@ function doGet(e) {
       case 'eliminarMulta':
         result = eliminarMulta(e.parameter.folio || '');
         break;
+      case 'openFolder':
+        return openFolder(e.parameter.folderId);
       default:
         result = { success: false, message: 'Acción no reconocida: ' + action };
     }
@@ -147,6 +149,9 @@ function doPost(e) {
         break;
       case 'savelog':
         result = saveLog(params);
+        break;
+      case 'uploadfile':
+        result = uploadFile(params);
         break;
       case 'updatec3status':
         result = updateC3Status(params);
@@ -235,7 +240,8 @@ function getPersonal() {
           cartilla_militar     : row[37] || '',
           contacto_emergencia  : row[38] || '',
           tel_emergencia       : row[39] || '',
-          domicilio            : row[40] || ''
+          domicilio            : row[40] || '',
+          folder_link          : row[41] || '' // Col AP (index 41)
         });
       }
     });
@@ -439,18 +445,34 @@ function eliminarPersonal(searchId) {
 // ============================================================
 // FUNCIONES DE GOOGLE DRIVE PARA EXPEDIENTES
 // ============================================================
-function getOrCreateOfficerFolder(nombrePersonal, tipo) {
-  var rootId = (tipo === 'FOTO') ? FOLDER_ID_FOTOS : FOLDER_ID_DOCS;
-  var root = DriveApp.getFolderById(rootId);
-  var folderName = (nombrePersonal || 'SIN_NOMBRE').trim().toUpperCase();
-  
-  var folders = root.getFoldersByName(folderName);
-  if (folders.hasNext()) {
-    return folders.next();
-  } else {
-    var newFolder = root.createFolder(folderName);
-    newFolder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-    return newFolder;
+// Implementación de carga de archivos (Dossier)
+function uploadFile(params) {
+  try {
+    var cuip = params.cuip;
+    var nombre = params.nombre || 'Personal';
+    var fileName = params.fileName || 'documento.pdf';
+    var fileData = params.fileData; // base64
+    
+    if (!cuip || !fileData) return { success: false, message: 'Faltan datos (cuip/fileData)' };
+    
+    var folder = getOrCreateOfficerFolder(cuip, nombre);
+    
+    // Si es una foto, guardarla como foto principal si se pide?
+    // En este caso lo guardamos como un archivo adjunto
+    var contentType = fileData.split(';')[0].split(':')[1] || 'application/pdf';
+    var bytes = Utilities.base64Decode(fileData.split(',')[1]);
+    var blob = Utilities.newBlob(bytes, contentType, fileName);
+    
+    var file = folder.createFile(blob);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    
+    return { 
+      success: true, 
+      message: 'Archivo cargado correctamente en expediente: ' + fileName,
+      fileUrl: file.getUrl() 
+    };
+  } catch (e) {
+    return { success: false, message: e.toString() };
   }
 }
 
@@ -1148,8 +1170,9 @@ function getOrCreateOfficerFolder(cuip, nombre) {
     var folderName = '[' + cuip + '] ' + (nombre || 'SIN_NOMBRE');
     
     var folders = parentFolder.getFoldersByName(folderName);
+    var foundFolder = null;
     if (folders.hasNext()) {
-      return folders.next();
+      foundFolder = folders.next();
     } else {
       // Intentar buscar solo por CUIP si el nombre cambió
       var allSubFolders = parentFolder.getFolders();
@@ -1157,11 +1180,32 @@ function getOrCreateOfficerFolder(cuip, nombre) {
         var f = allSubFolders.next();
         if(f.getName().indexOf('[' + cuip + ']') === 0){
           f.setName(folderName); // Actualizar nombre si es necesario
-          return f;
+          foundFolder = f;
+          break;
         }
       }
-      return parentFolder.createFolder(folderName);
+      if (!foundFolder) {
+        foundFolder = parentFolder.createFolder(folderName);
+        foundFolder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      }
     }
+    
+    // Guardar el link en la hoja PERSONAL para acceso rápido
+    if (foundFolder) {
+      var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+      var sheet = ss.getSheetByName(SHEET_PERSONAL);
+      if (sheet) {
+        var data = sheet.getDataRange().getValues();
+        for (var i = 1; i < data.length; i++) {
+          if (String(data[i][5]) === String(cuip)) {
+            sheet.getRange(i+1, 42).setValue(foundFolder.getUrl()); // Col AP
+            break;
+          }
+        }
+      }
+    }
+    
+    return foundFolder || parentFolder;
   } catch (e) {
     return DriveApp.getFolderById(FOLDER_ID_DOCS); // Fallback al padre
   }
@@ -1532,3 +1576,47 @@ function updateC3Status(datos) {
     }
 }
 
+/**
+ * Open or find a folder in Drive for an employee
+ */
+function openFolder(idOrUrl) {
+  try {
+    if (!idOrUrl) {
+      return HtmlService.createHtmlOutput("<h1>ERROR</h1><p>ID o CUIP no proporcionado para abrir el expediente.</p>");
+    }
+
+    var folderId = idOrUrl;
+    
+    // Si parece una URL completa, redirigir directo
+    if (String(idOrUrl).indexOf('drive.google.com') !== -1) {
+       return HtmlService.createHtmlOutput('<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;URL=' + idOrUrl + '" /></head><body>Redirigiendo a Carpeta Drive...</body></html>');
+    }
+
+    // Si parece un CUIP o ID corto, buscar la URL real en la base de datos
+    if (idOrUrl.length < 25) { 
+      var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+      var sheet = ss.getSheetByName(SHEET_PERSONAL);
+      if (sheet) {
+        var data = sheet.getDataRange().getValues();
+        var cuip = String(idOrUrl).trim().toUpperCase();
+        for (var i = 1; i < data.length; i++) {
+          if (String(data[i][5]).trim().toUpperCase() === cuip || String(data[i][20]).trim().toUpperCase() === cuip) {
+            var dbLink = data[i][41]; // Columna 42 (AP)
+            if (dbLink && dbLink.indexOf('drive.google.com') !== -1) {
+              folderId = dbLink;
+              return HtmlService.createHtmlOutput('<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;URL=' + folderId + '" /></head><body>Redirigiendo a Carpeta de ' + data[i][1] + '...</body></html>');
+            }
+          }
+        }
+      }
+    }
+
+    // Intentar abrir por ID directo
+    var url = folderId.indexOf('http') === 0 ? folderId : 'https://drive.google.com/drive/folders/' + folderId;
+    return HtmlService.createHtmlOutput('<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;URL=' + url + '" /></head><body>Redirigiendo al expediente...</body></html>');
+
+  } catch (e) {
+    var fallbackUrl = 'https://drive.google.com/drive/folders/' + FOLDER_ID_DOCS;
+    return HtmlService.createHtmlOutput('<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;URL=' + fallbackUrl + '" /></head><body>Redirigiendo a Carpeta Principal (Fallback): ' + e.toString() + '</body></html>');
+  }
+}

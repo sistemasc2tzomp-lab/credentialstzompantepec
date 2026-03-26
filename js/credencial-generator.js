@@ -224,36 +224,34 @@ async function printEnhancedCredential() {
                     margin-bottom: 30px;
                     background-color: #f0f0f0;
                 }
-                .front-bg { background-image: url('assets/credential_front_bg.jpg'); }
-                .back-bg { background-image: url('assets/credential_back_bg.jpg'); }
+                .front-bg { background-image: url('assets/credencial_front_v3.jpg'); }
+                .back-bg  { background-image: url('assets/credencial_back_v3.jpg'); }
 
                 /* --- Foto del oficial (impresion V3) --- 
                    Posicionada dentro del recuadro gris del template
                 */
                 .photo-oficial {
                     position: absolute;
-                    top: 160px; /* Shifting up */
-                    left: 65px; /* Shifting right */
-                    width: 90px;
-                    height: 112px;
+                    top: 161px;
+                    left: 18px;
+                    width: 110px;
+                    height: 137px;
                     border-radius: 4px;
                     overflow: hidden;
-                    border: 1px solid rgba(0,0,0,0.1);
                     z-index: 5;
                 }
-
                 .photo-oficial img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
 
                 /* --- Contenedor de Datos (Derecha de la foto) --- */
                 .data-column {
                     position: absolute;
-                    top: 175px; 
-                    left: 160px; /* Shifted right */
-                    width: 155px;
+                    top: 168px;
+                    left: 148px;
+                    width: 162px;
                     display: flex;
                     flex-direction: column;
                     gap: 3px;
-                    z-index: 10;
+                    z-index: 40;
                 }
 
                 .field-group {
@@ -270,13 +268,14 @@ async function printEnhancedCredential() {
                     text-transform: uppercase;
                     margin: 0;
                     line-height: 1;
+                    opacity: 0.85;
                 }
 
                 .field-value {
                     font-family: 'Inter', sans-serif;
-                    font-size: 8pt;
-                    font-weight: 700;
-                    color: #000;
+                    font-size: 8.5pt;
+                    font-weight: 900;
+                    color: #000000;
                     text-transform: uppercase;
                     margin: 0 0 2px 0;
                     white-space: nowrap;
@@ -287,20 +286,22 @@ async function printEnhancedCredential() {
                 /* --- Firma y Huella --- */
                 .firma-oficial {
                     position: absolute;
-                    bottom: 82px;
-                    left: 48px;
-                    width: 125px;
-                    height: 52px;
+                    bottom: 76px;
+                    left: 16px;
+                    width: 143px;
+                    height: 60px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     z-index: 15;
-                    border-bottom: 2px solid rgba(0,0,0,0.5); /* Más visible */
+                    overflow: hidden;
                 }
-                .firma-oficial img { 
-                    max-width: 95%; 
-                    max-height: 95%; 
+                .firma-oficial img {
+                    max-width: 100%;
+                    max-height: 100%;
+                    object-fit: contain;
                     mix-blend-mode: multiply;
+                    filter: contrast(1.15);
                 }
 
                 .huella-oficial {
@@ -380,8 +381,8 @@ async function printEnhancedCredential() {
                     ${data.firma ? `<img src="${data.firma}">` : ''}
                 </div>
 
-                <!-- QR Frontal -->
-                <div style="position:absolute; bottom:15px; left:48px; width:55px; height:55px; background:white; padding:3px; border-radius:4px; display:flex; align-items:center; justify-content:center; z-index:100;">
+                <!-- QR Frontal: esquina inferior DERECHA -->
+                <div style="position:absolute; bottom:10px; right:12px; width:60px; height:60px; background:white; padding:3px; border-radius:5px; display:flex; align-items:center; justify-content:center; z-index:100; box-shadow:0 1px 4px rgba(0,0,0,0.15);">
                     <img src="${qrDataUrl}" style="width:100%; height:100%;">
                 </div>
 
@@ -465,7 +466,7 @@ async function previewFullCredential() {
         <html lang="es">
         <head>
             <meta charset="UTF-8">
-            <title>Previsualización SIBIM - ${currentPersonData.nombre}</title>
+            <title>Previsualización Credencial - ${currentPersonData.nombre}</title>
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
             <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Montserrat:wght@800&display=swap" rel="stylesheet">
             ${styles}

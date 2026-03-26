@@ -1836,79 +1836,193 @@ function getInicioSection() {
 
 function getPersonalSection() {
     return `
-        <div class="repo-layout fade-in">
-            <!-- SIDEBAR DE REPOSITORIO -->
-            <div class="repo-sidebar">
-                <div class="repo-filters-box">
-                    <h4><i class="fas fa-search" style="color:var(--gold);"></i> Filtro Maestro</h4>
-                    <input type="text" id="searchGlobal" class="repo-search-input" placeholder="Nombre, CUIP o Cargo..." onkeyup="applyPersonnelFilters()">
-                </div>
+        <style>
+            .personal-pro-wrap { display:flex; flex-direction:column; height:100%; background:#f8fafc; }
+            .personal-pro-topbar {
+                display:flex; align-items:center; gap:10px; padding:16px 20px;
+                background:#fff; border-bottom:2px solid #e2e8f0; flex-wrap:wrap;
+            }
+            .search-box-pro {
+                flex:1; min-width:200px; display:flex; align-items:center;
+                background:#f1f5f9; border:1.5px solid #e2e8f0; border-radius:10px;
+                padding:0 14px; gap:8px; max-width:340px;
+            }
+            .search-box-pro input {
+                border:none; background:transparent; width:100%; padding:9px 0;
+                font-size:0.88rem; font-weight:600; color:#0a192f; outline:none;
+            }
+            .filter-select-pro {
+                padding:9px 12px; border:1.5px solid #e2e8f0; border-radius:10px;
+                font-size:0.8rem; font-weight:700; background:#f1f5f9; color:#475569;
+                outline:none; cursor:pointer; min-width:130px;
+            }
+            .btn-top-pro {
+                display:flex; align-items:center; gap:6px; padding:9px 16px;
+                border:none; border-radius:10px; font-size:0.8rem; font-weight:800;
+                cursor:pointer; transition:all 0.18s; letter-spacing:0.4px; white-space:nowrap;
+            }
+            .btn-top-pro:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(0,0,0,0.15); }
+            .btn-nuevo-pro { background:#0a192f; color:#c5a059; }
+            .btn-sync-pro { background:#e2e8f0; color:#475569; }
+            .btn-export-pro { background:#10b981; color:#fff; }
 
-                <div class="repo-stats-vertical">
-                    <div class="stat-item-mini" onclick="filterByStatus('Activo')">
-                        <i class="fas fa-user-check" style="background:rgba(16, 185, 129, 0.1); color:#10b981;"></i>
-                        <div>
-                            <div class="stat-val" id="statsActivos">--</div>
-                            <div class="stat-lab">Fuerza Activa</div>
-                        </div>
-                    </div>
-                    <div class="stat-item-mini" onclick="filterByVigencia('vencido')">
-                        <i class="fas fa-calendar-times" style="background:rgba(239, 68, 68, 0.1); color:#ef4444;"></i>
-                        <div>
-                            <div class="stat-val" id="statsVencidos">--</div>
-                            <div class="stat-lab">Vencidos</div>
-                        </div>
-                    </div>
-                    <div class="stat-item-mini" onclick="filterByVigencia('por-vencer')">
-                        <i class="fas fa-hourglass-half" style="background:rgba(245, 158, 11, 0.1); color:#f59e0b;"></i>
-                        <div>
-                            <div class="stat-val" id="statsPorVencer">--</div>
-                            <div class="stat-lab">Por Vencer</div>
-                        </div>
-                    </div>
-                    <div class="stat-item-mini" onclick="filterByStatus('Baja')">
-                        <i class="fas fa-user-slash" style="background:rgba(100, 116, 139, 0.1); color:#64748b;"></i>
-                        <div>
-                            <div class="stat-val" id="statsBajas">--</div>
-                            <div class="stat-lab">Bajas / Bajas</div>
-                        </div>
-                    </div>
-                </div>
+            .stats-banner-row {
+                display:flex; background:#fff; border-bottom:2px solid #e2e8f0;
+            }
+            .stat-banner-item {
+                flex:1; padding:10px 16px; display:flex; align-items:center;
+                gap:10px; cursor:pointer; border-right:1px solid #e2e8f0;
+                transition:background 0.15s;
+            }
+            .stat-banner-item:last-child { border-right:none; }
+            .stat-banner-item:hover { background:#f8fafc; }
+            .stat-banner-icon { width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:0.9rem; flex-shrink:0; }
+            .stat-banner-num { font-size:1.35rem; font-weight:900; color:#0a192f; line-height:1; }
+            .stat-banner-lab { font-size:0.62rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px; }
 
-                <div class="repo-filters-box" style="margin-top:auto; background:#0a192f; color:white; border:none;">
-                    <h4 style="color:var(--gold);"><i class="fas fa-cog"></i> Sistema Táctico</h4>
-                    <button class="action-btn" onclick="exportPersonnelData()" style="width:100%; justify-content:center; background:rgba(255,255,255,0.05); border:1px solid rgba(197,160,89,0.2); color:white;">
-                        <i class="fas fa-file-excel"></i> Exportar Base
-                    </button>
-                    <button class="action-btn" onclick="togglePersonnelView(currentView === 'table' ? 'cards' : 'table')" style="width:100%; justify-content:center; background:rgba(255,255,255,0.05); border:1px solid rgba(197,160,89,0.2); color:white;">
-                        <i class="fas fa-th-large"></i> Alternar Vista
-                    </button>
-                    <div style="font-size: 0.65rem; opacity: 0.5; margin-top: 10px; text-align: center;">
-                        <i class="fas fa-lock"></i> CONEXIÓN SEGURA ACTIVADA
-                    </div>
+            .table-pro-wrap { flex:1; overflow:auto; }
+            .table-pro { width:100%; border-collapse:collapse; background:#fff; }
+            .table-pro thead th {
+                padding:11px 14px; font-size:0.68rem; font-weight:800; color:#64748b;
+                text-transform:uppercase; letter-spacing:0.8px; background:#f8fafc;
+                border-bottom:2px solid #e2e8f0; text-align:left; white-space:nowrap;
+                position:sticky; top:0; z-index:2;
+            }
+            .table-pro tbody tr { border-bottom:1px solid #f1f5f9; transition:background 0.1s; }
+            .table-pro tbody tr:hover { background:#f8fafc; }
+            .table-pro tbody td { padding:9px 14px; font-size:0.82rem; vertical-align:middle; }
+            .av-cell { display:flex; align-items:center; gap:10px; }
+            .av-img { width:40px; height:46px; border-radius:7px; overflow:hidden; border:2px solid #e2e8f0; flex-shrink:0; }
+            .av-img img { width:100%; height:100%; object-fit:cover; object-position:center top; }
+            .av-name { font-weight:800; color:#0a192f; font-size:0.87rem; margin-bottom:2px; }
+            .av-sub { font-size:0.62rem; color:#94a3b8; font-weight:700; text-transform:uppercase; }
+            .badge-pro { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:20px; font-size:0.65rem; font-weight:800; text-transform:uppercase; }
+            .badge-activo { background:#dcfce7; color:#16a34a; }
+            .badge-baja { background:#fee2e2; color:#dc2626; }
+            .badge-vacaciones { background:#fef9c3; color:#b45309; }
+            .badge-comision { background:#dbeafe; color:#1d4ed8; }
+            .mono-cell { font-family:monospace; font-weight:700; font-size:0.78rem; color:#475569; }
+            .acciones-pro { display:flex; gap:4px; }
+            .btn-tbl { width:30px; height:30px; border:none; border-radius:7px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:0.78rem; transition:all 0.15s; }
+            .btn-tbl:hover { transform:scale(1.1); }
+            .bt-view { background:#e2e8f0; color:#475569; }
+            .bt-edit { background:#dbeafe; color:#1d4ed8; }
+            .bt-cred { background:#fce7be; color:#92400e; }
+            .bt-del { background:#fee2e2; color:#dc2626; }
+            .bt-folder { background:#e0f2fe; color:#0369a1; }
+            .pagination-pro {
+                display:flex; justify-content:space-between; align-items:center;
+                padding:12px 20px; background:#fff; border-top:2px solid #e2e8f0;
+            }
+            .pagination-pro-info { font-size:0.78rem; font-weight:700; color:#64748b; }
+            .pagination-pro-btns { display:flex; gap:5px; }
+            .pagination-pro-btns button {
+                padding:7px 14px; border:1.5px solid #e2e8f0; border-radius:8px;
+                background:#fff; font-weight:800; font-size:0.78rem; cursor:pointer; color:#0a192f; transition:all 0.15s;
+            }
+            .pagination-pro-btns button:hover:not(:disabled) { background:#0a192f; color:#c5a059; border-color:#0a192f; }
+            .pagination-pro-btns button:disabled { opacity:0.35; cursor:default; }
+            .empty-pro { text-align:center; padding:60px 20px; color:#94a3b8; }
+            .empty-pro i { font-size:2.5rem; margin-bottom:12px; display:block; }
+        </style>
+
+        <div class="personal-pro-wrap">
+            <!-- TOP BAR -->
+            <div class="personal-pro-topbar">
+                <div class="search-box-pro">
+                    <i class="fas fa-search" style="color:#94a3b8;"></i>
+                    <input type="text" id="searchGlobal" placeholder="Nombre, CUIP, cargo..." oninput="applyPersonnelFilters()">
+                </div>
+                <select class="filter-select-pro" id="filterEstadoPro" onchange="applyPersonnelFilters()">
+                    <option value="">Todos los Estados</option>
+                    <option value="Activo">Activo</option>
+                    <option value="Baja">Baja</option>
+                    <option value="Vacaciones">Vacaciones</option>
+                    <option value="De Comisión">De Comisión</option>
+                </select>
+                <select class="filter-select-pro" id="filterVigenciaPro" onchange="applyPersonnelFilters()">
+                    <option value="">Toda Vigencia</option>
+                    <option value="vigente">Vigente</option>
+                    <option value="por-vencer">Por Vencer (30d)</option>
+                    <option value="vencido">Vencida</option>
+                </select>
+                <button class="btn-top-pro btn-sync-pro" onclick="loadPersonnelData()" title="Sincronizar con Google Sheets">
+                    <i class="fas fa-sync"></i> ACTUALIZAR
+                </button>
+                <button class="btn-top-pro btn-export-pro" onclick="exportPersonnelData()">
+                    <i class="fas fa-file-excel"></i> EXPORTAR
+                </button>
+                <button class="btn-top-pro btn-nuevo-pro" onclick="showAddPersonnelModal()">
+                    <i class="fas fa-user-plus"></i> + NUEVO ELEMENTO
+                </button>
+            </div>
+
+            <!-- STATS BANNER -->
+            <div class="stats-banner-row">
+                <div class="stat-banner-item" onclick="filterByStatusPro('')">
+                    <div class="stat-banner-icon" style="background:#f0f4ff;"><i class="fas fa-users" style="color:#1d4ed8;"></i></div>
+                    <div><div class="stat-banner-num" id="statsTotalPro">--</div><div class="stat-banner-lab">Total</div></div>
+                </div>
+                <div class="stat-banner-item" onclick="filterByStatusPro('Activo')">
+                    <div class="stat-banner-icon" style="background:#dcfce7;"><i class="fas fa-user-check" style="color:#16a34a;"></i></div>
+                    <div><div class="stat-banner-num" id="statsActivos">--</div><div class="stat-banner-lab">Fuerza Activa</div></div>
+                </div>
+                <div class="stat-banner-item" onclick="filterByVigenciaPro('vencido')">
+                    <div class="stat-banner-icon" style="background:#fee2e2;"><i class="fas fa-calendar-xmark" style="color:#dc2626;"></i></div>
+                    <div><div class="stat-banner-num" id="statsVencidos">--</div><div class="stat-banner-lab">Cred. Vencida</div></div>
+                </div>
+                <div class="stat-banner-item" onclick="filterByVigenciaPro('por-vencer')">
+                    <div class="stat-banner-icon" style="background:#fef9c3;"><i class="fas fa-hourglass-half" style="color:#b45309;"></i></div>
+                    <div><div class="stat-banner-num" id="statsPorVencer">--</div><div class="stat-banner-lab">Por Vencer</div></div>
+                </div>
+                <div class="stat-banner-item" onclick="filterByStatusPro('Baja')">
+                    <div class="stat-banner-icon" style="background:#f1f5f9;"><i class="fas fa-user-slash" style="color:#64748b;"></i></div>
+                    <div><div class="stat-banner-num" id="statsBajas">--</div><div class="stat-banner-lab">Bajas</div></div>
                 </div>
             </div>
 
-            <!-- CONTENIDO PRINCIPAL -->
-            <div class="repo-content">
-                <div id="tableView" class="view-container active">
-                    <!-- Tabla de personal -->
-                </div>
-                <div id="cardsView" class="view-container">
-                    <!-- Tarjetas de personal -->
-                </div>
-                
-                <div class="pagination-container" style="margin-top:30px; padding-top:20px; border-top:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
-                    <span id="pageInfo" style="font-weight:700; color:#64748b; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px;">Cargando registros...</span>
-                    <div class="pagination-btns" style="display:flex; gap:12px;">
-                        <button id="prevPage" class="action-btn secondary" onclick="changePage('prev')" style="padding:10px 20px;"><i class="fas fa-chevron-left"></i> Anterior</button>
-                        <button id="nextPage" class="action-btn secondary" onclick="changePage('next')" style="padding:10px 20px;">Siguiente <i class="fas fa-chevron-right"></i></button>
-                    </div>
+            <!-- TABLA -->
+            <div class="table-pro-wrap">
+                <table class="table-pro">
+                    <thead>
+                        <tr>
+                            <th style="width:44px;">#</th>
+                            <th>Elemento</th>
+                            <th>Estado</th>
+                            <th>CUIP</th>
+                            <th>Cargo / Área</th>
+                            <th>Vigencia</th>
+                            <th style="min-width:180px;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableView"></tbody>
+                </table>
+            </div>
+
+            <!-- PAGINATION -->
+            <div class="pagination-pro">
+                <span class="pagination-pro-info" id="pageInfo">Cargando registros...</span>
+                <div class="pagination-pro-btns">
+                    <button id="prevPage" onclick="changePage('prev')" disabled><i class="fas fa-chevron-left"></i> Anterior</button>
+                    <button id="nextPage" onclick="changePage('next')" disabled>Siguiente <i class="fas fa-chevron-right"></i></button>
                 </div>
             </div>
         </div>
     `;
 }
+
+function filterByStatusPro(status) {
+    const el = document.getElementById('filterEstadoPro');
+    if (el) el.value = status;
+    applyPersonnelFilters();
+}
+function filterByVigenciaPro(v) {
+    const el = document.getElementById('filterVigenciaPro');
+    if (el) el.value = v;
+    applyPersonnelFilters();
+}
+window.filterByStatusPro = filterByStatusPro;
+window.filterByVigenciaPro = filterByVigenciaPro;
 
 function getCredencialesSection() {
     const today = new Date();
@@ -2032,18 +2146,25 @@ function getCredencialesSection() {
                Posicionadas sobre las cintas de fondo. */
             .signature-box-abs {
                 position: absolute;
-                top: 388px; /* Ajustado */
-                left: 25px;
-                width: 150px;
-                height: 75px;
-                z-index: 100; 
+                top: 382px;
+                left: 18px;
+                width: 155px;
+                height: 72px;
+                z-index: 100;
                 background: transparent !important;
-                border: 1px dashed rgba(15, 43, 94, 0.1) !important;
-                border-radius: 8px;
+                border: none !important;
+                border-radius: 4px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 overflow: hidden;
+            }
+            .signature-box-abs img {
+                max-width: 100%;
+                max-height: 100%;
+                object-fit: contain;
+                mix-blend-mode: multiply;
+                filter: contrast(1.2);
             }
             .huella-abs {
                 position: absolute;
@@ -2058,20 +2179,21 @@ function getCredencialesSection() {
             }
 
 
-            /* --- QR FRONTAL --- */
+            /* --- QR FRONTAL: esquina inferior derecha (como imagen de referencia) --- */
             .qr-frontal-pos {
                 position: absolute;
-                bottom: 12px;
-                left: 48px;
-                width: 55px;
-                height: 55px;
-                background: transparent !important; /* Quitar recuadro blanco */
-                padding: 2px;
-                border-radius: 4px;
+                bottom: 10px;
+                right: 14px;
+                width: 60px;
+                height: 60px;
+                background: white;
+                padding: 3px;
+                border-radius: 5px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                z-index: 60; /* Above signature if overlaps */
+                z-index: 60;
+                box-shadow: 0 1px 4px rgba(0,0,0,0.15);
             }
 
             /* Toolbar de Acciones */
@@ -4252,80 +4374,64 @@ function renderPersonnelTable() {
     const container = document.getElementById('tableView');
     if (!container) return;
 
+    // Actualizar contador total en stats-banner
+    const totalEl = document.getElementById('statsTotalPro');
+    if (totalEl) totalEl.textContent = filteredPersonnelData.length;
+
     if (pageData.length === 0) {
-        container.innerHTML = `
-            <div style="text-align:center; padding:50px; background:white; border-radius:15px; border:1px solid #e2e8f0;">
-                <i class="fas fa-search" style="font-size:3rem; color:#cbd5e1; margin-bottom:15px; display:block;"></i>
-                <p style="color:#64748b; font-weight:600;">No se encontraron registros activos.</p>
-                <button class="action-btn secondary" onclick="clearPersonnelFilters()" style="margin-top:10px;">Limpiar Filtros</button>
-            </div>
-        `;
+        container.innerHTML = `<tr><td colspan="7"><div class="empty-pro"><i class="fas fa-user-slash"></i>No se encontraron registros. <button onclick="applyPersonnelFilters()" style="margin-top:12px; padding:8px 18px; border:none; border-radius:8px; background:#0a192f; color:#c5a059; font-weight:800; cursor:pointer;">Limpiar filtros</button></div></td></tr>`;
         return;
     }
 
-    container.innerHTML = `
-        <table class="data-table enhanced" id="personnelTable">
-            <thead>
-                <tr>
-                    <th style="width:60px;">ID</th>
-                    <th style="width:80px;">Foto</th>
-                    <th>Nombre Completo</th>
-                    <th>Estado</th>
-                    <th>CUIP</th>
-                    <th>Placa</th>
-                    <th>Cargo</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${pageData.map(person => {
-                    const statusClass = (person.estado || 'Activo').toLowerCase().replace(/\s+/g, '-');
-                    let photoPath = person.foto && person.foto !== 'foto' ? person.foto : '';
-                    if (!photoPath && person.cuip) {
-                        photoPath = `assets/FOTOGRAFIAS PERSONAL/${person.cuip.trim()}.png`;
-                    }
-                    
-                    return `
-                        <tr class="estado-row-${statusClass}">
-                            <td style="font-family:monospace; font-weight:700; color:#1e293b;">${person.id || '---'}</td>
-                            <td>
-                                <div style="width:50px; height:55px; border-radius:8px; overflow:hidden; border:2px solid #f1f5f9; background:#fff;">
-                                    <img src="${photoPath}" 
-                                         onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(person.nombre || 'N')}&background=0a192f&color=fff&bold=true'"
-                                         style="width:100%; height:100%; object-fit:cover;">
-                                </div>
-                            </td>
-                            <td>
-                                <div style="display:flex; flex-direction:column;">
-                                    <span style="font-weight:800; color:var(--police-navy); font-size:0.9rem;">${person.nombre}</span>
-                                    <span style="font-size:0.65rem; color:#94a3b8; letter-spacing:0.5px; font-weight:600;">PERSONAL OPERATIVO</span>
-                                </div>
-                            </td>
-                            <td>
-                                <span class="status-badge ${statusClass}" style="padding:4px 10px; border-radius:15px; font-weight:800; font-size:0.65rem;">
-                                    ${person.estado || 'Activo'}
-                                </span>
-                            </td>
-                            <td style="font-family:monospace; font-weight:700; color:#475569; font-size:0.8rem;">${person.cuip || 'N/A'}</td>
-                            <td style="font-family:monospace; font-weight:700; color:#1a3a6e;">${person.placa || '---'}</td>
-                            <td style="font-weight:700; font-size:0.75rem; color:#64748b;">${person.cargo || 'SIN CARGO'}</td>
-                            <td>
-                                <div style="display:flex; gap:6px;">
-                                    <button class="action-btn quick" title="Ver Expediente" onclick="viewExpediente('${person.cuip}')" style="background:#1e3a6e; color:white;">
-                                        <i class="fas fa-file-invoice"></i>
-                                    </button>
-                                    <button class="action-btn quick" title="Emitir Credencial" onclick="generateEmployeeCredential('${person.cuip}')" style="background:#c5a059; color:#0a192f;">
-                                        <i class="fas fa-id-card"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                }).join('')}
-            </tbody>
-        </table>
-    `;
+    container.innerHTML = pageData.map((person, idx) => {
+        const num = start + idx + 1;
+        const estado = person.estado || 'Activo';
+        const badgeClass = estado === 'Activo' ? 'badge-activo' : estado === 'Baja' ? 'badge-baja' : estado === 'Vacaciones' ? 'badge-vacaciones' : 'badge-comision';
+        let photoPath = person.foto && person.foto !== 'foto' && person.foto.startsWith('http') ? person.foto : '';
+        if (!photoPath && person.cuip) photoPath = `assets/FOTOGRAFIAS PERSONAL/${person.cuip.trim()}.png`;
+
+        const vigDate = person.vigencia ? new Date(person.vigencia) : null;
+        const today = new Date();
+        let vigColor = '#10b981', vigText = person.vigencia || '---';
+        if (vigDate) {
+            const daysLeft = Math.ceil((vigDate - today) / 86400000);
+            if (daysLeft < 0) { vigColor = '#dc2626'; }
+            else if (daysLeft <= 30) { vigColor = '#f59e0b'; }
+        }
+
+        const esAdmin = tienePermiso('eliminar');
+        return `
+            <tr>
+                <td style="color:#94a3b8; font-weight:700; font-size:0.78rem;">${num}</td>
+                <td>
+                    <div class="av-cell">
+                        <div class="av-img">
+                            <img src="${photoPath}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(person.nombre)}&background=0a192f&color=c5a059&size=80&bold=true'" alt="foto">
+                        </div>
+                        <div>
+                            <div class="av-name">${person.nombre}</div>
+                            <div class="av-sub">${person.municipio || 'Tzompantepec'}</div>
+                        </div>
+                    </div>
+                </td>
+                <td><span class="badge-pro ${badgeClass}">● ${estado}</span></td>
+                <td class="mono-cell">${person.cuip || '---'}</td>
+                <td style="font-weight:600; color:#475569; font-size:0.82rem;">${person.cargo || '---'}</td>
+                <td style="font-size:0.78rem; font-weight:700; color:${vigColor};">${vigText}</td>
+                <td>
+                    <div class="acciones-pro">
+                        <button class="btn-tbl bt-view" title="Ver Expediente" onclick="viewEmployeeDetails('${person.cuip || person.id}')"><i class="fas fa-eye"></i></button>
+                        <button class="btn-tbl bt-edit" title="Editar Datos" onclick="editEmployee('${person.cuip || person.id}')"><i class="fas fa-pen"></i></button>
+                        <button class="btn-tbl bt-cred" title="Emitir Credencial" onclick="generateEmployeeCredential('${person.cuip || person.id}')"><i class="fas fa-id-card"></i></button>
+                        <button class="btn-tbl bt-folder" title="Ver Carpeta Drive" onclick="viewExpedienteFolder('${person.cuip}', '${person.folder_link || ''}')"><i class="fas fa-folder-open"></i></button>
+                        ${esAdmin ? `<button class="btn-tbl bt-del" title="Eliminar Registro" onclick="deletePersonnelRecord('${person.cuip || person.id}')"><i class="fas fa-trash"></i></button>` : ''}
+                    </div>
+                </td>
+            </tr>`;
+    }).join('');
 }
+
+
 
 // Renderizar tarjetas de personal
 function renderPersonnelCards() {
@@ -4421,12 +4527,10 @@ function renderPersonnelCards() {
 // Aplicar filtros
 function applyPersonnelFilters() {
     const searchTerm = document.getElementById('searchGlobal')?.value.toLowerCase() || '';
-    const estado = document.getElementById('filterEstado')?.value || '';
+    // Soportar tanto el nuevo topbar (Pro) como el legacy sidebar
+    const estado = document.getElementById('filterEstadoPro')?.value || document.getElementById('filterEstado')?.value || '';
     const cargo = document.getElementById('filterCargo')?.value || '';
-    const vigencia = document.getElementById('filterVigencia')?.value || '';
-    const fechaIngresoDesde = document.getElementById('filterFechaIngresoDesde')?.value;
-    const fechaIngresoHasta = document.getElementById('filterFechaIngresoHasta')?.value;
-    const credencial = document.getElementById('filterCredencial')?.value || '';
+    const vigencia = document.getElementById('filterVigenciaPro')?.value || document.getElementById('filterVigencia')?.value || '';
 
     filteredPersonnelData = currentPersonnelData.filter(person => {
         // Búsqueda global

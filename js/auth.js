@@ -86,6 +86,9 @@ function loadSection(section) {
                 `
             };
             sectionHtml = getInicioSection();
+            setTimeout(() => {
+                if (typeof initInicioSection === 'function') initInicioSection();
+            }, 100);
             break;
         case 'personal':
             headerConfig = { 
@@ -1654,7 +1657,7 @@ function applyDashFilters() {
 
     window.currentDashboardFilters = filters;
     showNotification('Analizando datos con nuevos parámetros...', 'info');
-    initDashboard(); // Re-inicializar para aplicar filtros
+    initInicioSection(); // Re-inicializar para aplicar filtros
 }
 
 window.toggleDashFilterContainers = toggleDashFilterContainers;

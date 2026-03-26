@@ -3851,17 +3851,24 @@ async function toggleUserStatus(username) {
     }
 }
 
-function deleteUser(username) {
+async function deleteUser(username) {
     if (username === 'admin') {
         showNotification('Acción Denegada: No se puede revocar el acceso a la cuenta maestra.', 'error');
         return;
     }
     if (confirm(`🚨 Alerta de Seguridad: ¿Está seguro de revocar permanentemente el acceso para el usuario @${username}?`)) {
         showNotification(`Revocando tokens de acceso para ${username}...`, 'warning');
-        setTimeout(() => {
-            showNotification('Baja de usuario procesada correctamente.', 'success');
-            loadUsersRepo();
-        }, 1500);
+        try {
+            const res = await apiEliminarUsuario(username);
+            if (res.success) {
+                showNotification(`Usuario @${username} eliminado correctamente.`, 'success');
+                loadUsersRepo();
+            } else {
+                showNotification('Error: ' + res.message, 'error');
+            }
+        } catch (e) {
+            showNotification('Error de conexión con el servidor', 'error');
+        }
     }
 }
 

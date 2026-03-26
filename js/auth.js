@@ -172,17 +172,36 @@ function loadSection(section) {
             setTimeout(initCredencialesSection, 100);
             break;
         case 'repositorio':
-            headerConfig = { title: 'Repositorio Central', subtitle: 'Base de Datos Maestra de Seguridad Pública', icon: 'fa-database' };
+            headerConfig = { 
+                title: 'Expedientes Digitales', 
+                subtitle: 'Repositorio Consolidado de Documentación Policial', 
+                icon: 'fa-folder-tree',
+                actionsHtml: `
+                    <button class="action-btn" onclick="loadPersonnelData()" style="background:var(--police-navy); color:white;">
+                        <i class="fas fa-rotate"></i> SINCRONIZAR
+                    </button>
+                `
+            };
             sectionHtml = getRepositorioSection();
-            setTimeout(() => {
-                if (typeof updatePersonnelTable === 'function') updatePersonnelTable();
-                else if (typeof loadPersonnelData === 'function') loadPersonnelData();
-            }, 100);
+            setTimeout(loadPersonnelData, 100);
+            break;
+        case 'qr-repo':
+            headerConfig = { 
+                title: 'Repositorio de Códigos QR', 
+                subtitle: 'Identificadores Digitales para Todo el Personal', 
+                icon: 'fa-qrcode',
+                actionsHtml: `
+                    <button class="action-btn" onclick="window.print()" style="background:var(--police-navy); color:white;">
+                        <i class="fas fa-print"></i> IMPRIMIR TODO
+                    </button>
+                `
+            };
+            sectionHtml = getQRRepoSection();
+            setTimeout(initQRRepoSection, 100);
             break;
         case 'c3':
             headerConfig = { title: 'Control de Confianza', subtitle: 'Estatus de Evaluaciones y Certificaciones C3', icon: 'fa-user-shield' };
             sectionHtml = getC3Section();
-            // initC3Section ya se llama con un setTimeout dentro de getC3Section para asegurar carga
             break;
         case 'directorio':
             headerConfig = { 
@@ -201,7 +220,7 @@ function loadSection(section) {
         case 'movimientos':
             headerConfig = { 
                 title: 'Bitácora de Auditoría', 
-                subtitle: 'Registro Histórico de Acciones en el Sistema', 
+                subtitle: 'Registro Histórico de Acciones y Movimientos', 
                 icon: 'fa-history',
                 actionsHtml: `
                     <button class="action-btn" onclick="printSystemLogs()" style="background:var(--police-navy); color:white;">
@@ -211,14 +230,19 @@ function loadSection(section) {
             };
             sectionHtml = getMovimientosSection();
             setTimeout(async () => {
+                const localLogs = JSON.parse(localStorage.getItem('auditLogs') || '[]');
+                let remoteLogs = [];
                 if (typeof apiGetLogs === 'function') {
-                    const remoteLogs = await apiGetLogs();
-                    if (Array.isArray(remoteLogs)) {
-                        systemLogs = remoteLogs;
-                        const tbody = document.getElementById('logsTableBody');
-                        if (tbody) tbody.innerHTML = generateLogsRows(systemLogs);
-                    }
+                    remoteLogs = await apiGetLogs() || [];
                 }
+                // Unificar y ordenar (descendente)
+                systemLogs = [...remoteLogs, ...localLogs].sort((a,b) => {
+                    const dateA = new Date(a.timestamp || 0);
+                    const dateB = new Date(b.timestamp || 0);
+                    return dateB - dateA;
+                });
+                const tbody = document.getElementById('logsTableBody');
+                if (tbody) tbody.innerHTML = generateLogsRows(systemLogs);
             }, 100);
             break;
         case 'reportes':
@@ -252,7 +276,7 @@ function loadSection(section) {
         case 'usuarios':
             headerConfig = { 
                 title: 'Gestión de Acceso', 
-                subtitle: 'Control de Usuarios y Privilegios', 
+                subtitle: 'Control de Usuarios y Privilegios del C2', 
                 icon: 'fa-user-gear',
                 actionsHtml: `
                     <button class="btn-v2-nuevo" onclick="showAddUserModal()">
@@ -261,11 +285,12 @@ function loadSection(section) {
                 `
             };
             sectionHtml = getUsuariosSection();
-            setTimeout(loadUsuariosData, 100);
+            setTimeout(initUsuariosSection, 100);
             break;
         case 'configuracion':
             headerConfig = { title: 'Configuración', subtitle: 'Parámetros del Sistema y Seguridad', icon: 'fa-gears' };
             sectionHtml = getConfiguracionSection();
+            setTimeout(initConfiguracionSection, 100);
             break;
         default:
             headerConfig = { title: 'Error', subtitle: 'Sección no encontrada', icon: 'fa-circle-exclamation' };
@@ -1917,7 +1942,7 @@ function getCredencialesSection() {
             }
             .credencial-tzomp-ui.back-side {
                 border: 1px solid #d0d5dd;
-                background-image: url('assets/credential_back_bg.jpg');
+                background-image: url('assets/bg_credencial_back_new.jpg');
                 background-size: 100% 100%;
                 background-position: center;
                 background-repeat: no-repeat;
@@ -4210,27 +4235,32 @@ function renderPersonnelTable() {
     }
 
     container.innerHTML = `
-        <table class="inventory-table">
+        <table class="data-table enhanced" id="personnelTable">
             <thead>
                 <tr>
                     <th style="width:60px;">ID</th>
-                    <th style="width:70px;">FOTO</th>
-                    <th>NOMBRE COMPLETO / CARGO</th>
+                    <th style="width:80px;">Foto</th>
+                    <th>Nombre Completo</th>
+                    <th>Estado</th>
                     <th>CUIP</th>
-                    <th>SITUACIÓN</th>
-                    <th>ACCIONES TÁCTICAS</th>
+                    <th>Placa</th>
+                    <th>Cargo</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 ${pageData.map(person => {
                     const statusClass = (person.estado || 'Activo').toLowerCase().replace(/\s+/g, '-');
-                    const photoPath = person.foto && person.foto !== 'foto' ? person.foto : `assets/FOTOGRAFIAS PERSONAL/${person.cuip?.trim()}.png`;
+                    let photoPath = person.foto && person.foto !== 'foto' ? person.foto : '';
+                    if (!photoPath && person.cuip) {
+                        photoPath = `assets/FOTOGRAFIAS PERSONAL/${person.cuip.trim()}.png`;
+                    }
                     
                     return `
-                        <tr class="estado-row-${statusClass}" style="${person.estado === 'Baja' ? 'opacity:0.6; background:#f8fafc;' : ''}">
-                            <td style="font-family:monospace; font-weight:600; color:#64748b;">${person.id || '---'}</td>
+                        <tr class="estado-row-${statusClass}">
+                            <td style="font-family:monospace; font-weight:700; color:#1e293b;">${person.id || '---'}</td>
                             <td>
-                                <div class="avatar-mini-pro" style="width:45px; height:50px; border-radius:6px; overflow:hidden; border:2px solid #e2e8f0; background:#f1f5f9;">
+                                <div style="width:50px; height:55px; border-radius:8px; overflow:hidden; border:2px solid #f1f5f9; background:#fff;">
                                     <img src="${photoPath}" 
                                          onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(person.nombre || 'N')}&background=0a192f&color=fff&bold=true'"
                                          style="width:100%; height:100%; object-fit:cover;">
@@ -4238,26 +4268,25 @@ function renderPersonnelTable() {
                             </td>
                             <td>
                                 <div style="display:flex; flex-direction:column;">
-                                    <span style="font-weight:800; color:var(--police-navy);">${person.nombre}</span>
-                                    <span style="font-size:0.75rem; color:#64748b; font-weight:700; text-transform:uppercase;">${person.cargo || 'SIN CARGO'}</span>
+                                    <span style="font-weight:800; color:var(--police-navy); font-size:0.9rem;">${person.nombre}</span>
+                                    <span style="font-size:0.65rem; color:#94a3b8; letter-spacing:0.5px; font-weight:600;">PERSONAL OPERATIVO</span>
                                 </div>
                             </td>
-                            <td style="font-family:monospace; font-weight:600;">${person.cuip || 'N/A'}</td>
                             <td>
-                                <span class="status-badge ${statusClass}" style="padding:4px 12px; border-radius:20px; font-weight:700; font-size:0.7rem;">
+                                <span class="status-badge ${statusClass}" style="padding:4px 10px; border-radius:15px; font-weight:800; font-size:0.65rem;">
                                     ${person.estado || 'Activo'}
                                 </span>
                             </td>
+                            <td style="font-family:monospace; font-weight:700; color:#475569; font-size:0.8rem;">${person.cuip || 'N/A'}</td>
+                            <td style="font-family:monospace; font-weight:700; color:#1a3a6e;">${person.placa || '---'}</td>
+                            <td style="font-weight:700; font-size:0.75rem; color:#64748b;">${person.cargo || 'SIN CARGO'}</td>
                             <td>
-                                <div class="row-actions-v2" style="display:flex; gap:8px;">
-                                    <button class="action-btn quick" title="Ver Expediente Táctico" onclick="viewEmployeeDetails('${person.cuip}')" style="background:var(--police-navy); color:white;">
-                                        <i class="fas fa-eye"></i>
+                                <div style="display:flex; gap:6px;">
+                                    <button class="action-btn quick" title="Ver Expediente" onclick="viewExpediente('${person.cuip}')" style="background:#1e3a6e; color:white;">
+                                        <i class="fas fa-file-invoice"></i>
                                     </button>
                                     <button class="action-btn quick" title="Emitir Credencial" onclick="generateEmployeeCredential('${person.cuip}')" style="background:#c5a059; color:#0a192f;">
                                         <i class="fas fa-id-card"></i>
-                                    </button>
-                                    <button class="action-btn quick" title="Modificar Registro" onclick="editEmployee('${person.cuip}')" style="background:#64748b; color:white;">
-                                        <i class="fas fa-edit"></i>
                                     </button>
                                 </div>
                             </td>

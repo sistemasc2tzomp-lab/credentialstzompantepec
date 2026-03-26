@@ -128,6 +128,9 @@ function loadSection(section) {
                 `
             };
             sectionHtml = getArmamentoSection();
+            setTimeout(() => {
+                if (typeof loadArmamentoData === 'function') loadArmamentoData('armas');
+            }, 100);
             break;
         case 'vehiculos':
             headerConfig = { 
@@ -147,6 +150,9 @@ function loadSection(section) {
                 `
             };
             sectionHtml = getVehiculosSection();
+            setTimeout(() => {
+                if (typeof loadVehiculosData === 'function') loadVehiculosData();
+            }, 100);
             break;
         case 'credenciales':
             headerConfig = { 

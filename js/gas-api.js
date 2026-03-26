@@ -105,6 +105,25 @@ async function apiActualizarUsuario(datos) {
 }
 
 /**
+ * POST: Eliminar usuario
+ */
+async function apiEliminarUsuario(id) {
+    if (!checkWebAppConfig()) return { success: false };
+    try {
+        const payload = { action: 'eliminarUsuario', id };
+        const response = await fetch(GAS_WEBAPP_URL, {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+        });
+        return { success: true, message: 'Usuario eliminado' };
+    } catch (e) {
+        return { success: false, message: e.message };
+    }
+}
+
+/**
  * GET: Obtener personal
  */
 async function apiGetPersonal() {
@@ -455,10 +474,31 @@ async function apiUpdateC3Status(datos) {
     }
 }
 
+/**
+ * POST: Subir archivo a Google Drive (Dossier)
+ */
+async function apiUploadFile(datos) {
+    if (!checkWebAppConfig()) return { success: false };
+    try {
+        const payload = { action: 'uploadFile', ...datos };
+        const response = await fetch(GAS_WEBAPP_URL, {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+        });
+        return await response.json();
+    } catch (e) {
+        return { success: false, message: e.message };
+    }
+}
+
 // Globales
 window.apiGetUsuarios = apiGetUsuarios;
 window.apiGuardarUsuario = apiGuardarUsuario;
 window.apiActualizarUsuario = apiActualizarUsuario;
+window.apiEliminarUsuario = apiEliminarUsuario;
+window.apiUploadFile = apiUploadFile;
 window.apiGetPersonal = apiGetPersonal;
 window.apiGuardarPersonal = apiGuardarPersonal;
 window.apiActualizarPersonal = apiActualizarPersonal;
@@ -477,3 +517,6 @@ window.apiSaveLog = apiSaveLog;
 window.apiGetLogs = apiGetLogs;
 window.apiGetC3Data = apiGetC3Data;
 window.apiUpdateC3Status = apiUpdateC3Status;
+window.GAS_WEBAPP_URL = GAS_WEBAPP_URL;
+
+

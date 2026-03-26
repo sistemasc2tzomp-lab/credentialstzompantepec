@@ -177,13 +177,16 @@ function loadSection(section) {
                 subtitle: 'Repositorio Consolidado de Documentación Policial', 
                 icon: 'fa-folder-tree',
                 actionsHtml: `
+                    <button class="action-btn" onclick="showAddExpedienteModal()" style="background:#0ea5e9; color:white;">
+                        <i class="fas fa-file-arrow-up"></i> NUEVO DOCUMENTO
+                    </button>
                     <button class="action-btn" onclick="loadPersonnelData()" style="background:var(--police-navy); color:white;">
                         <i class="fas fa-rotate"></i> SINCRONIZAR
                     </button>
                 `
             };
-            sectionHtml = getRepositorioSection();
-            setTimeout(loadPersonnelData, 100);
+            sectionHtml = getExpedientesSection();
+            setTimeout(initExpedientesSection, 100);
             break;
         case 'qr-repo':
             headerConfig = { 
@@ -742,10 +745,7 @@ function exportReportToExcel(report) {
     logAction(ACTION_TYPES.EXPORT, `Exportó reporte: ${report.type}`);
 }
 
-function exportReportToPDF(report) {
-    alert('Funcionalidad de exportación a PDF próximamente');
-    logAction(ACTION_TYPES.EXPORT, `Intentó exportar PDF: ${report.type}`);
-}
+
 
 function exportLogsToCSV() {
     const report = generateMovementsReport();
@@ -1935,14 +1935,14 @@ function getCredencialesSection() {
             }
             .credencial-tzomp-ui.front-side {
                 border: 1px solid #d0d5dd;
-                background-image: url('assets/credential_front_bg.jpg');
+                background-image: url('assets/credencial_front_v3.jpg');
                 background-size: 100% 100%;
                 background-position: center;
                 background-repeat: no-repeat;
             }
             .credencial-tzomp-ui.back-side {
                 border: 1px solid #d0d5dd;
-                background-image: url('assets/bg_credencial_back_new.jpg');
+                background-image: url('assets/credencial_back_v3.png');
                 background-size: 100% 100%;
                 background-position: center;
                 background-repeat: no-repeat;
@@ -2208,151 +2208,139 @@ function getCredencialesSection() {
                 </button>
             </div>
 
-            <div class="info-card-modern" style="margin-top: 30px; background: white; padding: 25px; border-radius: 15px; border-left: 5px solid #c5a059; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                <h3 style="margin: 0 0 10px 0; color: #0a192f;"><i class="fas fa-shield-check"></i> Control de Calidad</h3>
                 <p style="margin: 0; color: #64748b; line-height: 1.5;">Esta previsualización utiliza los fondos oficiales autorizados. El código QR generado vincula directamente al expediente digital del oficial en la plataforma segura <strong>sistemasc2tzomp-lab.github.io</strong>.</p>
             </div>
         </div>
     `;
 }
 
-
-// Sección de Repositorio mejorada
-function getRepositorioSection() {
-    const employeeStatus = window.EMPLOYEE_STATUS || {
-        ACTIVO: 'Activo',
-        BAJA: 'Baja',
-        FRANCO: 'Franco',
-        VACACIONES: 'Vacaciones',
-        COMISION: 'De Comisión'
-    };
-
+/**
+ * REPOSITORIO DE EXPEDIENTES DIGITALES
+ * Vista con gestión de folders en Drive
+ */
+function getExpedientesSection() {
     return `
-        <div class="repositorio-completo fade-in" >
-
-
-            <!--Estadísticas rápidas con 3D-->
-            <div class="stats-overview" style="margin-bottom: 35px;">
-                <div class="stat-card hero-3d-card" onclick="filterByStatus('Activo')" style="background: linear-gradient(135deg, #059669, #10b981); cursor:pointer;">
-                    <div class="stat-icon"><i class="fa-solid fa-user-check"></i></div>
-                    <div class="stat-content">
-                        <h3>Activos</h3>
-                        <p class="stat-number" id="statsActivos">0</p>
-                    </div>
+        <div class="repo-view-container fade-in">
+            <div class="repo-toolbar-v2">
+                <div class="search-v2-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="repoSearch" placeholder="Buscar por CUIP o Nombre..." onkeyup="filterExpedientes()">
                 </div>
-                <div class="stat-card hero-3d-card" onclick="filterByStatus('Baja')" style="background: linear-gradient(135deg, #dc2626, #ef4444); cursor:pointer;">
-                    <div class="stat-icon"><i class="fa-solid fa-user-xmark"></i></div>
-                    <div class="stat-content">
-                        <h3>Bajas</h3>
-                        <p class="stat-number" id="statsBajas">0</p>
-                    </div>
-                </div>
-                <div class="stat-card hero-3d-card" onclick="filterByStatus('Vacaciones')" style="background: linear-gradient(135deg, #d97706, #f59e0b); cursor:pointer;">
-                    <div class="stat-icon"><i class="fa-solid fa-umbrella-beach"></i></div>
-                    <div class="stat-content">
-                        <h3>Vacaciones</h3>
-                        <p class="stat-number" id="statsVacaciones">0</p>
-                    </div>
-                </div>
-                <div class="stat-card hero-3d-card" onclick="filterByVigencia('vencido')" style="background: linear-gradient(135deg, #1e293b, #334155); cursor:pointer;">
-                    <div class="stat-icon"><i class="fa-solid fa-hourglass-end"></i></div>
-                    <div class="stat-content">
-                        <h3>Vencidos</h3>
-                        <p class="stat-number" id="statsVencidos">0</p>
-                    </div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-v2-nuevo" onclick="showAddExpedienteModal()">
+                        <i class="fas fa-file-arrow-up"></i> NUEVO DOCUMENTO
+                    </button>
+                    <button class="btn-v2-actualizar" onclick="loadPersonnelData()">
+                        <i class="fas fa-sync"></i> SINCRONIZAR BASE
+                    </button>
                 </div>
             </div>
-
-            <!--Filtros avanzados con efecto glass-->
-            <div class="filters-advanced" style="background: rgba(255,255,255,0.7); backdrop-filter:blur(10px); padding: 25px; border-radius: 20px; border: 1px solid rgba(226, 232, 240, 0.8); margin-bottom: 30px;">
-                <div class="filters-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
-                    <div class="filter-group">
-                        <label style="font-weight:700; color:var(--police-navy); display:block; margin-bottom:8px;"><i class="fa-solid fa-magnifying-glass"></i> Búsqueda</label>
-                        <input type="text" id="searchGlobal" placeholder="Nombre, CUIP, CURP..." class="filter-input" style="width:100%; padding:12px; border-radius:12px; border:1px solid #e2e8f0;">
-                    </div>
-                    <div class="filter-group">
-                        <label style="font-weight:700; color:var(--police-navy); display:block; margin-bottom:8px;"><i class="fa-solid fa-filter"></i> Estado</label>
-                        <select id="filterEstado" class="filter-input" style="width:100%; padding:12px; border-radius:12px; border:1px solid #e2e8f0;">
-                            <option value="">Todos</option>
-                            ${Object.values(employeeStatus).map(estado => `<option value="${estado}">${estado}</option>`).join('')}
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label style="font-weight:700; color:var(--police-navy); display:block; margin-bottom:8px;"><i class="fa-solid fa-briefcase"></i> Cargo</label>
-                        <select id="filterCargo" class="filter-input" style="width:100%; padding:12px; border-radius:12px; border:1px solid #e2e8f0;">
-                            <option value="">Todos</option>
-                            <option value="Supervisor">Supervisor</option>
-                            <option value="Guardia">Guardia</option>
-                            <option value="Jefe de Turno">Jefe de Turno</option>
-                            <option value="Coordinadora">Coordinadora</option>
-                        </select>
-                    </div>
-                    <div class="filter-group" style="display:flex; align-items:flex-end; gap:10px;">
-                        <button class="action-btn" onclick="applyPersonnelFilters()" style="flex:1; padding:12px; background:var(--police-navy);">
-                            <i class="fa-solid fa-check"></i> Aplicar
-                        </button>
-                        <button class="action-btn secondary" onclick="clearPersonnelFilters()" style="flex:1; padding:12px; background:#64748b;">
-                            <i class="fa-solid fa-undo"></i> Limpiar
-                        </button>
-                    </div>
+            
+            <div class="expedientes-grid" id="expedientesList">
+                <div style="text-align:center; padding:50px; color:#64748b;">
+                    <i class="fas fa-circle-notch fa-spin fa-2x"></i>
+                    <p>Sincronizando expedientes con Google Drive...</p>
                 </div>
             </div>
-
-            <!--Vista de personal-->
-            <div class="view-toggle" style="margin-bottom: 20px; display:flex; gap:10px;">
-                <button class="view-btn active" onclick="togglePersonnelView('table')" style="padding:10px 20px; border-radius:10px;">
-                    <i class="fa-solid fa-table-list"></i> Tabla
-                </button>
-                <button class="view-btn" onclick="togglePersonnelView('cards')" style="padding:10px 20px; border-radius:10px;">
-                    <i class="fa-solid fa-grip"></i> Tarjetas
-                </button>
-            </div>
-
-            <!--Vista de tabla-->
-            <div id="tableView" class="view-container active">
-                <div class="table-responsive">
-                    <table class="data-table enhanced" id="personnelTable">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Foto</th>
-                                <th>Nombre</th>
-                                <th>Estado</th>
-                                <th>CUIP</th>
-                                <th>Placa</th>
-                                <th>Cargo</th>
-                                ${tienePermiso('editar') ? '<th>Acciones</th>' : ''}
-                            </tr>
-                        </thead>
-                        <tbody id="tableBody">
-                            <tr>
-                                <td colspan="12" class="text-center">Cargando datos...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!--Vista de tarjetas-->
-            <div id="cardsView" class="view-container">
-                <div class="personnel-cards" id="personnelCards">
-                    <!-- Las tarjetas se generarán dinámicamente -->
-                </div>
-            </div>
-
-            <!--Paginación -->
-        <div class="pagination">
-            <button class="page-btn" onclick="changePage('prev')" id="prevPage">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <span class="page-info" id="pageInfo">Página 1 de 1</span>
-            <button class="page-btn" onclick="changePage('next')" id="nextPage">
-                <i class="fas fa-chevron-right"></i>
-            </button>
         </div>
-        </div>
-        `;
+    `;
 }
+
+function initExpedientesSection() {
+    loadExpedientesData();
+}
+
+async function loadExpedientesData() {
+    if (!window.currentPersonnelData) {
+        await loadPersonnelData();
+    }
+    renderExpedientesTable(window.currentPersonnelData);
+}
+
+function renderExpedientesTable(data) {
+    const list = document.getElementById('expedientesList');
+    if (!list) return;
+
+    list.innerHTML = `
+        <table class="data-table enhanced">
+            <thead>
+                <tr>
+                    <th style="width:80px;">ID</th>
+                    <th>Elemento</th>
+                    <th>Estado de Carpeta</th>
+                    <th>Archivos Adjuntos</th>
+                    <th>Acciones de Dossier</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${data.map(p => `
+                    <tr>
+                        <td style="font-family:monospace; font-weight:700;">${p.id || '---'}</td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div style="width:35px; height:45px; border-radius:4px; overflow:hidden; border:2px solid #e1e8f0; background:#fff;">
+                                    <img src="${p.foto && p.foto !== 'foto' ? p.foto : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(p.nombre) + '&background=0a192f&color=fff'}" style="width:100%; height:100%; object-fit:cover;">
+                                </div>
+                                <div style="display:flex; flex-direction:column;">
+                                    <span style="font-weight:700; color:var(--police-navy);">${p.nombre}</span>
+                                    <span style="font-size:0.65rem; color:#94a3b8; font-weight:600;">CUIP: ${p.cuip || 'SIN REGISTRO'}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-folder-open" style="color:#f2994a; font-size:1.1rem;"></i>
+                                <span style="font-size:0.75rem; font-weight:600; color:#475569;">Carpeta Digital Activa</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge" style="background:#e1effe; color:#1e429f; padding:4px 8px; border-radius:10px; font-size:0.65rem; font-weight:700;">
+                                <i class="fas fa-paperclip"></i> EXPEDIENTE DISPONIBLE
+                            </span>
+                        </td>
+                        <td>
+                            <div style="display:flex; gap:8px;">
+                                <button class="action-btn" title="Cargar a Drive" onclick="uploadToExpediente('${p.cuip}')" style="background:#0ea5e9; color:white;">
+                                    <i class="fas fa-cloud-arrow-up"></i>
+                                </button>
+                                <button class="action-btn" title="Ver Carpeta Drive" onclick="viewExpedienteFolder('${p.cuip}')" style="background:#1e3a6e; color:white;">
+                                    <i class="fas fa-folder-tree"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+}
+
+function uploadToExpediente(cuip) {
+    showAddExpedienteModal();
+    // Pre-seleccionar
+    setTimeout(() => {
+        const select = document.getElementById('docEmployeeSelect');
+        if (select) select.value = cuip;
+    }, 100);
+}
+
+function viewExpedienteFolder(cuip) {
+    showNotification('Accediendo a la carpeta en Google Drive...', 'info');
+    // En el futuro redirigir a una URL de Drive específica por cada elemento
+    window.open(GAS_WEBAPP_URL + '?action=openFolder&cuip=' + cuip, '_blank');
+}
+
+function filterExpedientes() {
+    const val = document.getElementById('repoSearch').value.toLowerCase();
+    const rows = document.querySelectorAll('#expedientesList tbody tr');
+    rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(val) ? '' : 'none';
+    });
+}
+
+
+
 
 function getC3Section() {
     // Definir la función de inicialización si no existe
@@ -3622,12 +3610,7 @@ function isCanvasBlank(canvas) {
 
 // initInventarioSection antigua eliminada. Se usa la versión táctica (línea 4583 aprox)
 
-function initConfiguracionSection() {
-    console.log('Modulo de configuración inicializado');
-    if (typeof switchConfigTab === 'function') {
-        switchConfigTab('general');
-    }
-}
+
 
 async function initUsuariosSection() {
     await loadUsersRepo();
@@ -5380,9 +5363,7 @@ function refreshPersonnelData() {
 }
 
 // Función para download document (placeholder)
-function downloadDocument(filename) {
-    showNotification(`Descargando ${filename}...`, 'info');
-}
+
 
 // Hacer todas las funciones del repositorio globales
 window.currentPersonnelData = currentPersonnelData;
@@ -6845,12 +6826,7 @@ function refreshDashboard() {
     }, 1000);
 }
 
-function exportInventoryExcel() {
-    showNotification('Generando archivo Excel de inventario...', 'info');
-    setTimeout(() => {
-        showNotification('Inventario exportado (Descarga iniciada)', 'success');
-    }, 2000);
-}
+
 
 function exportReportToPDF() {
     if(typeof showPDFPreviewModal === 'function') {
@@ -7916,12 +7892,46 @@ function showAddExpedienteModal() {
 
 async function uploadDocument(e) {
     e.preventDefault();
-    showNotification('Subiendo documento a Google Drive...', 'info');
-    setTimeout(() => {
-        showNotification('Documento vinculado correctamente', 'success');
-        document.querySelector('.modal').remove();
-        loadSection('documentacion');
-    }, 2000);
+    const form = document.getElementById('uploadDocForm');
+    const fileInput = form.querySelector('input[type="file"]');
+    const cuip = form.cuip.value;
+    const tipo = form.tipo.value;
+
+    if (!fileInput.files[0]) {
+        showNotification('Seleccione un archivo', 'warning');
+        return;
+    }
+
+    showNotification('Procesando archivo para Google Drive...', 'info');
+    
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+    
+    reader.onload = async function() {
+        const base64 = reader.result.split(',')[1];
+        const payload = {
+            cuip: cuip,
+            tipo: tipo,
+            filename: file.name,
+            mimeType: file.type,
+            data: base64
+        };
+
+        try {
+            const res = await window.apiUploadFile(payload);
+            if (res.success) {
+                showNotification('Expediente actualizado exitosamente', 'success');
+                document.querySelector('.modal').remove();
+                if (typeof loadExpedientesData === 'function') loadExpedientesData();
+            } else {
+                showNotification('Error: ' + res.message, 'error');
+            }
+        } catch (err) {
+            showNotification('Error al contactar el servidor Drive', 'error');
+        }
+    };
+    
+    reader.readAsDataURL(file);
 }
 
 function printSystemLogs() {
@@ -7988,29 +7998,7 @@ function initGlobals() {
     window.updateC3Prompt = updateC3Prompt;
 }
 
-// FUNCIONES DE APOYO C3
-function showC3Details(cuip) {
-    showNotification(`Accediendo al expediente C3 de ${cuip}...`, 'info');
-}
 
-async function updateC3Prompt(cuip) {
-    const res = prompt(`Actualizar Estatus C3 para ${cuip}\nIngrese (APROBADO/PENDIENTE/REPROBADO):`);
-    if (res) {
-        const status = res.toUpperCase();
-        showNotification('Sincronizando con servidor C3...', 'info');
-        try {
-            const success = await apiUpdateC3Status({ cuip: cuip, resultado: status });
-            if (success) {
-                showNotification('Estatus actualizado correctamente', 'success');
-                if (window.initC3Section) window.initC3Section();
-            } else {
-                showNotification('Error al actualizar en el servidor', 'error');
-            }
-        } catch (e) {
-            showNotification('Error de conexión', 'error');
-        }
-    }
-}
 
 // Ejecutar inicialización de globales
 initGlobals();

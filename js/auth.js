@@ -238,7 +238,7 @@ function loadSection(section) {
                 `
             };
             sectionHtml = getUsuariosSection();
-            setTimeout(loadUsersTable, 100);
+            setTimeout(loadUsuariosData, 100);
             break;
         case 'configuracion':
             headerConfig = { title: 'Configuración', subtitle: 'Parámetros del Sistema y Seguridad', icon: 'fa-gears' };

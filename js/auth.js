@@ -235,6 +235,20 @@ function loadSection(section) {
             sectionHtml = getReportesSection();
             setTimeout(initReportesSection, 100);
             break;
+        case 'multas':
+            headerConfig = { 
+                title: 'Control de Multas', 
+                subtitle: 'Registro y Cobro de Infracciones de Tránsito', 
+                icon: 'fa-receipt',
+                actionsHtml: `
+                    <button class="action-btn" onclick="showNewFineModal()" style="background:var(--police-navy); color:white;">
+                        <i class="fas fa-plus"></i> NUEVA MULTA
+                    </button>
+                `
+            };
+            sectionHtml = getMultasSection();
+            setTimeout(initMultasSection, 100);
+            break;
         case 'usuarios':
             headerConfig = { 
                 title: 'Gestión de Acceso', 
@@ -6106,6 +6120,18 @@ async function initMultasSection() {
             e.preventDefault();
             showNotification('Generando folio de infracción...', 'info');
             setTimeout(() => {
+                const newFine = {
+                    folio: 'V-2026-' + String(window.finesList.length + 1).padStart(3, '0'),
+                    fecha: new Date().toISOString().split('T')[0],
+                    infractor: document.getElementById('fineInfractor').value || 'Anónimo',
+                    placa: document.getElementById('finePlate').value || 'S/N',
+                    motivo: document.getElementById('fineReasonSelect').value,
+                    monto: parseFloat(document.getElementById('fineAmountInput').value) || 0,
+                    estado: 'Pendiente'
+                };
+                window.finesList.push(newFine);
+                localStorage.setItem('sibim_fines', JSON.stringify(window.finesList));
+
                 showNotification('Multa registrada correctamente', 'success');
                 closeFineModal();
                 loadFinesRepo();
@@ -6118,13 +6144,19 @@ async function loadFinesRepo() {
     const container = document.getElementById('finesTableBody');
     if (!container) return;
 
-    // Mock de multas
+    // Persistencia Local de Multas
     if (!window.finesList) {
-        window.finesList = [
-            { folio: 'V-2026-001', fecha: '2026-02-24', infractor: 'Mario Casas', placa: 'XWJ-22-11', motivo: 'Exceso de Velocidad', monto: 800, estado: 'Pendiente' },
-            { folio: 'V-2026-002', fecha: '2026-02-24', infractor: 'Lucia Méndez', placa: 'UAB-90-88', motivo: 'Falta de Licencia', monto: 550, estado: 'Pagado' },
-            { folio: 'V-2026-003', fecha: '2026-02-23', infractor: 'Juan Perez', placa: 'TTR-44-22', motivo: 'Pasarse el Alto', monto: 950, estado: 'Pendiente' }
-        ];
+        const savedFines = localStorage.getItem('sibim_fines');
+        if (savedFines) {
+            window.finesList = JSON.parse(savedFines);
+        } else {
+            window.finesList = [
+                { folio: 'V-2026-001', fecha: '2026-02-24', infractor: 'Mario Casas', placa: 'XWJ-22-11', motivo: 'Exceso de Velocidad', monto: 800, estado: 'Pendiente' },
+                { folio: 'V-2026-002', fecha: '2026-02-24', infractor: 'Lucia Méndez', placa: 'UAB-90-88', motivo: 'Falta de Licencia', monto: 550, estado: 'Pagado' },
+                { folio: 'V-2026-003', fecha: '2026-02-23', infractor: 'Juan Perez', placa: 'TTR-44-22', motivo: 'Pasarse el Alto', monto: 950, estado: 'Pendiente' }
+            ];
+            localStorage.setItem('sibim_fines', JSON.stringify(window.finesList));
+        }
     }
     const fines = window.finesList;
 
@@ -6198,6 +6230,13 @@ function closeFineModal() {
 
 function payFine(folio) {
     if (confirm(`¿Desea registrar el pago total de la multa ${folio}?`)) {
+        if (window.finesList) {
+            const index = window.finesList.findIndex(f => f.folio === folio);
+            if (index !== -1) {
+                window.finesList[index].estado = 'Pagado';
+                localStorage.setItem('sibim_fines', JSON.stringify(window.finesList));
+            }
+        }
         showNotification(`Pago procesado para el folio ${folio} `, 'success');
         loadFinesRepo();
     }
@@ -7409,6 +7448,7 @@ async function deleteFine(folio) {
         showNotification('Eliminando registro...', 'info');
         if (window.finesList) {
             window.finesList = window.finesList.filter(f => f.folio !== folio);
+            localStorage.setItem('sibim_fines', JSON.stringify(window.finesList));
             showNotification(`Folio ${folio} eliminado correctamente`, 'success');
             loadFinesRepo();
         }

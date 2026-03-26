@@ -1942,7 +1942,7 @@ function getCredencialesSection() {
             }
             .credencial-tzomp-ui.back-side {
                 border: 1px solid #d0d5dd;
-                background-image: url('assets/credencial_back_v3.png');
+                background-image: url('assets/credencial_back_v3.jpg');
                 background-size: 100% 100%;
                 background-position: center;
                 background-repeat: no-repeat;
@@ -2306,6 +2306,14 @@ function renderExpedientesTable(data) {
                                 <button class="action-btn" title="Ver Carpeta Drive" onclick="viewExpedienteFolder('${p.cuip}')" style="background:#1e3a6e; color:white;">
                                     <i class="fas fa-folder-tree"></i>
                                 </button>
+                                <button class="action-btn" title="Actualizar Datos" onclick="editEmployee('${p.cuip || p.id}')" style="background:#f59e0b; color:white;">
+                                    <i class="fas fa-user-pen"></i>
+                                </button>
+                                ${(getCurrentUserRole() || '').toUpperCase() === 'ADMIN' ? `
+                                <button class="action-btn" title="Eliminar del Sistema" onclick="deletePersonnelRecord('${p.cuip || p.id}')" style="background:#dc2626; color:white;">
+                                    <i class="fas fa-trash-can"></i>
+                                </button>
+                                ` : ''}
                             </div>
                         </td>
                     </tr>
@@ -2325,9 +2333,36 @@ function uploadToExpediente(cuip) {
 }
 
 function viewExpedienteFolder(cuip) {
-    showNotification('Accediendo a la carpeta en Google Drive...', 'info');
-    // En el futuro redirigir a una URL de Drive específica por cada elemento
+    const employee = currentPersonnelData.find(e => e.cuip === cuip || e.id === cuip);
+    if (employee && employee.drive_folder_id) {
+        window.open(`https://drive.google.com/drive/folders/${employee.drive_folder_id}`, '_blank');
+        return;
+    }
+    showNotification('Generando acceso a la carpeta en la nube...', 'info');
+    // Fallback al backend si no hay ID directo
     window.open(GAS_WEBAPP_URL + '?action=openFolder&cuip=' + cuip, '_blank');
+}
+
+async function deletePersonnelRecord(id) {
+    const person = currentPersonnelData.find(p => p.cuip === id || p.id === id);
+    const name = person ? person.nombre : id;
+    
+    if (confirm(`🚨 ALERTA DE SEGURIDAD: ¿Está seguro de dar de BAJA y ELIMINAR permanentemente a "${name}" del Repositorio Central? Esta acción no se puede deshacer.`)) {
+        showNotification(`Procesando baja de ${name}...`, 'warning');
+        try {
+            const res = await apiDeletePersonal(id);
+            if (res.success) {
+                showNotification('Personal eliminado con éxito.', 'success');
+                // Forzar refresco
+                await loadPersonnelData();
+                if (typeof loadExpedientesData === 'function') loadExpedientesData();
+            } else {
+                showNotification('Error al eliminar: ' + res.message, 'error');
+            }
+        } catch (e) {
+            showNotification('Error de conexión con el servidor maestro.', 'error');
+        }
+    }
 }
 
 function filterExpedientes() {
@@ -8003,6 +8038,11 @@ function initGlobals() {
     window.editVehiculo = editVehiculo;
     window.showC3Details = showC3Details;
     window.updateC3Prompt = updateC3Prompt;
+    
+    // Funciones de Personal y Expedientes
+    window.viewExpedienteFolder = viewExpedienteFolder;
+    window.deletePersonnelRecord = deletePersonnelRecord;
+    window.editEmployee = editEmployee;
 }
 
 

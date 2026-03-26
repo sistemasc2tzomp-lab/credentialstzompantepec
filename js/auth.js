@@ -1,3 +1,27 @@
+// ============================================================
+// FUNCIÓN AUXILIAR: Generador de Encabezado de Sección V2
+// Genera el HTML del header estándar del sistema para cada sección.
+// ============================================================
+function generateHeaderV2(title, subtitle, icon, actionsHtml = '') {
+    return `
+        <div class="standard-header">
+            <div style="display:flex; align-items:center; gap:18px;">
+                <div style="width:50px; height:50px; background:rgba(197,160,89,0.15); border-radius:12px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(197,160,89,0.3);">
+                    <i class="fas ${icon}" style="font-size:1.4rem; color:#c5a059;"></i>
+                </div>
+                <div class="header-center">
+                    <h1>${title}</h1>
+                    <p style="margin:0; font-size:0.8rem; color:rgba(255,255,255,0.6); font-weight:500; letter-spacing:0.5px; text-transform:uppercase;">${subtitle}</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                ${actionsHtml || ''}
+            </div>
+        </div>
+    `;
+}
+window.generateHeaderV2 = generateHeaderV2;
+
 // Sistema de autenticación y roles
 /**
  * Navegación global del sistema

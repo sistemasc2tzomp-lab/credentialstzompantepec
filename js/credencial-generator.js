@@ -401,7 +401,7 @@ async function downloadCredential() {
     const backBg   = baseUrl + 'assets/credencial_back_v3.jpg';
 
     const firmaHtml = data.firma
-        ? '<img src="' + data.firma + '" crossorigin="anonymous" style="max-width:100%;max-height:100%;object-fit:contain;mix-blend-mode:multiply;">'
+        ? '<img src="' + data.firma + '" style="max-width:100%;max-height:100%;object-fit:contain;mix-blend-mode:multiply;">'
         : '';
 
     const html = `<!DOCTYPE html>
@@ -431,7 +431,7 @@ async function downloadCredential() {
 <body>
     <div class="card front-bg" id="dlFront">
         <div class="photo-box">
-            <img src="${photoSrc}" crossorigin="anonymous"
+            <img src="${photoSrc}"
                  onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(data.nombre)}&background=0a192f&color=fff&size=200'">
         </div>
         <div class="data-col">
@@ -442,10 +442,10 @@ async function downloadCredential() {
             <div><span class="f-label">Expedición</span><span class="f-value">${fechaExp}</span></div>
         </div>
         <div class="firma-box">${firmaHtml}</div>
-        <div class="qr-front"><img src="${qrSrc}" crossorigin="anonymous" alt="QR"></div>
+        <div class="qr-front"><img src="${qrSrc}" alt="QR"></div>
     </div>
     <div class="card back-bg" id="dlBack">
-        <div class="qr-back"><img src="${qrSrc}" crossorigin="anonymous" alt="QR"></div>
+        <div class="qr-back"><img src="${qrSrc}" alt="QR"></div>
     </div>
     <script>
     window.onload = async function() {

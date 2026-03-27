@@ -7459,19 +7459,20 @@ window.refreshInventory = function() {
 window.editArmamento = function(itemJson) {
     try {
         const item = JSON.parse(decodeURIComponent(itemJson));
-        window.editingArmamentoData = item;
-        // Derivar pestaña correcta (match con switchArmamentoTab)
+        window.editingArmamentoData = item; // guardar para que saveNewArma lo detecte
+        // Derivar pestaña correcta
         let tab = 'armas';
-        if (item.categoria) {
-            tab = item.categoria; 
-        } else if (item.tipo) {
-            const t = item.tipo.toLowerCase();
-            if (t.includes('radio')) tab = 'radios';
-            else if (t.includes('chaleco') || t.includes('fornitura')) tab = 'chalecos';
-        }
-        openArmamentoModal(tab);
+        const cat = (item.categoria || '').toLowerCase();
+        if (cat === 'radios') tab = 'radios';
+        else if (cat === 'chalecos') tab = 'chalecos';
+        else if (cat === 'vehiculos') tab = 'vehiculos';
+        else if (item.tipo_radio || (item.tipo || '').toLowerCase().includes('radio')) tab = 'radios';
+        else if (item.nivel || (item.tipo || '').toLowerCase().includes('chaleco')) tab = 'chalecos';
+
+        openArmamentoModal(tab, item); // pasar item para pre-llenar
     } catch(e) {
         console.error('Error parsing item:', e);
+        showNotification('Error al abrir editor', 'error');
     }
 };
 
@@ -7698,42 +7699,30 @@ function testConnection() {
     showNotification('Probando latencia con Google Services...', 'info');
     setTimeout(() => {
         showNotification('Conexión estable. Latencia: 42ms', 'success');
-    }, 1200);
-}
-
-function backupSystem() {
-    showNotification('Generando volcado de datos JSON...', 'info');
-    setTimeout(() => {
-        const data = {
-            timestamp: new Date().getTime(),
-            personnel: currentPersonnelData || [],
-            version: '2.6.4-GOLD'
-        };
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `backup_tzompantepec_${new Date().toISOString().split('T')[0]}.json`;
-        a.click();
-        showNotification('Respaldo descargado con éxito', 'success');
-    }, 1000);
-}
-
-async function openArmamentoModal(type) {
+    async function openArmamentoModal(type, existingItem) {
     if (type === 'vehiculos') {
-        openVehiculoModal();
+        openVehiculoModal(existingItem);
         return;
     }
 
+    const isEditing = !!existingItem;
     const modal = document.createElement('div');
     modal.className = 'modal';
     
-    let title = 'Agregar Equipo';
+    let title = isEditing ? 'Editar Equipo' : 'Agregar Equipo';
     let icon = 'fa-plus-circle';
     let formHtml = '';
     
+    // Helper para preseleccionar un <option>
+    function sel(name, val) {
+        if (!val) return '';
+        // Script que corre al abrir el modal
+        return `<script>setTimeout(()=>{const s=document.querySelector("[name='${name}']");if(s){for(let o of s.options){if(o.value===\"${val}\"){o.selected=true;break;}}}},100);<\/script>`;
+    }
+    function fv(key) { return existingItem ? (existingItem[key] || '') : ''; }
+
     if (type === 'armas') {
-        title = 'Alta de Armamento Oficial';
+        title = isEditing ? 'Editar Armamento' : 'Alta de Armamento Oficial';
         icon = 'fa-gun';
         formHtml = `
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
@@ -7743,21 +7732,21 @@ async function openArmamentoModal(type) {
                         <option value="Arma Larga">Arma Larga (Fusil/Subfusil)</option>
                         <option value="Escopeta">Escopeta</option>
                         <option value="Menos Letal">Dispositivo Menos Letal</option>
-                    </select>
+                    </select>${sel('tipo', fv('tipo'))}
                 </div>
-                <div class="form-group"><label>Marca</label><input type="text" name="marca" required class="form-control" placeholder="Ej: Glock / Sig Sauer"></div>
-                <div class="form-group"><label>Modelo</label><input type="text" name="modelo" required class="form-control" placeholder="Ej: 17 Gen 4 / MSX"></div>
-                <div class="form-group"><label>Calibre / Medida</label><input type="text" name="calibre" required class="form-control" placeholder="Ej: 9mm / 5.56mm"></div>
-                <div class="form-group"><label>Matrícula (Serie)</label><input type="text" name="serie" required class="form-control" placeholder="X-000000"></div>
-                <div class="form-group"><label>Folio SEDENA / Registro</label><input type="text" name="folio_sedena" class="form-control" placeholder="S-0000-XX"></div>
-                <div class="form-group"><label>Cargadores (Prov.)</label><input type="number" name="cargadores" class="form-control" value="2" min="0"></div>
-                <div class="form-group"><label>Munición (Cartuchos)</label><input type="number" name="municion" class="form-control" value="0" min="0"></div>
+                <div class="form-group"><label>Marca</label><input type="text" name="marca" value="${fv('marca')}" required class="form-control" placeholder="Ej: Glock / Sig Sauer"></div>
+                <div class="form-group"><label>Modelo</label><input type="text" name="modelo" value="${fv('modelo')}" required class="form-control" placeholder="Ej: 17 Gen 4"></div>
+                <div class="form-group"><label>Calibre / Medida</label><input type="text" name="calibre" value="${fv('calibre')}" required class="form-control" placeholder="Ej: 9mm"></div>
+                <div class="form-group"><label>Matrícula (Serie)</label><input type="text" name="serie" value="${fv('serie')}" required class="form-control" placeholder="X-000000"></div>
+                <div class="form-group"><label>Folio SEDENA / Registro</label><input type="text" name="folio_sedena" value="${fv('folio_sedena')}" class="form-control" placeholder="S-0000-XX"></div>
+                <div class="form-group"><label>Cargadores (Prov.)</label><input type="number" name="cargadores" value="${fv('cargadores') || 2}" class="form-control" min="0"></div>
+                <div class="form-group"><label>Munición (Cartuchos)</label><input type="number" name="municion" value="${fv('municion') || 0}" class="form-control" min="0"></div>
                 <div class="form-group"><label>Propiedad / Convenio</label>
                     <select name="propiedad" class="form-control">
                         <option value="Comodato">Comodato Tlaxcala (C4)</option>
                         <option value="Municipal">Propiedad Municipal</option>
                         <option value="Federal">Convenio Federal</option>
-                    </select>
+                    </select>${sel('propiedad', fv('propiedad'))}
                 </div>
                 <div class="form-group"><label>Estado Operativo</label>
                     <select name="estado" class="form-control" required>
@@ -7766,14 +7755,14 @@ async function openArmamentoModal(type) {
                         <option value="Mantenimiento">En Mantenimiento</option>
                         <option value="Reparación">En Reparación (Taller)</option>
                         <option value="Baja">Baja Definitiva</option>
-                    </select>
+                    </select>${sel('estado', fv('estado'))}
                 </div>
                 <div class="form-group" style="grid-column: span 2;"><label>Observaciones Tácticas</label>
-                    <textarea name="observaciones" class="form-control" style="height:60px;" placeholder="Detalles de desgaste, reparaciones o historial..."></textarea>
+                    <textarea name="observaciones" class="form-control" style="height:60px;">${fv('observaciones')}</textarea>
                 </div>
             </div>`;
     } else if (type === 'radios') {
-        title = 'Alta de Equipo de Comunicación';
+        title = isEditing ? 'Editar Radio' : 'Alta de Equipo de Comunicación';
         icon = 'fa-walkie-talkie';
         formHtml = `
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
@@ -7782,45 +7771,37 @@ async function openArmamentoModal(type) {
                         <option value="Portátil">Portátil (Matra/Analógico)</option>
                         <option value="Móvil">Movíl (Patrulla)</option>
                         <option value="Base">Base Fija</option>
-                    </select>
+                    </select>${sel('tipo_radio', fv('tipo_radio'))}
                 </div>
-                <div class="form-group"><label>Marca</label><input type="text" name="marca" required class="form-control" placeholder="Ej: Harris / Motorola"></div>
-                <div class="form-group"><label>Modelo</label><input type="text" name="modelo" required class="form-control" placeholder="Ej: APX 1000"></div>
-                <div class="form-group"><label>Número de Serie (SN)</label><input type="text" name="serie" required class="form-control" placeholder="SN-000000"></div>
-                <div class="form-group"><label>ID de Radio / Alias</label><input type="text" name="identificador" required class="form-control" placeholder="Ej: TZ-01 / COM"></div>
-                <div class="form-group"><label>Frecuencia / Canal</label><input type="text" name="frecuencia" class="form-control" placeholder="CH-01 / Digital"></div>
-                <div class="form-group"><label>Accesorios</label>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; font-size:0.75rem;">
-                        <label><input type="checkbox" name="acc_antena"> Antena</label>
-                        <label><input type="checkbox" name="acc_bateria"> Batería</label>
-                        <label><input type="checkbox" name="acc_clip"> Clip</label>
-                        <label><input type="checkbox" name="acc_cargador"> Cargador</label>
-                    </div>
-                </div>
+                <div class="form-group"><label>Marca</label><input type="text" name="marca" value="${fv('marca')}" required class="form-control" placeholder="Ej: Motorola"></div>
+                <div class="form-group"><label>Modelo</label><input type="text" name="modelo" value="${fv('modelo')}" required class="form-control" placeholder="Ej: APX 1000"></div>
+                <div class="form-group"><label>Número de Serie (SN)</label><input type="text" name="serie" value="${fv('serie')}" required class="form-control" placeholder="SN-000000"></div>
+                <div class="form-group"><label>ID de Radio / Alias</label><input type="text" name="identificador" value="${fv('identificador')}" required class="form-control" placeholder="Ej: TZ-01"></div>
+                <div class="form-group"><label>Frecuencia / Canal</label><input type="text" name="frecuencia" value="${fv('frecuencia')}" class="form-control" placeholder="CH-01 / Digital"></div>
                 <div class="form-group"><label>Estado General</label>
                     <select name="estado" class="form-control" required>
                         <option value="Activo">Activo</option>
                         <option value="Mantenimiento">Mantenimiento</option>
                         <option value="Baja">Baja</option>
-                    </select>
+                    </select>${sel('estado', fv('estado'))}
                 </div>
                 <div class="form-group" style="grid-column: span 2;"><label>Comentarios de Inventario</label>
-                    <textarea name="observaciones" class="form-control" style="height:50px;"></textarea>
+                    <textarea name="observaciones" class="form-control" style="height:50px;">${fv('observaciones')}</textarea>
                 </div>
             </div>`;
     } else if (type === 'chalecos') {
-        title = 'Alta de Chaleco Balístico';
+        title = isEditing ? 'Editar Chaleco' : 'Alta de Chaleco Balístico';
         icon = 'fa-vest-patches';
         formHtml = `
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-                <div class="form-group"><label>Marca / Fabricante</label><input type="text" name="marca" required class="form-control" placeholder="Ej: Miguel Caballero"></div>
-                <div class="form-group"><label>Lote / Contrato</label><input type="text" name="lote" class="form-control" placeholder="C-2023-SEG"></div>
+                <div class="form-group"><label>Marca / Fabricante</label><input type="text" name="marca" value="${fv('marca')}" required class="form-control" placeholder="Ej: Miguel Caballero"></div>
+                <div class="form-group"><label>Lote / Contrato</label><input type="text" name="lote" value="${fv('lote')}" class="form-control" placeholder="C-2023-SEG"></div>
                 <div class="form-group"><label>Nivel de Protección</label>
                     <select name="nivel" class="form-control" required>
                         <option value="IIIA">Nivel IIIA (Standard)</option>
                         <option value="III">Nivel III (Táctico)</option>
                         <option value="IV">Nivel IV (Placas Pesadas)</option>
-                    </select>
+                    </select>${sel('nivel', fv('nivel'))}
                 </div>
                 <div class="form-group"><label>Talla</label>
                     <select name="talla" class="form-control" required>
@@ -7828,33 +7809,29 @@ async function openArmamentoModal(type) {
                         <option value="M">Mediana (M)</option>
                         <option value="G">Grande (L)</option>
                         <option value="XG">X-Grande (XL)</option>
-                    </select>
+                    </select>${sel('talla', fv('talla'))}
                 </div>
-                <div class="form-group"><label>Serie Placa Delantera</label><input type="text" name="serie_frontal" required class="form-control" placeholder="F-000000"></div>
-                <div class="form-group"><label>Serie Placa Trasera</label><input type="text" name="serie_trasera" required class="form-control" placeholder="B-000000"></div>
-                <div class="form-group"><label>Fecha Fabricación</label><input type="month" name="fecha_fab" class="form-control"></div>
-                <div class="form-group"><label>Fecha de Caducidad</label><input type="date" name="caducidad" required class="form-control"></div>
+                <div class="form-group"><label>Serie Placa Delantera</label><input type="text" name="serie_frontal" value="${fv('serie_frontal')}" required class="form-control" placeholder="F-000000"></div>
+                <div class="form-group"><label>Serie Placa Trasera</label><input type="text" name="serie_trasera" value="${fv('serie_trasera')}" required class="form-control" placeholder="B-000000"></div>
+                <div class="form-group"><label>Fecha Fabricación</label><input type="month" name="fecha_fab" value="${fv('fecha_fab')}" class="form-control"></div>
+                <div class="form-group"><label>Fecha de Caducidad</label><input type="date" name="caducidad" value="${fv('caducidad')}" required class="form-control"></div>
                 <div class="form-group"><label>Estado Físico</label>
                     <select name="estado" class="form-control" required>
                         <option value="Activo">Activo / Operativo</option>
                         <option value="Mantenimiento">Limpieza/Ajuste</option>
                         <option value="Caducado">Caducado / Inactivo</option>
-                    </select>
+                    </select>${sel('estado', fv('estado'))}
                 </div>
-                <div class="form-group"><label>Inv. Municipal ID</label><input type="text" name="inv_id" class="form-control" placeholder="TZ-CH-001"></div>
+                <div class="form-group"><label>Inv. Municipal ID</label><input type="text" name="inv_id" value="${fv('inv_id')}" class="form-control" placeholder="TZ-CH-001"></div>
             </div>`;
     } else {
-        // Fallback default
         formHtml = `
-            <div class="form-group"><label>Tipo/Modelo</label><input type="text" name="modelo" required class="form-control" placeholder="Ej: Glock 17"></div>
-            <div class="form-group"><label>Número de Serie</label><input type="text" name="serie" required class="form-control" placeholder="X-000000"></div>
+            <div class="form-group"><label>Tipo/Modelo</label><input type="text" name="modelo" value="${fv('modelo')}" required class="form-control" placeholder="Ej: Glock 17"></div>
+            <div class="form-group"><label>Número de Serie</label><input type="text" name="serie" value="${fv('serie')}" required class="form-control" placeholder="X-000000"></div>
             <div class="form-group"><label>Estado</label>
                 <select name="estado" class="form-control" required>
-                    <option>Nuevo</option>
-                    <option>Excelente</option>
-                    <option>Regular</option>
-                    <option>En Mantenimiento</option>
-                </select>
+                    <option>Nuevo</option><option>Excelente</option><option>Regular</option><option>En Mantenimiento</option>
+                </select>${sel('estado', fv('estado'))}
             </div>`;
     }
 
@@ -7862,35 +7839,48 @@ async function openArmamentoModal(type) {
         <div class="modal-content" style="max-width: 600px;">
             <div class="modal-header">
                 <h3><i class="fas ${icon}"></i> ${title}</h3>
-                <button type="button" class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+                <button type="button" class="close-btn" onclick="this.closest('.modal').remove()">&#215;</button>
             </div>
             <div class="modal-body">
                 <form id="addArmaForm">
                     <input type="hidden" name="categoria" value="${type}">
+                    <input type="hidden" name="_id" value="${existingItem ? (existingItem.id || existingItem._id || '') : ''}">
+                    <input type="hidden" name="_editing" value="${isEditing ? '1' : ''}">
                     ${formHtml}
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="action-btn" onclick="saveNewArma(event)">Guardar Equipo</button>
+                <button type="button" class="action-btn" onclick="saveNewArma(event)">${isEditing ? 'Guardar Cambios' : 'Guardar Equipo'}</button>
             </div>
         </div>
     `;
     document.body.appendChild(modal);
 }
 
-async function openVehiculoModal() {
+
+async function openVehiculoModal(existingItem) {
+    const isEditing = !!existingItem;
     const modal = document.createElement('div');
     modal.className = 'modal';
+
+    function sel(name, val) {
+        if (!val) return '';
+        return `<script>setTimeout(()=>{const s=document.querySelector("[name='${name}']");if(s){for(let o of s.options){if(o.value===\"${val}\"){o.selected=true;break;}}}},100);<\/script>`;
+    }
+    function fv(key) { return existingItem ? (existingItem[key] || '') : ''; }
+
     modal.innerHTML = `
         <div class="modal-content" style="max-width: 650px;">
             <div class="modal-header">
-                <h3><i class="fas fa-car-side"></i> Registro de Unidad Vehicular</h3>
-                <button type="button" class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+                <h3><i class="fas fa-car-side"></i> ${isEditing ? 'Editar Unidad Vehicular' : 'Registro de Unidad Vehicular'}</h3>
+                <button type="button" class="close-btn" onclick="this.closest('.modal').remove()">&#215;</button>
             </div>
             <div class="modal-body">
                 <form id="addVehiculoForm">
+                    <input type="hidden" name="_id" value="${existingItem ? (existingItem.id || existingItem._id || '') : ''}">
+                    <input type="hidden" name="_editing" value="${isEditing ? '1' : ''}">
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-                        <div class="form-group"><label>ID Unidad (Económico)</label><input type="text" name="unidad" required class="form-control" placeholder="Ej: SP-01"></div>
+                        <div class="form-group"><label>ID Unidad (Económico)</label><input type="text" name="unidad" value="${fv('unidad')}" required class="form-control" placeholder="Ej: SP-01"></div>
                         <div class="form-group"><label>Tipo</label>
                             <select name="tipo" class="form-control" required>
                                 <option value="Patrulla">Patrulla Pick-Up</option>
@@ -7898,19 +7888,19 @@ async function openVehiculoModal() {
                                 <option value="Motocicleta">Motocicleta</option>
                                 <option value="Civil">Vehículo Civil / Cubierto</option>
                                 <option value="Especializado">Especializado</option>
-                            </select>
+                            </select>${sel('tipo', fv('tipo'))}
                         </div>
-                        <div class="form-group"><label>Marca</label><input type="text" name="marca" required class="form-control" placeholder="Ej: Dodge"></div>
-                        <div class="form-group"><label>Modelo / Año</label><input type="text" name="modelo" required class="form-control" placeholder="Ej: Ram 2500 - 2023"></div>
-                        <div class="form-group"><label>Placas</label><input type="text" name="placa" required class="form-control" placeholder="ABC-123-D"></div>
-                        <div class="form-group"><label>Número de Serie (VIN)</label><input type="text" name="serie_vin" required class="form-control" placeholder="1B7..."></div>
-                        <div class="form-group"><label>Kilometraje Actual</label><input type="number" name="km" class="form-control" placeholder="0"></div>
+                        <div class="form-group"><label>Marca</label><input type="text" name="marca" value="${fv('marca')}" required class="form-control" placeholder="Ej: Dodge"></div>
+                        <div class="form-group"><label>Modelo / Año</label><input type="text" name="modelo" value="${fv('modelo')}" required class="form-control" placeholder="Ej: Ram 2500 - 2023"></div>
+                        <div class="form-group"><label>Placas</label><input type="text" name="placa" value="${fv('placa')}" required class="form-control" placeholder="ABC-123-D"></div>
+                        <div class="form-group"><label>Número de Serie (VIN)</label><input type="text" name="serie_vin" value="${fv('serie_vin')}" required class="form-control" placeholder="1B7..."></div>
+                        <div class="form-group"><label>Kilometraje Actual</label><input type="number" name="km" value="${fv('km')}" class="form-control" placeholder="0"></div>
                         <div class="form-group"><label>Nivel de Blindaje</label>
                             <select name="blindaje" class="form-control">
                                 <option value="N/A">Sin Blindaje</option>
                                 <option value="III">Nivel III</option>
                                 <option value="V">Nivel V</option>
-                            </select>
+                            </select>${sel('blindaje', fv('blindaje'))}
                         </div>
                         <div class="form-group"><label>Estado Físico</label>
                             <select name="estado" class="form-control" required>
@@ -7918,7 +7908,7 @@ async function openVehiculoModal() {
                                 <option value="Mantenimiento">Mantenimiento Preventivo</option>
                                 <option value="Taller">Taller (Reparación)</option>
                                 <option value="Baja">Baja / Siniestro</option>
-                            </select>
+                            </select>${sel('estado', fv('estado'))}
                         </div>
                         <div class="form-group"><label>Asignación Física</label>
                             <select name="asignado_a" class="form-control" required>
@@ -7926,13 +7916,13 @@ async function openVehiculoModal() {
                                 <option value="Mando">Mando / Dirección</option>
                                 <option value="Tránsito">Sector Tránsito</option>
                                 <option value="Táctico">G.O.E / Táctico</option>
-                            </select>
+                            </select>${sel('asignado_a', fv('asignado_a'))}
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="action-btn" onclick="saveNewVehiculo(event)">Dar de Alta Unidad</button>
+                <button type="button" class="action-btn" onclick="saveNewVehiculo(event)">${isEditing ? 'Guardar Cambios' : 'Dar de Alta Unidad'}</button>
             </div>
         </div>
     `;
@@ -7946,30 +7936,40 @@ async function saveNewArma(e) {
     const formData = new FormData(form);
     const datos = Object.fromEntries(formData.entries());
     
-    // Auto-deriving category for backend routing
-    const categoriaHidden = datos.categoria || '';
-    let categoria = 'armas'; // default
-    if (categoriaHidden === 'radios') categoria = 'radios';
+    // Auto-derivar categoría correcta
+    const categoriaHidden = (datos.categoria || '').toLowerCase();
+    let categoria = 'armas';
+    if (categoriaHidden === 'radios')    categoria = 'radios';
     else if (categoriaHidden === 'chalecos') categoria = 'chalecos';
     else if (categoriaHidden === 'vehiculos') { saveNewVehiculo(e); return; }
-    // Also check by tipo field if present
-    else if (datos.tipo_radio) categoria = 'radios'; // radio form has tipo_radio field
-    else if (datos.nivel) categoria = 'chalecos'; // chaleco form has nivel field
+    else if (datos.tipo_radio) categoria = 'radios';
+    else if (datos.nivel)     categoria = 'chalecos';
     datos.categoria = categoria;
     
-    showNotification('Sincronizando equipo con inventario...', 'info');
+    const isEditing = datos._editing === '1';
+    const editId = datos._id || '';
+
+    showNotification((isEditing ? 'Actualizando' : 'Guardando') + ' equipo...', 'info');
     try {
-        const res = await window.apiGuardarArmamento(datos);
-        if(res.success) {
-            showNotification('Equipo registrado correctamente', 'success');
-            document.querySelector('.modal').remove();
-            switchArmamentoTab(categoria);
-            loadArmamentoData(categoria);
+        let res;
+        if (isEditing && editId) {
+            datos.id = editId;
+            res = await window.apiActualizarArmamento(datos);
         } else {
-            showNotification('Error: ' + res.message, 'error');
+            res = await window.apiGuardarArmamento(datos);
+        }
+        if(res && res.success) {
+            showNotification('Equipo ' + (isEditing ? 'actualizado' : 'registrado') + ' correctamente', 'success');
+            document.querySelector('.modal')?.remove();
+            window.editingArmamentoData = null;
+            switchArmamentoTab(categoria);
+            // El loadArmamentoData se llamará dentro de switchArmamentoTab
+        } else {
+            showNotification('Error: ' + (res ? res.message : 'Sin respuesta'), 'error');
         }
     } catch(err) {
-        showNotification('Error de conexión', 'error');
+        console.error(err);
+        showNotification('Error de conexión con Google Sheets', 'error');
     }
 }
 
@@ -7980,15 +7980,26 @@ async function saveNewVehiculo(e) {
     const formData = new FormData(form);
     const datos = Object.fromEntries(formData.entries());
     
-    showNotification('Sincronizando unidad con flota...', 'info');
+    const isEditing = datos._editing === '1';
+    const editId = datos._id || '';
+
+    showNotification((isEditing ? 'Actualizando' : 'Sincronizando') + ' unidad con flota...', 'info');
     try {
-        const res = await window.apiGuardarVehiculo(datos);
-        if(res.success) {
-            showNotification('Vehículo registrado correctamente', 'success');
-            document.querySelector('.modal').remove();
+        let res;
+        if (isEditing && editId) {
+            datos.id = editId;
+            res = await window.apiActualizarArmamento(datos); // Vehiculos is part of the same sheet in backend
+        } else {
+            res = await window.apiGuardarVehiculo(datos);
+        }
+
+        if(res && res.success) {
+            showNotification('Vehículo ' + (isEditing ? 'actualizado' : 'registrado') + ' correctamente', 'success');
+            document.querySelector('.modal')?.remove();
+            window.editingVehiculoData = null;
             loadVehiculosData();
         } else {
-            showNotification('Error: ' + res.message, 'error');
+            showNotification('Error: ' + (res ? res.message : 'Error desconocido'), 'error');
         }
     } catch(err) {
         showNotification('Error de conexión', 'error');

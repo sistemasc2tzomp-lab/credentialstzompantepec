@@ -7699,7 +7699,28 @@ function testConnection() {
     showNotification('Probando latencia con Google Services...', 'info');
     setTimeout(() => {
         showNotification('Conexión estable. Latencia: 42ms', 'success');
-    async function openArmamentoModal(type, existingItem) {
+    }, 1200);
+}
+
+function backupSystem() {
+    showNotification('Generando volcado de datos JSON...', 'info');
+    setTimeout(() => {
+        const data = {
+            timestamp: new Date().getTime(),
+            personnel: currentPersonnelData || [],
+            version: '2.6.4-GOLD'
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `backup_tzompantepec_${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        showNotification('Respaldo descargado con éxito', 'success');
+    }, 1000);
+}
+
+async function openArmamentoModal(type, existingItem) {
     if (type === 'vehiculos') {
         openVehiculoModal(existingItem);
         return;

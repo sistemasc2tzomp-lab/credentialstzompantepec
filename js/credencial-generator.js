@@ -232,10 +232,10 @@ async function printEnhancedCredential() {
                 */
                 .photo-oficial {
                     position: absolute;
-                    top: 161px;
-                    left: 18px;
+                    top: 173px;
+                    left: 20px;
                     width: 110px;
-                    height: 137px;
+                    height: 140px;
                     border-radius: 4px;
                     overflow: hidden;
                     z-index: 5;
@@ -262,18 +262,18 @@ async function printEnhancedCredential() {
 
                 .field-label {
                     font-family: 'Montserrat', sans-serif;
-                    font-size: 6pt;
-                    font-weight: 800;
-                    color: #1e3a6e;
+                    font-size: 6.5pt;
+                    font-weight: 900;
+                    color: #000000;
                     text-transform: uppercase;
                     margin: 0;
                     line-height: 1;
-                    opacity: 0.85;
+                    opacity: 0.95;
                 }
 
                 .field-value {
                     font-family: 'Inter', sans-serif;
-                    font-size: 8.5pt;
+                    font-size: 9pt;
                     font-weight: 900;
                     color: #000000;
                     text-transform: uppercase;
@@ -422,6 +422,9 @@ async function downloadCredential() {
             alert('Error: No se encontró el contenedor de la credencial');
             return;
         }
+
+        // Add 1.5s delay to make sure rendering and QR images are completely loaded by browser
+        await new Promise(r => setTimeout(r, 1500)); 
 
         // Descargar Frente
         const canvasFront = await html2canvas(front, { scale: 3, useCORS: true, backgroundColor: null });

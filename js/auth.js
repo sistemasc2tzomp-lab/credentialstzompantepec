@@ -2093,10 +2093,10 @@ function getCredencialesSection() {
                Dimensiones calibradas para evitar solapamiento con etiquetas */
             .photo-frame-dynamic {
                 position: absolute;
-                top: 176px;   /* Ajustado arriba */
+                top: 184px;   /* Ajustado más abajo */
                 left: 20px;   /* Mover a la izquierda solicitado */
-                width: 120px; 
-                height: 150px;
+                width: 125px; 
+                height: 155px;
                 border-radius: 4px;
                 background: rgba(240,242,245,0.7);
                 overflow: hidden;
@@ -2141,12 +2141,12 @@ function getCredencialesSection() {
                 top: 0;
                 left: 0;
                 font-family: 'Montserrat', sans-serif;
-                font-size: 0.6rem;
-                font-weight: 800;
-                color: #1e3a6e;
+                font-size: 0.65rem;
+                font-weight: 900;
+                color: #000;
                 text-transform: uppercase;
                 background: transparent !important;
-                opacity: 0.85;
+                opacity: 0.95;
             }
 
             .preview-field-value {
@@ -2155,9 +2155,9 @@ function getCredencialesSection() {
                 left: 0;
                 width: 100%;
                 font-family: 'Inter', sans-serif;
-                font-size: 0.85rem;  /* Letras más grandes */
+                font-size: 0.95rem;  /* Letras más grandes */
                 font-weight: 900;
-                color: black;        /* Color negro solicitado */
+                color: #000;         /* Color negro solicitado */
                 text-transform: uppercase;
                 background: transparent !important;
                 white-space: nowrap;
@@ -2171,10 +2171,10 @@ function getCredencialesSection() {
                Posicionadas sobre las cintas de fondo. */
             .signature-box-abs {
                 position: absolute;
-                top: 382px;
-                left: 18px;
-                width: 155px;
-                height: 72px;
+                bottom: 80px;
+                left: 17px;
+                width: 162px;
+                height: 70px;
                 z-index: 100;
                 background: transparent !important;
                 border: none !important;
@@ -2426,7 +2426,7 @@ function renderExpedientesTable(data) {
                         <td>
                             <div style="display:flex; align-items:center; gap:10px;">
                                 <div style="width:35px; height:45px; border-radius:4px; overflow:hidden; border:2px solid #e1e8f0; background:#fff;">
-                                    <img src="${p.foto && p.foto !== 'foto' ? p.foto : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(p.nombre) + '&background=0a192f&color=fff'}" style="width:100%; height:100%; object-fit:cover;">
+                                    <img src="${(p.foto && p.foto !== 'foto' && p.foto !== '---') ? p.foto : ('assets/FOTOGRAFIAS PERSONAL/' + (p.cuip||'').trim() + '.png')}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(p.nombre)}&background=0a192f&color=fff'" style="width:100%; height:100%; object-fit:cover;">
                                 </div>
                                 <div style="display:flex; flex-direction:column;">
                                     <span style="font-weight:700; color:var(--police-navy);">${p.nombre}</span>
@@ -4867,7 +4867,7 @@ function generateEmployeeCredential(employeeId) {
     if (!photoSrc || photoSrc === '' || photoSrc === 'foto') {
         const cuipLimpio = employee.cuip ? employee.cuip.trim() : '';
         if (cuipLimpio) {
-            photoSrc = `assets / FOTOGRAFIAS PERSONAL / ${cuipLimpio}.png`;
+            photoSrc = `assets/FOTOGRAFIAS PERSONAL/${cuipLimpio}.png`;
         }
     }
 
@@ -5281,6 +5281,21 @@ async function editEmployee(cuipOrId) {
                                 </select>
                             </div>
                             <div class="form-group">
+                                <label><i class="fas fa-users"></i> Parentesco</label>
+                                <select name="parentesco" class="form-control">
+                                    <option value="">Seleccione</option>
+                                    <option value="ESPOSO(A)" ${person.parentesco === 'ESPOSO(A)' ? 'selected' : ''}>Esposo(a)</option>
+                                    <option value="PADRE/MADRE" ${person.parentesco === 'PADRE/MADRE' ? 'selected' : ''}>Padre / Madre</option>
+                                    <option value="HIJO(A)" ${person.parentesco === 'HIJO(A)' ? 'selected' : ''}>Hijo(a)</option>
+                                    <option value="HERMANO(A)" ${person.parentesco === 'HERMANO(A)' ? 'selected' : ''}>Hermano(a)</option>
+                                    <option value="OTRO" ${person.parentesco === 'OTRO' ? 'selected' : ''}>Otro</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-id-badge"></i> Licencia de Conducir</label>
+                                <input type="text" name="licencia" value="${person.licencia || ''}" class="form-control" placeholder="No. de Licencia">
+                            </div>
+                            <div class="form-group">
                                 <label><i class="fas fa-file-invoice"></i> Cartilla S.M.N.</label>
                                 <input type="text" name="cartilla_militar" value="${person.cartilla_militar || ''}" class="form-control">
                             </div>
@@ -5331,6 +5346,10 @@ async function editEmployee(cuipOrId) {
                             <div class="file-card-edit" style="background:#f8fafc; padding:15px; border-radius:12px; border:1px solid #e2e8f0;">
                                 <label style="font-size:0.8rem; font-weight:700;">Comprobante de Domicilio ${person.comprobante_link ? '<span style="color:#10b981;">● Cargado</span>' : '<span style="color:#ef4444;">● Pendiente</span>'}</label>
                                 <input type="file" name="comprobante_file" accept=".pdf" class="form-control" style="margin-top:8px; font-size:0.8rem;">
+                            </div>
+                            <div class="file-card-edit" style="background:#f8fafc; padding:15px; border-radius:12px; border:1px solid #e2e8f0;">
+                                <label style="font-size:0.8rem; font-weight:700;">Licencia Conducir ${person.licencia_link ? '<span style="color:#10b981;">● Cargado</span>' : '<span style="color:#ef4444;">● Pendiente</span>'}</label>
+                                <input type="file" name="licencia_file" accept=".pdf" class="form-control" style="margin-top:8px; font-size:0.8rem;">
                             </div>
                         </div>
                     </div>
@@ -7429,6 +7448,12 @@ function switchArmamentoTab(tab) {
     
     loadArmamentoData(tab);
 }
+
+// Global para botón actualizar
+window.refreshInventory = function() {
+    loadArmamentoData(window._currentArmamentoTab || 'armas');
+    showNotification('Inventario actualizado de forma exitosa', 'success');
+};
 
 // Nueva función global para editar armamento
 window.editArmamento = function(itemJson) {

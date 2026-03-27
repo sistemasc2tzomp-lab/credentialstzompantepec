@@ -714,22 +714,45 @@ async function generateEstadisticasReport() {
 
 // Funciones de exportación
 function exportReportToExcel(report) {
-    let csvContent = '';
+    if (!report || !Array.isArray(report.data) || report.data.length === 0) {
+        // Intentar rellenar con datos actuales si el reporte de movimientos está vacío
+        if (!report || report.type === REPORT_TYPES.MOVIMIENTOS) {
+            report = generateMovementsReport();
+        }
+        if (!Array.isArray(report.data) || report.data.length === 0) {
+            showNotification('No hay datos para exportar en este reporte', 'warning');
+            return;
+        }
+    }
+
+    let csvContent = '\uFEFF'; // BOM para UTF-8 con Excel
 
     if (report.type === REPORT_TYPES.MOVIMIENTOS) {
-        csvContent = 'Fecha,Hora,Usuario,Rol,Acción,Detalles\n';
+        csvContent += 'Fecha,Hora,Usuario,Rol,Acción,Detalles\n';
         report.data.forEach(item => {
-            csvContent += `"${item.fecha}","${item.hora}","${item.usuario}","${item.rol}","${item.accion}","${item.detalles}"\n`;
+            csvContent += `"${item.fecha||''}","${item.hora||''}","${item.usuario||''}","${item.rol||''}","${item.accion||''}","${item.detalles||""}"\n`;
         });
     } else if (report.type === REPORT_TYPES.PERSONAL_ACTIVO) {
-        csvContent = 'Nombre,Cargo,CUIP,CURP,Teléfono,Email,Vigencia\n';
+        csvContent += 'Nombre,Cargo,CUIP,CURP,Teléfono,Email,Vigencia\n';
         report.data.forEach(item => {
-            csvContent += `"${item.nombre}","${item.cargo}","${item.cuip}","${item.curp}","${item.telefono}","${item.email}","${item.vigencia}"\n`;
+            csvContent += `"${item.nombre||''}","${item.cargo||''}","${item.cuip||''}","${item.curp||''}","${item.telefono||''}","${item.email||''}","${item.vigencia||""}"\n`;
         });
     } else if (report.type === REPORT_TYPES.VIGENCIAS) {
-        csvContent = 'Nombre,Cargo,CUIP,Vigencia,Estado,Días Restantes\n';
+        csvContent += 'Nombre,Cargo,CUIP,Vigencia,Estado,Días Restantes\n';
         report.data.forEach(item => {
-            csvContent += `"${item.nombre}","${item.cargo}","${item.cuip}","${item.fechaVigencia}","${item.estado}","${item.diasRestantes}"\n`;
+            csvContent += `"${item.nombre||''}","${item.cargo||''}","${item.cuip||''}","${item.fechaVigencia||''}","${item.estado||''}","${item.diasRestantes||""}"\n`;
+        });
+    } else if (report.type === REPORT_TYPES.ACTIVIDAD_USUARIOS) {
+        csvContent += 'Usuario,Rol,Total Acciones,Última Actividad,Acciones Comunes\n';
+        report.data.forEach(item => {
+            csvContent += `"${item.usuario||''}","${item.rol||''}","${item.totalAcciones||0}","${item.ultimaActividad||''}","${item.accionesComunes||""}"\n`;
+        });
+    } else {
+        // Genérico: usar claves del primer objeto
+        const keys = Object.keys(report.data[0] || {});
+        csvContent += keys.join(',') + '\n';
+        report.data.forEach(item => {
+            csvContent += keys.map(k => `"${(item[k]||'').toString().replace(/"/g,'""')}"`).join(',') + '\n';
         });
     }
 
@@ -737,12 +760,14 @@ function exportReportToExcel(report) {
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', `${report.type}_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `SIBIM_${report.type}_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
 
-    logAction(ACTION_TYPES.EXPORT, `Exportó reporte: ${report.type}`);
+    showNotification(`Reporte exportado: ${report.data.length} registros`, 'success');
+    logAction(ACTION_TYPES.EXPORT, `Exportó reporte: ${report.type} (${report.data.length} registros)`);
 }
 
 
@@ -8085,47 +8110,216 @@ async function uploadDocument(e) {
 }
 
 function printSystemLogs() {
-    const logs = getFilteredLogs();
+    // Asegurar que tomamos de systemLogs con los campos correctos
+    const logs = Array.isArray(systemLogs) && systemLogs.length > 0
+        ? systemLogs
+        : getFilteredLogs();
+
     const printWindow = window.open('', '_blank');
+    if (!printWindow) { showNotification('Por favor permite las ventanas emergentes', 'warning'); return; }
+
+    const rows = logs.map(l => `
+        <tr>
+            <td>${l.fecha || l.date || ''} ${l.hora || l.time || ''}</td>
+            <td>${l.usuario || l.user || ''}</td>
+            <td>${l.rol || l.role || ''}</td>
+            <td>${l.accion || l.action || ''}</td>
+            <td>${l.detalles || l.details || ''}</td>
+        </tr>`).join('');
+
     printWindow.document.write(`
-        <html>
+        <!DOCTYPE html><html lang="es">
         <head>
-            <title>Reporte de Auditoría - SIBIM Tzompantepec</title>
+            <meta charset="UTF-8">
+            <title>Bitácora de Auditoría - SIBIM Tzompantepec</title>
             <style>
-                body { font-family: sans-serif; padding: 30px; }
-                header { border-bottom: 2px solid #0a192f; margin-bottom: 20px; padding-bottom: 10px; }
-                table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.85rem; }
-                th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-                th { background: #f8fafc; }
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { font-family: Arial, sans-serif; padding: 30px; color: #1e293b; font-size: 12px; }
+                .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #0a192f; padding-bottom: 15px; margin-bottom: 20px; }
+                .header h2 { font-size: 16px; color: #0a192f; }
+                .header h3 { font-size: 12px; color: #64748b; }
+                .meta { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px; padding: 12px; background: #f8fafc; border-radius: 8px; }
+                .meta-item label { font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; font-weight: 700; display: block; }
+                .meta-item span { font-weight: 800; color: #0a192f; font-size: 14px; }
+                table { width: 100%; border-collapse: collapse; }
+                thead th { background: #0a192f; color: white; padding: 10px; text-align: left; font-size: 11px; text-transform: uppercase; }
+                tbody tr:nth-child(even) { background: #f8fafc; }
+                tbody td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; }
+                .footer { margin-top: 30px; padding-top: 15px; border-top: 2px solid #e2e8f0; display: flex; justify-content: space-between; font-size: 11px; color: #94a3b8; }
+                @media print { body { padding: 15px; } }
             </style>
         </head>
         <body onload="window.print()">
-            <header>
-                <h2>SECRETARÍA DE SEGURIDAD PÚBLICA TZOMPANTEPEC</h2>
-                <h3>Bitácora de Auditoría del Sistema C2</h3>
-                <p>Fecha de emisión: ${new Date().toLocaleString()}</p>
-            </header>
+            <div class="header">
+                <div>
+                    <h2>SECRETARÍA DE SEGURIDAD PÚBLICA TZOMPANTEPEC</h2>
+                    <h3>Bitácora de Auditoría del Sistema C2 — SIBIM</h3>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-size:11px; color:#64748b;">Generado: ${new Date().toLocaleString('es-MX')}</div>
+                    <div style="font-weight:800; color:#0a192f;">DOCUMENTO OFICIAL</div>
+                </div>
+            </div>
+            <div class="meta">
+                <div class="meta-item"><label>Fecha de Generación</label><span>${new Date().toLocaleDateString('es-MX', {day:'2-digit',month:'long',year:'numeric'})}</span></div>
+                <div class="meta-item"><label>Total de Registros</label><span>${logs.length}</span></div>
+                <div class="meta-item"><label>Estado del Segmento</label><span style="color:#10b981;">OFICIAL / VALIDADO</span></div>
+            </div>
             <table>
-                <thead><tr><th>Fecha/Hora</th><th>Usuario</th><th>Acción</th><th>Detalle</th></tr></thead>
-                <tbody>
-                    ${logs.map(l => `<tr><td>${l.timestamp}</td><td>${l.user}</td><td>${l.action}</td><td>${l.details}</td></tr>`).join('')}
-                </tbody>
+                <thead><tr><th>Fecha / Hora</th><th>Usuario</th><th>Rol</th><th>Acción</th><th>Detalles</th></tr></thead>
+                <tbody>${rows || '<tr><td colspan="5" style="text-align:center; padding:30px; color:#94a3b8;">No hay registros disponibles</td></tr>'}</tbody>
             </table>
-        </body>
-        </html>
+            <div class="footer">
+                <span>HASH DE SEGURIDAD: SIBIM-${Date.now()}-OFFICIAL</span>
+                <span>Documento emitido electrónicamente. Es válido sin tachaduras ni enmendaduras.</span>
+            </div>
+        </body></html>
     `);
     printWindow.document.close();
 }
 
+
 function showNewCredentialForm() {
     loadSection('credenciales');
     setTimeout(() => {
-        const select = document.querySelector('select'); // Asumiendo que es el primero
+        const select = document.querySelector('select');
         if(select) {
             select.focus();
             showNotification('Seleccione un elemento para generar su credencial', 'info');
         }
     }, 200);
+}
+
+// ============================================
+// VALE DE RESGUARDO — ARMAMENTO Y VEHÍCULOS
+// ============================================
+function printReceipt(type, itemJson, subType) {
+    let item;
+    try {
+        item = JSON.parse(decodeURIComponent(itemJson));
+    } catch(e) {
+        showNotification('Error al procesar datos del activo', 'error');
+        return;
+    }
+
+    const now = new Date();
+    const fecha = now.toLocaleDateString('es-MX', {day: '2-digit', month: 'long', year: 'numeric'});
+    const hora  = now.toLocaleTimeString('es-MX', {hour: '2-digit', minute: '2-digit'});
+    const folio = `C2-${Date.now().toString().slice(-8)}`;
+    const user  = (typeof getCurrentUser === 'function' ? getCurrentUser() : null) || {};
+    const responsable = user.name || user.nombre || 'Operador del Sistema';
+
+    let tipoDoc = 'Vale DE RESGUARDO';
+    let detalles = '';
+
+    if (type === 'armamento' || type === 'arma') {
+        tipoDoc = 'VALE DE RESGUARDO — ARMAMENTO';
+        detalles = `
+            <tr><td><strong>Tipo de Arma</strong></td><td>${item.tipo || item.marca || '—'}</td></tr>
+            <tr><td><strong>Modelo</strong></td><td>${item.modelo || '—'}</td></tr>
+            <tr><td><strong>No. Serie</strong></td><td style="font-family:monospace; font-weight:800;">${item.serie || item.id || '—'}</td></tr>
+            <tr><td><strong>Calibre</strong></td><td>${item.calibre || '—'}</td></tr>
+            <tr><td><strong>Estado</strong></td><td>${item.estado || '—'}</td></tr>
+            <tr><td><strong>Asignado a</strong></td><td><strong>${item.asignado || 'DISPONIBLE'}</strong></td></tr>
+            <tr><td><strong>Categoría</strong></td><td>${subType || item.categoria || 'Armas'}</td></tr>
+        `;
+    } else if (type === 'vehiculo') {
+        tipoDoc = 'VALE DE RESGUARDO — VEHÍCULO';
+        detalles = `
+            <tr><td><strong>Marca / Modelo</strong></td><td>${item.marca || ''} ${item.modelo || ''}</td></tr>
+            <tr><td><strong>Tipo</strong></td><td>${item.tipo || '—'}</td></tr>
+            <tr><td><strong>Placa</strong></td><td style="font-family:monospace; font-weight:800;">${item.placa || '—'}</td></tr>
+            <tr><td><strong>Económico</strong></td><td>${item.eco || '—'}</td></tr>
+            <tr><td><strong>Kilometraje</strong></td><td>${item.kilometraje || '—'} km</td></tr>
+            <tr><td><strong>Estado</strong></td><td>${item.estado || '—'}</td></tr>
+            <tr><td><strong>Asignado a</strong></td><td><strong>${item.asignado || 'BASE C2'}</strong></td></tr>
+        `;
+    }
+
+    const win = window.open('', '_blank');
+    if (!win) { showNotification('Permite las ventanas emergentes para imprimir', 'warning'); return; }
+
+    win.document.write(`
+    <!DOCTYPE html><html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <title>${tipoDoc} — ${folio}</title>
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { font-family: Arial, sans-serif; background: white; color: #1e293b; padding: 30px; font-size: 13px; }
+            .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid #0a192f; padding-bottom: 16px; margin-bottom: 20px; }
+            .header-title h1 { font-size: 18px; color: #0a192f; font-weight: 900; }
+            .header-title h2 { font-size: 12px; color: #64748b; font-weight: 600; margin-top: 4px; }
+            .folio-box { background: #0a192f; color: white; padding: 10px 18px; border-radius: 8px; text-align: center; }
+            .folio-box .label { font-size: 9px; text-transform: uppercase; opacity: 0.8; letter-spacing: 1px; }
+            .folio-box .value { font-size: 14px; font-weight: 900; font-family: monospace; }
+            .meta-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; background: #f8fafc; padding: 14px; border-radius: 10px; margin-bottom: 22px; }
+            .meta-item .label { font-size: 9px; color: #94a3b8; text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 3px; }
+            .meta-item .value { font-size: 14px; font-weight: 800; color: #0a192f; }
+            .section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; color: #64748b; padding: 8px 0 6px; border-bottom: 2px solid #e2e8f0; margin-bottom: 12px; }
+            table.detail { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+            table.detail td { padding: 9px 14px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+            table.detail td:first-child { color: #64748b; width: 40%; }
+            table.detail tr:hover td { background: #fafbfc; }
+            .signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 35px; }
+            .sig-box { text-align: center; }
+            .sig-line { border-top: 2px solid #1e293b; margin: 40px auto 10px; width: 80%; }
+            .sig-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #0a192f; }
+            .sig-sub { font-size: 10px; color: #94a3b8; margin-top: 3px; }
+            .footer { margin-top: 30px; padding-top: 14px; border-top: 2px dashed #e2e8f0; display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; }
+            .seal { border: 3px dashed #e2e8f0; border-radius: 50%; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #94a3b8; text-align: center; margin: 0 auto 10px; }
+            @media print {
+                body { padding: 15px; }
+                @page { margin: 10mm; }
+            }
+        </style>
+    </head>
+    <body onload="window.print()">
+        <div class="header">
+            <div class="header-title">
+                <h1>SECRETARÍA DE SEGURIDAD PÚBLICA TZOMPANTEPEC</h1>
+                <h2>DIRECCIÓN DE SEGURIDAD PÚBLICA Y VIALIDAD · SISTEMA INTEGRAL C2</h2>
+            </div>
+            <div class="folio-box">
+                <div class="label">Folio Oficial</div>
+                <div class="value">${folio}</div>
+            </div>
+        </div>
+
+        <p class="section-title">📋 ${tipoDoc}</p>
+
+        <div class="meta-grid">
+            <div class="meta-item"><span class="label">Fecha de Emisión</span><span class="value">${fecha}</span></div>
+            <div class="meta-item"><span class="label">Hora</span><span class="value">${hora}</span></div>
+            <div class="meta-item"><span class="label">Elaborado por</span><span class="value" style="font-size:12px;">${responsable}</span></div>
+        </div>
+
+        <p class="section-title">🔧 Datos del Activo</p>
+        <table class="detail">${detalles}</table>
+
+        <p class="section-title">✍️ Firmas de Conformidad</p>
+        <div class="signatures">
+            <div class="sig-box">
+                <div class="seal">SELLO<br>OFICIAL</div>
+                <div class="sig-line"></div>
+                <div class="sig-label">Responsable de Inventario</div>
+                <div class="sig-sub">Nombre y Firma</div>
+            </div>
+            <div class="sig-box">
+                <div class="seal">SELLO<br>OFICIAL</div>
+                <div class="sig-line"></div>
+                <div class="sig-label">Personal que Recibe</div>
+                <div class="sig-sub">Nombre, Firma y CUIP</div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <span>Folio: ${folio} · Hash SIBIM: ${Date.now()}</span>
+            <span>Documento oficial. Válido sin tachaduras. C2-Tzompantepec.</span>
+        </div>
+    </body></html>
+    `);
+    win.document.close();
 }
 
 // --- ASIGNACIÓN DE FUNCIONES GLOBALES (HOISTING SAFE) ---

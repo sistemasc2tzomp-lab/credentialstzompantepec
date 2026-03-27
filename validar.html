@@ -344,12 +344,14 @@
                             
                             <div class="footer-tactical-premium">
                                 <div class="footer-logo-premium">
-                                    <img src="assets/c2_logo.png">
-                                    <span>120488</span>
+                                    <img src="assets/c2_logo.png" onerror="this.src='assets/escudo_tzomp.png'">
+                                    <span>${cop.cuip || '120488'}</span>
                                 </div>
                                 <div class="footer-text-premium">PROPIEDAD DE GOBIERNO<br>DE TZOMPANTEPEC</div>
-                                <div class="footer-qr-mock">
-                                    <i class="fas fa-qrcode"></i>
+                                <div class="footer-qr-mock" id="footerQrContainer" style="padding:3px;">
+                                    <img id="footerQrImg" src="https://api.qrserver.com/v1/create-qr-code/?size=65x65&data=${encodeURIComponent(window.location.href)}&ecc=H" 
+                                         style="width:100%; height:100%; border-radius:6px;" 
+                                         onerror="this.parentNode.innerHTML='<i class=\'fas fa-qrcode\' style=\'font-size:2.8rem; color:#0a192f;\'></i>'">
                                 </div>
                             </div>
                         </div>

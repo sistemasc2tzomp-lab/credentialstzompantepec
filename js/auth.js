@@ -2453,6 +2453,9 @@ function renderExpedientesTable(data) {
                         </td>
                         <td>
                             <div style="display:flex; gap:8px;">
+                                <button class="action-btn" title="Visualizar Expediente" onclick="viewEmployeeDetails('${p.cuip || p.id}')" style="background:#8b5cf6; color:white;">
+                                    <i class="fas fa-eye"></i>
+                                </button>
                                 <button class="action-btn" title="Cargar a Drive" onclick="uploadToExpediente('${p.cuip}')" style="background:#0ea5e9; color:white;">
                                     <i class="fas fa-cloud-arrow-up"></i>
                                 </button>
@@ -2518,35 +2521,29 @@ function viewExpedienteFolder(cuip, folderLink) {
     modal.innerHTML = `
         <div class="modal-content" style="width: 92%; max-width: 1200px; height: 90vh; display: flex; flex-direction: column; padding: 0; background:white; overflow:hidden; border-radius:15px; border:1px solid #0ea5e9;">
             <div class="modal-header" style="flex: 0 0 auto; background: linear-gradient(135deg, #0a192f, #1a3a6e); padding:15px 25px; border-radius:15px 15px 0 0; color:white; display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="margin:0; color:white; font-size:1.1rem;"><i class="fas fa-folder-open" style="color:#c5a059; margin-right:10px;"></i> Expediente Digital - Seguridad P\u00fablica</h3>
-                <button class="close-btn" onclick="document.getElementById('${modalId}').remove()" style="color:white; font-size:1.6rem; opacity:0.8;">&times;</button>
+                <h3 style="margin:0; font-size:1.1rem; display:flex; align-items:center; gap:10px;">
+                    <i class="fab fa-google-drive" style="color:#34a853;"></i> 
+                    Expediente Digital Drive: ${cuip}
+                </h3>
+                <div style="display:flex; gap:10px;">
+                    <a href="${finalFolderLink}" target="_blank" class="action-btn" style="background:#34a853; color:white; padding:5px 15px; border-radius:8px; font-size:0.8rem; text-decoration:none; display:flex; align-items:center; gap:5px;">
+                        <i class="fas fa-external-link-alt"></i> Abrir en Google Drive
+                    </a>
+                    <button class="close-btn" onclick="this.closest('.modal').remove()" style="color:white; opacity:0.8;">&times;</button>
+                </div>
             </div>
-            
-            <div class="modal-body" style="flex: 1 1 auto; padding: 20px; display: flex; flex-direction: column; background:#f8fafc;">
-                <div style="background:#e0f2fe; color:#0369a1; padding:10px 15px; border-radius:8px; margin-bottom:15px; font-weight:600; font-size:0.85rem; border-left:4px solid #0ea5e9; display:flex; align-items:center; gap:10px;">
-                    <i class="fas fa-shield-halved" style="font-size:1.2rem;"></i>
-                    Visualizando contenido oficial desde Google Drive &reg;. El acceso es confidencial.
+            <div class="modal-body" style="flex: 1 1 auto; padding: 0; background: #f1f5f9; overflow: hidden; position: relative;">
+                <div id="drive-loader" style="position:absolute; top:0; left:0; width:100%; height:100%; background:white; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:10;">
+                    <div class="spinner"></div>
+                    <p style="margin-top:15px; color:#64748b; font-weight:600;">Sincronizando con Google Drive...</p>
                 </div>
-                
-                <div style="flex: 1; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; position: relative; background:white; box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);">
-                    <iframe src="${embedSrc}" width="100%" height="100%" frameborder="0" style="background: white;" 
-                            allow="autoplay; camera; microphone; fullscreen; picture-in-picture; encrypted-media;" allowfullscreen></iframe>
-                </div>
-                
-                <div style="display:flex; justify-content: space-between; align-items: center; margin-top: 15px;">
-                    <span style="font-size: 0.75rem; color: #64748b;"><i class="fas fa-lock"></i> Conexi\u00f3n Encriptada TLS 1.3 | SIBIM Monitor</span>
-                    <div style="display:flex; gap:10px;">
-                        <button class="action-btn secondary" onclick="document.getElementById('${modalId}').remove()">Cerrar</button>
-                        <button class="action-btn" onclick="window.open('${finalFolderLink}', '_blank')" style="background:#0ea5e9; color:white;">
-                            <i class="fas fa-external-link-alt"></i> Ver en Drive
-                        </button>
-                    </div>
-                </div>
+                <iframe src="${embedSrc}" style="width:100%; height:100%; border:none;" onload="document.getElementById('drive-loader').style.display='none'"></iframe>
             </div>
         </div>
     `;
     document.body.appendChild(modal);
 }
+
 
 async function deletePersonnelRecord(id) {
     const person = currentPersonnelData.find(p => p.cuip === id || p.id === id);
@@ -4762,13 +4759,14 @@ function viewEmployeeDetails(employeeId) {
     const employee = currentPersonnelData.find(e => String(e.id) === String(employeeId) || e.cuip === employeeId || e.nombre === employeeId);
     if (!employee) { showNotification('Elemento no encontrado', 'error'); return; }
 
-    // Foto con fallback inteligente
+    // Foto con reingeniería de fallbacks (v4.0.0 Stable)
     let photoSrc = employee.foto || '';
-    if (!photoSrc || photoSrc === 'foto') {
-        const cuipLimpio = (employee.cuip || '').trim();
-        photoSrc = cuipLimpio
-            ? `assets/FOTOGRAFIAS PERSONAL/${cuipLimpio}.png`
-            : `https://ui-avatars.com/api/?name=${encodeURIComponent((employee.nombre||'N')+' '+(employee.apellidos||'N'))}&background=0a192f&color=c5a059&size=200&bold=true`;
+    if (!photoSrc || photoSrc === 'foto' || photoSrc === '---') {
+        const cuipLimpio = (employee.cuip || '').trim().toUpperCase();
+        // Intentar múltiples extensiones y rutas
+        photoSrc = cuipLimpio 
+            ? `assets/FOTOGRAFIAS PERSONAL/${cuipLimpio}.png` 
+            : `https://ui-avatars.com/api/?name=${encodeURIComponent((employee.nombre||'N'))}&background=0a192f&color=c5a059&size=200&bold=true`;
     }
 
     const estadoClass = (employee.estado || 'activo').toLowerCase().replace(/\s+/g, '-');
@@ -4880,12 +4878,13 @@ function viewEmployeeDetails(employeeId) {
                             <i class="fas fa-phone-alt" style="color:#0ea5e9;"></i> Contacto y Emergencia
                         </h4>
                         <div style="display:flex; flex-direction:column; gap:12px; font-size:0.9rem;">
-                            <div><strong style="color:#64748b;">Tel\u00e9fono Personal:</strong> ${employee.telefono||'---'}</div>
+                            <div><strong style="color:#64748b;">Teléfono Personal:</strong> ${employee.telefono||employee.tel||'---'}</div>
                             <div><strong style="color:#64748b;">Email:</strong> ${employee.email||'---'}</div>
                             <div style="margin-top:5px; padding-top:10px; border-top:1px dashed #e2e8f0;">
-                                <div><strong style="color:#64748b;">Contacto Emergencia:</strong> ${employee.contacto_emergencia||'---'}</div>
-                                <div><strong style="color:#64748b;">Tel. Emergencia:</strong> <span style="color:#0369a1; font-weight:700;">${employee.tel_emergencia||'---'}</span></div>
-                                <div><strong style="color:#64748b;">Parentesco:</strong> ${employee.parentesco||'---'}</div>
+                                <!-- Mapeo Refactorizado de Emergencia (v4.0.0) -->
+                                <div><strong style="color:#64748b;">Contacto Emergencia:</strong> ${employee.contacto_emergencia || employee.contactoEmergencia || employee.emergencia_nombre || '---'}</div>
+                                <div><strong style="color:#64748b;">Tel. Emergencia:</strong> <span style="color:#0369a1; font-weight:700;">${employee.tel_emergencia || employee.telefonoEmergencia || employee.emergencia_tel || '---'}</span></div>
+                                <div><strong style="color:#64748b;">Parentesco:</strong> ${employee.parentesco || employee.Parentesco || employee.emergencia_parentesco || '---'}</div>
                             </div>
                         </div>
                     </div>
@@ -5670,8 +5669,8 @@ document.addEventListener('click', function (event) {
 });
 
 // Refresh data
-function refreshPersonnelData() {
-    loadPersonnelData();
+async function refreshPersonnelData() {
+    await loadPersonnelData();
     showNotification('Datos actualizados', 'info');
 }
 

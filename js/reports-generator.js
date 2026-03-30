@@ -684,8 +684,24 @@ function printMunicipalReport(reportType) {
     `;
 
     const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+        showNotification('Permita las ventanas emergentes para ver el reporte', 'error');
+        return;
+    }
     printWindow.document.write(printContent);
     printWindow.document.close();
+}
+
+/**
+ * Exportar reporte a PDF (Simulado vía Impresión)
+ */
+function exportReportToPDF(report) {
+    if (!report) {
+        showNotification('No hay datos para exportar', 'error');
+        return;
+    }
+    // Usar la misma lógica de impresión oficial
+    printMunicipalReport(report.reportType || 'personal_activo');
 }
 
 // Hacer funciones globales

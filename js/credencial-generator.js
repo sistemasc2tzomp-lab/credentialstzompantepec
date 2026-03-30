@@ -174,10 +174,9 @@ function buildCardHTML(data, qrSrc, photoSrc, fechaExp, baseUrl) {
             <div class="field-group"><span class="field-label">Expedición</span><span class="field-value">${fechaExp}</span></div>
         </div>
         <div class="firma-oficial">${firmaHtml}</div>
-        <div class="qr-front-pos"><img src="${qrSrc}" alt="QR Credencial"></div>
     </div>
     <div class="card-print back-bg">
-        <div class="qr-back-pos"><img src="${qrSrc}" alt="QR Credencial"></div>
+        <div class="qr-back-pos"><img src="${qrSrc}" alt="QR Validación SIBIM"></div>
     </div>`;
 }
 
@@ -226,19 +225,11 @@ function buildCardCSS(baseUrl) {
         }
         .firma-oficial img { max-width:100%; max-height:100%; object-fit:contain; mix-blend-mode:multiply; filter:contrast(1.15); }
 
-        .qr-front-pos {
-            position:absolute; bottom:30px; right:15px; /* Subido para evitar traslape con leyenda inferior */
-            width:85px; height:85px; background:white; padding:5px;
-            border-radius:6px; display:flex; align-items:center; justify-content:center;
-            z-index:100; box-shadow:0 1px 10px rgba(0,0,0,0.4);
-        }
-        .qr-front-pos img { width:100%; height:100%; display:block; }
-
         .qr-back-pos {
-            position:absolute; bottom:85px; right:122px; /* Centrado y con mayor tamaño para escaneo rápido */
-            width:85px; height:85px; background:white; padding:5px;
-            border-radius:6px; display:flex; align-items:center; justify-content:center; z-index:100;
-            box-shadow:0 1px 10px rgba(0,0,0,0.4);
+            position:absolute; bottom:65px; left:50%; transform:translateX(-50%); /* Centrado total en el reverso */
+            width:100px; height:100px; background:white; padding:6px;
+            border-radius:10px; display:flex; align-items:center; justify-content:center; z-index:100;
+            box-shadow:0 1px 15px rgba(0,0,0,0.4);
         }
         .qr-back-pos img { width:100%; height:100%; display:block; }
 
@@ -457,10 +448,8 @@ async function downloadCredential() {
         .f-label{font-family:'Montserrat',sans-serif;font-size:6.5pt;font-weight:900;color:#000;text-transform:uppercase;margin:0;line-height:1.1;}
         .f-value{font-family:'Inter',sans-serif;font-size:9pt;font-weight:900;color:#000;text-transform:uppercase;margin:0 0 1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
         .firma-box{position:absolute;bottom:80px;left:15px;width:150px;height:64px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
-        .qr-front{position:absolute;bottom:10px;right:12px;width:64px;height:64px;background:white;padding:3px;border-radius:5px;}
-        .qr-front img{width:100%;height:100%;display:block;}
-        .qr-back{position:absolute;bottom:15px;right:25px;width:62px;height:62px;background:white;padding:2px;border-radius:4px;}
-        .qr-back img{width:100%;height:100%;display:block;}
+        .qr-back{position:absolute; bottom:60px; left:50%; transform:translateX(-50%); width:90px; height:90px; background:white; padding:4px; border-radius:10px;}
+        .qr-back img{width:100%; height:100%; display:block;}
     </style>
 </head>
 <body>
@@ -477,10 +466,9 @@ async function downloadCredential() {
             <div><span class="f-label">Expedición</span><span class="f-value">${fechaExp}</span></div>
         </div>
         <div class="firma-box">${firmaHtml}</div>
-        <div class="qr-front"><img src="${qrSrc}" crossorigin="anonymous" alt="QR"></div>
     </div>
     <div class="card back-bg" id="dlBack">
-        <div class="qr-back"><img src="${qrSrc}" crossorigin="anonymous" alt="QR"></div>
+        <div class="qr-back"><img src="${qrSrc}" crossorigin="anonymous" alt="QR VALIDACIÓN SIBIM"></div>
     </div>
     <script>
     window.onload = async function() {

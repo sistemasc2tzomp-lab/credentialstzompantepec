@@ -241,7 +241,9 @@ function getPersonal() {
           contacto_emergencia  : row[38] || '',
           tel_emergencia       : row[39] || '',
           domicilio            : row[40] || '',
-          folder_link          : row[41] || '' // Col AP (index 41)
+          parentesco           : row[41] || '',
+          licencia             : row[42] || '',
+          folder_link          : row[43] || '' // Col AP (index 43)
         });
       }
     });
@@ -312,7 +314,9 @@ function guardarPersonal(datos) {
       datos.cartilla_militar || '',// AL: Cartilla S.M.N.
       datos.contacto_emergencia || '', // AM: Contacto Emergencia
       datos.tel_emergencia || '',  // AN: Tel Emergencia
-      datos.domicilio || ''        // AO: Domicilio
+      datos.domicilio || '',       // AO: Domicilio
+      datos.parentesco || '',      // AP: Parentesco
+      datos.licencia || ''         // AQ: Licencia
     ];
     
     sheet.appendRow(row);
@@ -370,17 +374,19 @@ function actualizarPersonal(datos) {
         if (datos.fechaNacimiento) sheet.getRange(rowNum, 7).setValue(datos.fechaNacimiento);
         if (datos.puesto || datos.cargo) sheet.getRange(rowNum, 8).setValue(datos.puesto || datos.cargo);
         if (datos.fechaIngreso) sheet.getRange(rowNum, 9).setValue(datos.fechaIngreso);
-        if (datos.tipoSangre) sheet.getRange(rowNum, 10).setValue(datos.tipoSangre);
+        if (datos.tipoSangre !== undefined) sheet.getRange(rowNum, 10).setValue(datos.tipoSangre);
         if (datos.nss) sheet.getRange(rowNum, 11).setValue(datos.nss);
         if (datos.email) sheet.getRange(rowNum, 12).setValue(datos.email);
         if (datos.telefono) sheet.getRange(rowNum, 13).setValue(datos.telefono);
         if (datos.armado) sheet.getRange(rowNum, 14).setValue(datos.armado);
         if (datos.estado) sheet.getRange(rowNum, 15).setValue(datos.estado);
-        if (datos.estado_civil) sheet.getRange(rowNum, 37).setValue(datos.estado_civil);
-        if (datos.cartilla_militar) sheet.getRange(rowNum, 38).setValue(datos.cartilla_militar);
-        if (datos.contacto_emergencia) sheet.getRange(rowNum, 39).setValue(datos.contacto_emergencia);
-        if (datos.tel_emergencia) sheet.getRange(rowNum, 40).setValue(datos.tel_emergencia);
-        if (datos.domicilio) sheet.getRange(rowNum, 41).setValue(datos.domicilio);
+        if (datos.estado_civil !== undefined) sheet.getRange(rowNum, 37).setValue(datos.estado_civil);
+        if (datos.cartilla_militar !== undefined) sheet.getRange(rowNum, 38).setValue(datos.cartilla_militar);
+        if (datos.contacto_emergencia !== undefined) sheet.getRange(rowNum, 39).setValue(datos.contacto_emergencia);
+        if (datos.tel_emergencia !== undefined) sheet.getRange(rowNum, 40).setValue(datos.tel_emergencia);
+        if (datos.domicilio !== undefined) sheet.getRange(rowNum, 41).setValue(datos.domicilio);
+        if (datos.parentesco !== undefined) sheet.getRange(rowNum, 42).setValue(datos.parentesco);
+        if (datos.licencia !== undefined) sheet.getRange(rowNum, 43).setValue(datos.licencia);
         
         // Manejo de foto en Drive
         if (datos.foto && datos.foto.includes('base64')) {
@@ -394,7 +400,7 @@ function actualizarPersonal(datos) {
         if (datos.equipo) sheet.getRange(rowNum, 18).setValue(datos.equipo);
         if (datos.vehiculo) sheet.getRange(rowNum, 19).setValue(datos.vehiculo);
         if (datos.numPlaca) sheet.getRange(rowNum, 20).setValue(datos.numPlaca);
-        if (datos.vigencia) sheet.getRange(rowNum, 21).setValue(datos.vigencia);
+        if (datos.vigencia !== undefined) sheet.getRange(rowNum, 21).setValue(datos.vigencia);
         if (datos.observaciones) sheet.getRange(rowNum, 22).setValue(datos.observaciones);
 
         // Documentos nuevos organizados por Nombre
@@ -662,9 +668,11 @@ function inicializarHojas() {
         'EQUIPO', 'VEHICULO', 'PLACAS', 'VIGENCIA', 'OBSERVACIONES',
         'TIPO_VEHICULO', 'MARCA_VEHICULO', 'COLOR_VEHICULO', 'ESTADO_VEHICULO',
         'NUM_ARMA', 'TIPO_ARMA', 'CALIBRE', 'FECHA_ASIG_ARMA', 'RADIO', 'CHALECO',
-        'INE_LINK', 'CURP_LINK', 'CUIP_DOC_LINK', 'COMPROBANTE_LINK'
+        'INE_LINK', 'CURP_LINK', 'CUIP_DOC_LINK', 'COMPROBANTE_LINK',
+        'ESTADO_CIVIL', 'CARTILLA_MILITAR', 'CONTACTO_EMERGENCIA', 'TEL_EMERGENCIA', 'DOMICILIO',
+        'PARENTESCO', 'LICENCIA'
       ]);
-      personalSheet.getRange(1, 1, 1, 36).setBackground('#0a192f').setFontColor('#c5a059').setFontWeight('bold');
+      personalSheet.getRange(1, 1, 1, 43).setBackground('#0a192f').setFontColor('#c5a059').setFontWeight('bold');
     }
     
     // Crear hoja USUARIOS si no existe

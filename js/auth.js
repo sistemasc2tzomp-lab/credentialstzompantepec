@@ -6543,7 +6543,8 @@ window.printFineTicket = printFineTicket;
 window.filterFinesRepo = filterFinesRepo;
 window.exportFines = exportFines;
 function showPDFPreviewModal() {
-    const reportType = document.getElementById('mainReportSelector').value;
+    const reportSelector = document.getElementById('mainReportSelector');
+    const reportType = reportSelector ? reportSelector.value : 'personal_activo';
     const title = document.querySelector('#mainReportSelector option:checked').text;
     const reportHash = 'SPT-' + Math.random().toString(36).substring(2, 10).toUpperCase() + '-' + Date.now().toString(36).toUpperCase();
 
@@ -7455,12 +7456,11 @@ window.refreshInventory = function() {
     showNotification('Inventario actualizado de forma exitosa', 'success');
 };
 
-// Nueva función global para editar armamento
-window.editArmamento = function(itemJson) {
+async function editArmamento(itemJson) {
     try {
         const item = JSON.parse(decodeURIComponent(itemJson));
-        window.editingArmamentoData = item; // guardar para que saveNewArma lo detecte
-        // Derivar pestaña correcta
+        window.editingArmamentoData = item; 
+        
         let tab = 'armas';
         const cat = (item.categoria || '').toLowerCase();
         if (cat === 'radios') tab = 'radios';
@@ -7469,12 +7469,34 @@ window.editArmamento = function(itemJson) {
         else if (item.tipo_radio || (item.tipo || '').toLowerCase().includes('radio')) tab = 'radios';
         else if (item.nivel || (item.tipo || '').toLowerCase().includes('chaleco')) tab = 'chalecos';
 
-        openArmamentoModal(tab, item); // pasar item para pre-llenar
+        if (typeof openArmamentoModal === 'function') {
+            openArmamentoModal(tab, item);
+        } else {
+            showNotification('Error: Módulo de armamento no disponible', 'error');
+        }
     } catch(e) {
         console.error('Error parsing item:', e);
         showNotification('Error al abrir editor', 'error');
     }
-};
+}
+
+async function editVehiculo(itemJson) {
+    try {
+        const item = JSON.parse(decodeURIComponent(itemJson));
+        window.editingVehiculoData = item;
+        if (typeof openVehiculoModal === 'function') {
+            openVehiculoModal(item);
+        } else {
+            showNotification('Error: Módulo vehicular no disponible', 'error');
+        }
+    } catch(e) {
+        console.error('Error parsing vehicle:', e);
+        showNotification('Error al abrir editor de vehículo', 'error');
+    }
+}
+
+window.editArmamento = editArmamento;
+window.editVehiculo = editVehiculo;
 
 window.deleteArmamento = async function(id, type) {
     if(!confirm('¿Está seguro de eliminar este activo del inventario?')) return;
@@ -7489,19 +7511,6 @@ window.deleteArmamento = async function(id, type) {
         }
     } catch(e) {
         showNotification('Error de conexión', 'error');
-    }
-};
-
-window.editVehiculo = function(itemJson) {
-    try {
-        const item = JSON.parse(decodeURIComponent(itemJson));
-        window.editingVehiculoData = item;
-        // Make sure openVehiculoModal reads window.editingVehiculoData
-        if (typeof openVehiculoModal === 'function') {
-            openVehiculoModal();
-        }
-    } catch(e) {
-        console.error('Error parsing vehicle item:', e);
     }
 };
 

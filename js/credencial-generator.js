@@ -395,10 +395,34 @@ async function downloadCredential() {
     const fechaExp = hoy.getDate().toString().padStart(2,'0') + '-' + meses[hoy.getMonth()] + '-' + String(hoy.getFullYear()).slice(-2);
     const valUrl   = buildValidationUrl(data.cuip, data.nombre);
     const qrSrc    = getQRImageUrl(valUrl, 380);
-    const photoSrc = resolvePhotoSrc(data.foto, data.cuip, data.nombre);
-
     const frontBg  = baseUrl + 'assets/credencial_front_v3.jpg';
     const backBg   = baseUrl + 'assets/credencial_back_v3.jpg';
+
+    // Asegurar que la foto sea base64 para evitar problemas de CORS en html2canvas
+    let photoBase64 = '';
+    try {
+        const pSrc = resolvePhotoSrc(data.foto, data.cuip, data.nombre);
+        if (pSrc.startsWith('data:')) {
+            photoBase64 = pSrc;
+        } else {
+            // Intentar convertir a base64 via fetch (proxy de google drive uc o avatars suele permitirlo con crossOrigin)
+            const imgResp = await fetch(pSrc, { mode: 'cors' }).catch(() => null);
+            if (imgResp && imgResp.ok) {
+                const blob = await imgResp.blob();
+                photoBase64 = await new Promise(r => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => r(reader.result);
+                    reader.readAsDataURL(blob);
+                });
+            } else {
+                photoBase64 = pSrc; // Fallback al original si falla fetch
+            }
+        }
+    } catch(e) {
+        photoBase64 = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(data.nombre) + '&background=0a192f&color=fff&size=200';
+    }
+
+    const photoSrc = photoBase64;
 
     const firmaHtml = data.firma
         ? '<img src="' + data.firma + '" style="max-width:100%;max-height:100%;object-fit:contain;mix-blend-mode:multiply;">'

@@ -25,6 +25,17 @@ window.saveEmployeeChanges = window.saveEmployeeChanges || function(e) {
 };
 
 /**
+ * Validador de configuración
+ */
+function checkWebAppConfig() {
+    if (!GAS_WEBAPP_URL || GAS_WEBAPP_URL === '') {
+        console.error('SISTEMA BLOQUEADO: URL de Web App no configurada.');
+        return false;
+    }
+    return true;
+}
+
+/**
  * JSONP GET helper — bypasses all CORS restrictions with GAS.
  * Works from any static site (GitHub Pages, etc.).
  */

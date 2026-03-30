@@ -1,0 +1,9 @@
+SIBIM_VERSION: v4.0.0-Stable
+DEPLOY_DATE: 2026-03-30
+STATUS: OPERATIONAL
+LATEST_FIXES:
+- Dossier de personal rediseñado (Expedientes Digitales)
+- Integración de Visor Drive seguro
+- Exportación de Reportes a Excel corregida
+- Calibración de QR en credenciales (Tamaño 85x85, posición corregida)
+- Catálogo de tarifas de multas dinámico

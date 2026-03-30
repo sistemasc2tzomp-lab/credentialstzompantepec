@@ -1125,6 +1125,19 @@ function actualizarPersonal(datos) {
     if (datos.cuip_doc_link)    sheet.getRange(rowIndex, 35).setValue(datos.cuip_doc_link);
     if (datos.comprobante_link) sheet.getRange(rowIndex, 36).setValue(datos.comprobante_link);
 
+    // Campos extendidos de personal (AK-AQ = 37-43)
+    if (datos.estado_civil !== undefined)        sheet.getRange(rowIndex, 37).setValue(datos.estado_civil);
+    if (datos.cartilla_militar !== undefined)    sheet.getRange(rowIndex, 38).setValue(datos.cartilla_militar);
+    if (datos.contacto_emergencia !== undefined) sheet.getRange(rowIndex, 39).setValue(datos.contacto_emergencia);
+    if (datos.tel_emergencia !== undefined)      sheet.getRange(rowIndex, 40).setValue(datos.tel_emergencia);
+    if (datos.domicilio !== undefined)           sheet.getRange(rowIndex, 41).setValue(datos.domicilio);
+    if (datos.parentesco !== undefined)          sheet.getRange(rowIndex, 42).setValue(datos.parentesco);
+    if (datos.licencia !== undefined)            sheet.getRange(rowIndex, 43).setValue(datos.licencia);
+    if (datos.tipoSangre !== undefined)          sheet.getRange(rowIndex, 10).setValue(datos.tipoSangre);
+    if (datos.email)                             sheet.getRange(rowIndex, 12).setValue(datos.email);
+    if (datos.telefono)                          sheet.getRange(rowIndex, 13).setValue(datos.telefono);
+    if (datos.vigencia !== undefined)            sheet.getRange(rowIndex, 21).setValue(datos.vigencia);
+
     return { success: true, message: 'Expediente actualizado correctamente para ' + (datos.nombre || cuip) };
 
   } catch (err) {

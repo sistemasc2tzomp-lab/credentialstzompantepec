@@ -6,10 +6,23 @@
 const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzd_M0tZHkKipijbZor7waK5lUizj3NeCZkMalceJCBoFp527gXBAr8-bWf9f4ZYuo_kQ/exec';
 const SPREADSHEET_ID_CONFIG = '12_nohX3MHsU8WrvhDKLYbQYr0uoMFvlx30ICjjJsT2M';
 
-function checkWebAppConfig() {
-    if (GAS_WEBAPP_URL.includes('REEMPLAZAR')) return false;
-    return true;
-}
+// Definiciones globales compartidas (Cargadas al inicio para evitar ReferenceErrors)
+const EMPLOYEE_STATUS = {
+    ACTIVO: 'Activo',
+    BAJA: 'Baja',
+    VACACIONES: 'Vacaciones',
+    COMISION: 'De Comisión'
+};
+window.EMPLOYEE_STATUS = EMPLOYEE_STATUS;
+
+// Placeholders para funciones definidas en auth.js que son accedidas por otros scripts
+window.printSingleCredential = window.printSingleCredential || function(cuip) {
+    if (typeof console !== 'undefined') console.warn('printSingleCredential no cargada aún');
+};
+window.saveEmployeeChanges = window.saveEmployeeChanges || function(e) {
+    if (typeof updateEmployee === 'function') return updateEmployee(e);
+    if (typeof console !== 'undefined') console.warn('saveEmployeeChanges/updateEmployee no cargada aún');
+};
 
 /**
  * JSONP GET helper — bypasses all CORS restrictions with GAS.

@@ -54,8 +54,8 @@ function resolvePhotoSrc(foto, cuip, nombre) {
 /** URL de validación para el QR */
 function buildValidationUrl(cuip, nombre) {
     const id = (cuip && cuip !== '---' && cuip !== '') ? cuip : (nombre || 'INVALIDO');
-    const base = getSiteBase();
-    const validarUrl = base.endsWith('/') ? base + 'validar.html' : base + '/validar.html';
+    const base = 'https://sistemasc2tzomp-lab.github.io/credentialstzompantepec/';
+    const validarUrl = base + 'validar.html';
     return validarUrl + '?id=' + encodeURIComponent(id);
 }
 
@@ -405,8 +405,17 @@ async function downloadCredential() {
         if (pSrc.startsWith('data:')) {
             photoBase64 = pSrc;
         } else {
-            // Intentar convertir a base64 via fetch (proxy de google drive uc o avatars suele permitirlo con crossOrigin)
-            const imgResp = await fetch(pSrc, { mode: 'cors' }).catch(() => null);
+            // Intentar convertir a base64 via fetch, usando allorigins bypass si es externo
+            let fetchUrl = pSrc;
+            if (pSrc.includes('drive.google.com') || pSrc.includes('http')) {
+                // Si es local pero con URL absoluta, fetch debería funcionar
+                // Si es Google Drive seguro fallará CORS, agregamos el proxy
+                if(pSrc.includes('drive.google.com')){
+                    fetchUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(pSrc);
+                }
+            }
+            
+            const imgResp = await fetch(fetchUrl, { mode: 'cors' }).catch(() => null);
             if (imgResp && imgResp.ok) {
                 const blob = await imgResp.blob();
                 photoBase64 = await new Promise(r => {
@@ -424,8 +433,9 @@ async function downloadCredential() {
 
     const photoSrc = photoBase64;
 
+    // Convertir la firma a base64 si es necesario, aunque las firmas locales no suelen dar problema
     const firmaHtml = data.firma
-        ? '<img src="' + data.firma + '" style="max-width:100%;max-height:100%;object-fit:contain;mix-blend-mode:multiply;">'
+        ? '<img src="' + data.firma + '" crossorigin="anonymous" style="max-width:100%;max-height:100%;object-fit:contain;mix-blend-mode:multiply;">'
         : '';
 
     const html = `<!DOCTYPE html>
@@ -455,7 +465,7 @@ async function downloadCredential() {
 <body>
     <div class="card front-bg" id="dlFront">
         <div class="photo-box">
-            <img src="${photoSrc}"
+            <img src="${photoSrc}" crossorigin="anonymous"
                  onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(data.nombre)}&background=0a192f&color=fff&size=200'">
         </div>
         <div class="data-col">
@@ -466,10 +476,10 @@ async function downloadCredential() {
             <div><span class="f-label">Expedición</span><span class="f-value">${fechaExp}</span></div>
         </div>
         <div class="firma-box">${firmaHtml}</div>
-        <div class="qr-front"><img src="${qrSrc}" alt="QR"></div>
+        <div class="qr-front"><img src="${qrSrc}" crossorigin="anonymous" alt="QR"></div>
     </div>
     <div class="card back-bg" id="dlBack">
-        <div class="qr-back"><img src="${qrSrc}" alt="QR"></div>
+        <div class="qr-back"><img src="${qrSrc}" crossorigin="anonymous" alt="QR"></div>
     </div>
     <script>
     window.onload = async function() {

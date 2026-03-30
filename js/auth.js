@@ -1463,11 +1463,16 @@ function generateGenericTableReportHTML(report) {
                         </tr>
                     </thead>
                     <tbody>
-                        ${report.data.map(row => `
+                        ${report.data.map(row => {
+                            return `
                             <tr style="border-bottom: 1px solid #f1f5f9;">
-                                ${columns.map(col => `<td style="padding: 10px;">${row[col] || '-'}</td>`).join('')}
-                            </tr>
-                        `).join('')}
+                                ${columns.map(col => {
+                                    const key = col.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
+                                    const val = row[key] || row[col.toLowerCase()] || row[col] || '-';
+                                    return '<td style="padding: 10px;">' + val + '</td>';
+                                }).join('')}
+                            </tr>`;
+                        }).join('')}
                     </tbody>
                 </table>
             </div>
@@ -1490,6 +1495,7 @@ function generateGenericTableReportHTML(report) {
             </div>
         </div>
     `;
+    return tableHTML;
 }
 
 function generatePersonalReportHTML(report) {
@@ -2480,18 +2486,57 @@ function uploadToExpediente(cuip) {
 }
 
 function viewExpedienteFolder(cuip, folderLink) {
-    if (folderLink && folderLink.startsWith('http')) {
-        window.open(folderLink, '_blank');
+    let finalFolderLink = folderLink;
+    if (!finalFolderLink || finalFolderLink === 'undefined') {
+        const employee = (currentPersonnelData || []).find(e => e.cuip === cuip || e.id === cuip);
+        if (employee && employee.folder_link) {
+            finalFolderLink = employee.folder_link;
+        }
+    }
+
+    if (!finalFolderLink || finalFolderLink === '' || finalFolderLink === 'undefined') {
+        showNotification('No se encontró el enlace de la carpeta. Creando acceso...', 'warning');
+        window.open(GAS_WEBAPP_URL + '?action=openFolder&folderId=' + cuip, '_blank');
         return;
     }
-    const employee = (currentPersonnelData || []).find(e => e.cuip === cuip || e.id === cuip);
-    if (employee && employee.folder_link) {
-        window.open(employee.folder_link, '_blank');
-        return;
+
+    // Convertir enlace normal a enlace embedded (si es de drive)
+    let embedSrc = finalFolderLink;
+    if (finalFolderLink && finalFolderLink.includes('drive.google.com')) {
+        const folderIdMatch = finalFolderLink.match(/folders\/([-\w]+)/);
+        if (folderIdMatch && folderIdMatch[1]) {
+            embedSrc = `https://drive.google.com/embeddedfolderview?id=${folderIdMatch[1]}#grid`;
+        }
     }
-    showNotification('Generando acceso a la carpeta en la nube...', 'info');
-    // Redirigir via script para resolver folder si no existe
-    window.open(GAS_WEBAPP_URL + '?action=openFolder&folderId=' + cuip, '_blank');
+
+    const modal = document.createElement('div');
+    modal.className = 'modal custom-scrollbar fade-in';
+    modal.style.display = 'flex';
+    modal.innerHTML = `
+        <div class="modal-content" style="width: 90%; max-width: 1200px; height: 85vh; display: flex; flex-direction: column; padding: 25px;">
+            <div class="modal-header" style="flex: 0 0 auto;">
+                <h3><i class="fas fa-folder-open" style="color:#0ea5e9;"></i> Expediente Digital en Nube (Acceso Restringido)</h3>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+            </div>
+            
+            <div class="modal-body" style="flex: 1 1 auto; padding: 15px 0; display: flex; flex-direction: column;">
+                <div style="background:#e0f2fe; color:#0369a1; padding:12px 18px; border-radius:10px; margin-bottom:15px; font-weight:600; font-size:0.9rem; border-left:4px solid #0ea5e9;">
+                    <i class="fas fa-shield-alt" style="margin-right:8px;"></i>
+                    Acceso autorizado. Visualizando documentos sin descarga temporal.
+                </div>
+                <div style="flex: 1; border: 2px solid #e2e8f0; border-radius: 12px; overflow: hidden; position: relative;">
+                    <iframe src="${embedSrc}" width="100%" height="100%" frameborder="0" style="background: white;" allowfullscreen></iframe>
+                </div>
+                <div style="display:flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                    <span style="font-size: 0.8rem; color: #64748b;"><i class="fas fa-info-circle"></i> Sincronización en tiempo real con Google Drive Seguro</span>
+                    <button class="btn" onclick="window.open('${finalFolderLink}', '_blank')" style="background:var(--police-navy); color:white; padding:8px 15px; border-radius:8px; border:none; cursor:pointer;">
+                        <i class="fas fa-external-link-alt"></i> Abrir en Nueva Pestaña
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
 }
 
 async function deletePersonnelRecord(id) {
@@ -6542,90 +6587,6 @@ window.payFine = payFine;
 window.printFineTicket = printFineTicket;
 window.filterFinesRepo = filterFinesRepo;
 window.exportFines = exportFines;
-function showPDFPreviewModal() {
-    const reportSelector = document.getElementById('mainReportSelector');
-    const reportType = reportSelector ? reportSelector.value : 'personal_activo';
-    const title = document.querySelector('#mainReportSelector option:checked').text;
-    const reportHash = 'SPT-' + Math.random().toString(36).substring(2, 10).toUpperCase() + '-' + Date.now().toString(36).toUpperCase();
-
-    showNotification('Generando vista previa del reporte...', 'info');
-
-    const modal = document.createElement('div');
-    modal.className = 'modal-overlay';
-    modal.style.display = 'flex';
-    modal.innerHTML = `
-        <div class="modal-content card" style="max-width: 900px; width: 95%; max-height: 90vh; display:flex; flex-direction:column; padding:0; overflow:hidden;">
-            <div style="background:var(--police-navy); color:white; padding:20px; display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="margin:0;"><i class="fas fa-file-pdf"></i> Vista Previa: ${title}</h3>
-                <button class="action-btn small secondary" onclick="this.closest('.modal-overlay').remove()"><i class="fas fa-times"></i></button>
-            </div>
-            <div id="pdfFrame" style="flex-grow:1; background:#525659; overflow-y:auto; padding:40px 20px;">
-                <div style="background:white; width:210mm; min-height:297mm; margin:0 auto; padding:20mm; box-shadow:0 0 20px rgba(0,0,0,0.5); position:relative; font-family:Montserrat, sans-serif;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid var(--police-navy); padding-bottom:15px; margin-bottom:30px;">
-                        <img src="assets/SPT.png" style="height:80px;">
-                        <div style="text-align:right;">
-                            <h2 style="margin:0; color:var(--police-navy);">SEGURIDAD PÚBLICA</h2>
-                            <p style="margin:0; color:#c5a059; font-weight:700;">TZOMPANTEPEC, TLAXCALA</p>
-                        </div>
-                    </div>
-                    <div style="text-align:center; margin-bottom:40px;">
-                        <h1 style="font-size:1.5rem; text-decoration:underline;">REPORTE OFICIAL DE ${title.toUpperCase()}</h1>
-                        <p style="font-size:0.9rem; color:#64748b;">Fecha de Emisión: ${new Date().toLocaleDateString()} • Folio: ${Math.floor(Math.random() * 1000000)}</p>
-                    </div>
-                    <table style="width:100%; border-collapse:collapse; font-size:0.8rem;">
-                        <thead>
-                            <tr style="background:#f1f5f9;">
-                                <th style="border:1px solid #ddd; padding:8px;">ID</th>
-                                <th style="border:1px solid #ddd; padding:8px;">NOMBRE</th>
-                                <th style="border:1px solid #ddd; padding:8px;">CUIP</th>
-                                <th style="border:1px solid #ddd; padding:8px;">CARGO</th>
-                                <th style="border:1px solid #ddd; padding:8px;">ESTADO</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${currentPersonnelData.slice(0, 15).map(p => `
-                                <tr>
-                                    <td style="border:1px solid #ddd; padding:8px;">${p.id || '—'}</td>
-                                    <td style="border:1px solid #ddd; padding:8px; font-weight:700;">${p.nombre}</td>
-                                    <td style="border:1px solid #ddd; padding:8px;">${p.cuip}</td>
-                                    <td style="border:1px solid #ddd; padding:8px;">${p.cargo}</td>
-                                    <td style="border:1px solid #ddd; padding:8px;">${p.estado}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                    <div style="margin-top:50px; display:grid; grid-template-columns: 1fr 1fr; gap:40px; text-align:center;">
-                        <div>
-                            <div style="border-top:1px solid #1e293b; padding-top:10px; font-weight:700; font-size:0.8rem;">COMANDANCIA DE SEGURIDAD</div>
-                            <small style="color:#64748b;">AUTORIZÓ</small>
-                        </div>
-                        <div>
-                            <div style="border-top:1px solid #1e293b; padding-top:10px; font-weight:700; font-size:0.8rem;">CONTROL INTERNO / ARCHIVO</div>
-                            <small style="color:#64748b;">RECIBIÓ</small>
-                        </div>
-                    </div>
-
-                    <div style="margin-top:60px; padding:15px; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:8px;">
-                        <p style="margin:0; font-family:monospace; font-size:0.65rem; color:#64748b; word-break:break-all;"><strong>HASH DIGITAL DE AUTENTICIDAD:</strong> ${reportHash}</p>
-                        <p style="margin:5px 0 0 0; font-size:0.6rem; color:#94a3b8; text-transform:uppercase;">Este documento cuenta con validez oficial ante el Gobierno de Tzompantepec. Cualquier alteración invalida su contenido.</p>
-                    </div>
-
-                    <div style="margin-top:30px; text-align:center; font-size:0.7rem; color:#94a3b8;">
-                        <p>Documento generado digitalmente por el Sistema Estratégico SPT-C2</p>
-                        <p>Tzompantepec, Tlaxcala - Año 2025</p>
-                    </div>
-                </div>
-            </div>
-            <div style="padding:20px; background:#f8fafc; display:flex; gap:15px; justify-content:center; border-top:1px solid #e2e8f0;">
-                <button class="action-btn" onclick="window.print()" style="padding:10px 40px; background:#10b981;"><i class="fas fa-print"></i> IMPRIMIR PDF</button>
-                <button class="action-btn secondary" onclick="this.closest('.modal-overlay').remove()" style="padding:10px 40px;">CERRAR</button>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(modal);
-}
-
-window.showPDFPreviewModal = showPDFPreviewModal;
 window.initMultasSection = initMultasSection;
 
 // Re-implementación de cambio de estado persistente
@@ -6837,6 +6798,8 @@ function viewExpediente(employeeId) {
     if (employee.curp_link) docs['CURP'] = employee.curp_link;
     if (employee.cuip_doc_link) docs['CUIP Oficial'] = employee.cuip_doc_link;
     if (employee.comprobante_link) docs['Comprobante Domicilio'] = employee.comprobante_link;
+    if (employee.licencia) docs['Licencia de Conducir'] = employee.licencia;
+    if (employee.cartilla_militar) docs['Cartilla Militar'] = employee.cartilla_militar;
 
     const content = `
         <!DOCTYPE html>
@@ -6847,17 +6810,25 @@ function viewExpediente(employeeId) {
             <style>
                 body { font-family: 'Inter', sans-serif; background: #f1f5f9; margin: 0; padding: 40px; }
                 .container { max-width: 1000px; margin: 0 auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-                .header { display: flex; align-items: center; gap: 30px; margin-bottom: 40px; border-bottom: 2px solid #f1f5f9; padding-bottom: 30px; }
+                .header { display: flex; align-items: center; gap: 30px; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 30px; }
                 .photo { width: 150px; height: 180px; border-radius: 15px; border: 4px solid #0a192f; object-fit: cover; }
-                .info h1 { margin: 0; color: #0a192f; }
-                .info p { margin: 5px 0; color: #64748b; font-weight: 500; }
-                .docs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+                .info h1 { margin: 0 0 10px 0; color: #0a192f; }
+                .meta-badges { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+                .badge { background: #e2e8f0; color: #475569; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+                .badge-active { background: #dcfce7; color: #166534; }
+                .badge-warning { background: #fef9c3; color: #854d0e; }
+                .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; background: #f8fafc; padding: 20px; border-radius: 15px; border-left: 5px solid #0a192f; }
+                .grid-info p { margin: 0; color: #334155; font-size: 0.95rem; }
+                .grid-info p i { color: #0a192f; width: 20px; text-align: center; margin-right: 5px; }
+                .docs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-top: 25px; }
                 .doc-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 15px; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 15px; transition: all 0.3s; }
-                .doc-card:hover { transform: translateY(-5px); border-color: #c5a059; shadow: 0 5px 15px rgba(0,0,0,0.05); }
+                .doc-card:hover { transform: translateY(-5px); border-color: #c5a059; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
                 .preview { width: 100%; height: 150px; background: #e2e8f0; border-radius: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
                 .preview img { width: 100%; height: 100%; object-fit: cover; }
-                .btn { padding: 10px 20px; background: #0a192f; color: white; border-radius: 8px; text-decoration: none; font-weight: 600; cursor: pointer; border: none; }
+                .btn { padding: 10px 20px; background: #0a192f; color: white; border-radius: 8px; text-decoration: none; font-weight: 600; cursor: pointer; border: none; text-align: center; width: 100%; box-sizing: border-box; }
                 .btn-pdf { background: #ef4444; }
+                .drive-btn { background: #0ea5e9; margin-top: 20px; display: inline-flex; align-items: center; gap: 10px; padding: 15px 25px; border-radius: 10px; text-decoration: none; color: white; font-weight: bold; transition: background 0.2s; }
+                .drive-btn:hover { background: #0284c7; }
             </style>
         </head>
         <body>
@@ -6866,14 +6837,31 @@ function viewExpediente(employeeId) {
                     <img src="${(function(u){ if(!u) return ''; if(u.startsWith('data:')) return u; const m=u.match(/\/d\/([-\w]+)/)||u.match(/[?&]id=([-\w]+)/); return m? 'https://drive.google.com/thumbnail?id='+m[1]+'&sz=w400':u; })(employee.foto) || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(employee.nombre) + '&background=0a192f&color=fff&size=200&bold=true'}" 
                          onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(employee.nombre)}&background=0a192f&color=fff&size=200&bold=true'"
                          class="photo">
-                    <div class="info">
-                        <h1>${employee.nombre}</h1>
-                        <p><i class="fas fa-id-badge"></i> ID/CUIP: ${employee.cuip || 'ADMINISTRATIVO'}</p>
-                        <p><i class="fas fa-briefcase"></i> Cargo: ${employee.cargo}</p>
-                        <p><i class="fas fa-shield-alt"></i> Estado: ${employee.estado || 'Activo'}</p>
+                    <div class="info" style="flex:1;">
+                        <h1>${employee.nombre} ${employee.apellidos || ''}</h1>
+                        <div class="meta-badges">
+                            <span class="badge"><i class="fas fa-id-badge"></i> ${employee.cuip || 'SIN CUIP'}</span>
+                            <span class="badge badge-active"><i class="fas fa-shield-alt"></i> ${employee.estado || 'Activo'}</span>
+                            <span class="badge"><i class="fas fa-calendar-check"></i> Vigencia Credencial: ${employee.vigencia || '---'}</span>
+                            ${employee.armado === 'SI' ? '<span class="badge badge-warning"><i class="fas fa-gun"></i> Portación Armada</span>' : ''}
+                        </div>
+                        <div class="grid-info">
+                            <p><i class="fas fa-briefcase"></i> <strong>Cargo:</strong> ${employee.cargo}</p>
+                            <p><i class="fas fa-tint"></i> <strong>Tipo de Sangre:</strong> ${employee.tipoSangre || '---'}</p>
+                            <p><i class="fas fa-phone"></i> <strong>Teléfono:</strong> ${employee.telefono || '---'}</p>
+                            <p><i class="fas fa-house-chimney-medical"></i> <strong>En Emergencia:</strong> ${employee.contacto_emergencia || '---'} (${employee.tel_emergencia || '---'})</p>
+                            <p><i class="fas fa-car-side"></i> <strong>Vehículo Asignado:</strong> ${employee.vehiculo || '---'} [${employee.placas || '---'}]</p>
+                            <p><i class="fas fa-crosshairs"></i> <strong>Arma Asignada:</strong> ${employee.arma || employee.numArma || '---'}</p>
+                        </div>
+                        
+                        ${employee.folder_link ? `
+                            <a href="#" onclick="window.opener.viewExpedienteFolder('${employee.cuip}', '${employee.folder_link}'); return false;" class="drive-btn">
+                                <i class="fas fa-folder-tree fa-lg"></i> Abrir Carpeta Maestra en Drive
+                            </a>
+                        ` : ''}
                     </div>
                 </div>
-                <h2>Documentos Digitalizados</h2>
+                <h2>Documentos Especificos Digitalizados</h2>
                 <div class="docs-grid">
                     ${Object.keys(docs).length > 0 ? Object.entries(docs).map(([tipo, url]) => {
                         const isPDF = url.toLowerCase().includes('.pdf') || url.includes('application/pdf');
@@ -6888,7 +6876,7 @@ function viewExpediente(employeeId) {
                                 </a>
                             </div>
                         `;
-                    }).join('') : '<div style="grid-column:1/-1; text-align:center; padding:40px; color:#64748b;"><i class="fas fa-folder-open fa-3x"></i><p>No hay documentos digitalizados cargados en este expediente.</p></div>'}
+                    }).join('') : '<div style="grid-column:1/-1; text-align:center; padding:40px; color:#64748b;"><i class="fas fa-folder-open fa-3x"></i><p>No hay documentos individuales cargados. Utilice el botón superior para ver el repositorio local.</p></div>'}
                 </div>
             </div>
         </body>
@@ -7022,20 +7010,7 @@ function refreshDashboard() {
 }
 
 
-
-function exportReportToPDF() {
-    if(typeof showPDFPreviewModal === 'function') {
-        showPDFPreviewModal();
-    } else {
-        window.print();
-    }
-}
-
-window.getDirectorioSection = getDirectorioSection;
-window.refreshDashboard = refreshDashboard;
-window.refreshAllData = refreshDashboard; // Alias para compatibilidad
-window.exportInventoryExcel = exportInventoryExcel;
-window.exportReportToPDF = exportReportToPDF;
+// removed redundant exportReportToPDF
 window.initInventarioSection = initInventarioSection;
 window.refreshInventory = refreshInventory;
 window.applyInventoryFilters = applyInventoryFilters;

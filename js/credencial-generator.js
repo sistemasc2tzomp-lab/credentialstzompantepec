@@ -226,12 +226,12 @@ function buildCardCSS(baseUrl) {
         .firma-oficial img { max-width:100%; max-height:100%; object-fit:contain; mix-blend-mode:multiply; filter:contrast(1.15); }
 
         .qr-back-pos {
-            position:absolute; bottom:65px; left:50%; transform:translateX(-50%); /* Centrado total en el reverso */
-            width:100px; height:100px; background:white; padding:6px;
+            position:absolute; bottom:15px; right:15px; /* Esquina inferior derecha */
+            width:90px; height:90px; background:white; padding:6px;
             border-radius:10px; display:flex; align-items:center; justify-content:center; z-index:100;
-            box-shadow:0 1px 15px rgba(0,0,0,0.4);
+            box-shadow:0 4px 15px rgba(0,0,0,0.25);
         }
-        .qr-back-pos img { width:100%; height:100%; display:block; }
+        .qr-back-pos img { width:100%; height:100%; display:block; object-fit:contain; }
 
         @media print {
             @page { margin:0; }
@@ -448,7 +448,7 @@ async function downloadCredential() {
         .f-label{font-family:'Montserrat',sans-serif;font-size:6.5pt;font-weight:900;color:#000;text-transform:uppercase;margin:0;line-height:1.1;}
         .f-value{font-family:'Inter',sans-serif;font-size:9pt;font-weight:900;color:#000;text-transform:uppercase;margin:0 0 1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
         .firma-box{position:absolute;bottom:80px;left:15px;width:150px;height:64px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
-        .qr-back{position:absolute; bottom:60px; left:50%; transform:translateX(-50%); width:90px; height:90px; background:white; padding:4px; border-radius:10px;}
+        .qr-back{position:absolute; bottom:15px; right:15px; width:85px; height:85px; background:white; padding:5px; border-radius:8px;}
         .qr-back img{width:100%; height:100%; display:block;}
     </style>
 </head>

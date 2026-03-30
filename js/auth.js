@@ -2334,9 +2334,7 @@ function getCredencialesSection() {
 
                         <div class="signature-box-abs" id="previewSignature"></div>
                         <div class="huella-abs" id="previewHuella"></div>
-
-                        <div class="qr-frontal-pos" id="previewQR"></div>
-                    </div>
+                        <!-- QR placeholder front removed per spec -->
                 </div>
 
                 <div class="card-column">
@@ -3211,40 +3209,101 @@ function getConfiguracionSection() {
     const isAdmin = (getCurrentUserRole() || '').toUpperCase() === 'ADMIN';
     if (!isAdmin) {
         return `
-        <div class="error-container" style = "text-align:center; padding: 100px 20px;" >
-            <i class="fas fa-lock" style="font-size: 5rem; color: #ef4444; margin-bottom: 20px;"></i>
-            <h2 style="color: var(--police-navy);">ACCESO RESTRINGIDO</h2>
-            <p style="color: #64748b;">Solo el Administrador del Sistema tiene privilegios para modificar la infraestructura global.</p>
-            <button class="action-btn" onclick="navigateTo('inicio')" style="margin-top: 20px;">VOLVER AL INICIO</button>
+        <div class="error-container" style="text-align:center; padding: 100px 20px;">
+            <i class="fas fa-user-lock" style="font-size: 5rem; color: #ef4444; margin-bottom: 20px;"></i>
+            <h2 style="color: var(--police-navy); font-family:'Montserrat',sans-serif; font-weight:800;">ACCESO RESTRINGIDO</h2>
+            <p style="color: #64748b; font-size:1.1rem;">Solo el Administrador del Sistema tiene privilegios para modificar la infraestructura global y los parámetros de conexión.</p>
+            <button class="action-btn" onclick="navigateTo('inicio')" style="margin-top: 30px; padding:12px 30px; font-weight:700;">VOLVER AL DASHBOARD</button>
         </div>
         `;
     }
 
-    const gasUrl = typeof GAS_WEBAPP_URL !== 'undefined' ? GAS_WEBAPP_URL : '';
-    const sheetId = typeof SPREADSHEET_ID_CONFIG !== 'undefined' ? SPREADSHEET_ID_CONFIG : '';
-
     return `
-        <div class="config-container fade-in" >
-
-
-        <div class="config-nav-tabs" style="display: flex; gap: 8px; margin-bottom: 30px; background: #f1f5f9; padding: 10px; border-radius: 15px; flex-wrap:wrap;">
-            <button class="config-tab-btn active" onclick="switchConfigTab('general', event)" style="flex:1; min-width:100px; padding:12px 10px; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.8rem; background:white; color:var(--police-navy); box-shadow:0 4px 6px rgba(0,0,0,0.05); transition:all 0.3s;">GENERAL</button>
-            <button class="config-tab-btn" onclick="switchConfigTab('sheets', event)" style="flex:1; min-width:100px; padding:12px 10px; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.8rem; background:transparent; color:#64748b; transition:all 0.3s;">GOOGLE SHEETS</button>
-            <button class="config-tab-btn" onclick="switchConfigTab('drive', event)" style="flex:1; min-width:100px; padding:12px 10px; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.8rem; background:transparent; color:#64748b; transition:all 0.3s;">GOOGLE DRIVE</button>
-            <button class="config-tab-btn" onclick="switchConfigTab('apps_script', event)" style="flex:1; min-width:100px; padding:12px 10px; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.8rem; background:transparent; color:#64748b; transition:all 0.3s;">APPS SCRIPT</button>
-            <button class="config-tab-btn" onclick="switchConfigTab('tarifas', event)" style="flex:1; min-width:110px; padding:12px 10px; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.8rem; background:transparent; color:#64748b; transition:all 0.3s;">TARIFAS MULTAS</button>
-            <button class="config-tab-btn" onclick="switchConfigTab('backup', event)" style="flex:1; min-width:100px; padding:12px 10px; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.8rem; background:transparent; color:#64748b; transition:all 0.3s;">MANTENIMIENTO</button>
-        </div>
-
-        <div id="configContent" class="glass-card" style="padding: 35px; border-radius: 25px; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
-            <!-- La vista se carga por JS en initConfiguracionSection -->
-            <div id="config-initial-load" style="text-align:center; padding:50px;">
-                <i class="fas fa-spinner fa-spin" style="font-size:2rem; color:var(--police-navy);"></i>
-                <p>Cargando subsistema de configuración...</p>
+    <div class="config-revamp fade-in" style="padding: 10px;">
+        
+        <!-- Header Info / Stats Bar -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 30px;">
+            <div style="background: white; padding: 18px; border-radius: 16px; border: 1px solid #e2e8f0; display:flex; align-items:center; gap:15px;">
+                <div style="width:50px; height:50px; background:#f0f9ff; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#0ea5e9; font-size:1.4rem;">
+                    <i class="fas fa-server"></i>
+                </div>
+                <div>
+                    <div style="font-size:0.7rem; color:#94a3b8; font-weight:700; text-transform:uppercase;">Estatus Backend</div>
+                    <div style="font-size:1.1rem; font-weight:900; color:#0f172a;" id="status-backend">Sincronizado</div>
+                </div>
+            </div>
+            <div style="background: white; padding: 18px; border-radius: 16px; border: 1px solid #e2e8f0; display:flex; align-items:center; gap:15px;">
+                <div style="width:50px; height:50px; background:#f0fdf4; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#10b981; font-size:1.4rem;">
+                    <i class="fab fa-google-drive"></i>
+                </div>
+                <div>
+                    <div style="font-size:0.7rem; color:#94a3b8; font-weight:700; text-transform:uppercase;">Nube Drive</div>
+                    <div style="font-size:1.1rem; font-weight:900; color:#0f172a;" id="status-drive">Activa</div>
+                </div>
+            </div>
+            <div style="background: white; padding: 18px; border-radius: 16px; border: 1px solid #e2e8f0; display:flex; align-items:center; gap:15px;">
+                <div style="width:50px; height:50px; background:#fefce8; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#ca8a04; font-size:1.4rem;">
+                    <i class="fas fa-code-branch"></i>
+                </div>
+                <div>
+                    <div style="font-size:0.7rem; color:#94a3b8; font-weight:700; text-transform:uppercase;">Versión Local</div>
+                    <div style="font-size:1.1rem; font-weight:900; color:#0f172a;">v4.0.0-Stable</div>
+                </div>
+            </div>
+            <div style="background: white; padding: 18px; border-radius: 16px; border: 1px solid #e2e8f0; display:flex; align-items:center; gap:15px;">
+                <div style="width:50px; height:50px; background:#fff1f2; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#e11d48; font-size:1.4rem;">
+                    <i class="fas fa-shield-heart"></i>
+                </div>
+                <div>
+                    <div style="font-size:0.7rem; color:#94a3b8; font-weight:700; text-transform:uppercase;">Cifrado SSL</div>
+                    <div style="font-size:1.1rem; font-weight:900; color:#0f172a;">256-bit AES</div>
+                </div>
             </div>
         </div>
+
+        <div style="display: flex; gap: 25px; align-items: flex-start; flex-wrap: wrap;">
+            
+            <!-- Side Navigation -->
+            <div class="config-sidebar" style="width: 250px; background: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); overflow: hidden; position:sticky; top:20px;">
+                <div style="padding: 20px 15px; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; gap:10px;">
+                    <i class="fas fa-sliders" style="color:var(--police-navy);"></i>
+                    <span style="font-weight:800; font-family:'Montserrat',sans-serif; color:var(--police-navy); font-size:0.9rem;">RESERVADO</span>
+                </div>
+                <div class="config-nav-tabs" style="display: flex; flex-direction: column; padding: 10px;">
+                    <button class="config-tab-btn active" onclick="switchConfigTab('general', event)" style="text-align:left; padding:12px 15px; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.85rem; background:white; color:var(--police-navy); display:flex; align-items:center; gap:10px; transition:all 0.2s;">
+                        <i class="fas fa-home" style="width:20px;"></i> General
+                    </button>
+                    <button class="config-tab-btn" onclick="switchConfigTab('sheets', event)" style="text-align:left; padding:12px 15px; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.85rem; background:transparent; color:#64748b; display:flex; align-items:center; gap:10px; transition:all 0.2s;">
+                        <i class="fas fa-table" style="width:20px;"></i> Conexión Sheets
+                    </button>
+                    <button class="config-tab-btn" onclick="switchConfigTab('drive', event)" style="text-align:left; padding:12px 15px; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.85rem; background:transparent; color:#64748b; display:flex; align-items:center; gap:10px; transition:all 0.2s;">
+                        <i class="fab fa-google-drive" style="width:20px;"></i> Almacén Drive
+                    </button>
+                    <button class="config-tab-btn" onclick="switchConfigTab('apps_script', event)" style="text-align:left; padding:12px 15px; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.85rem; background:transparent; color:#64748b; display:flex; align-items:center; gap:10px; transition:all 0.2s;">
+                        <i class="fas fa-code" style="width:20px;"></i> Apps Script
+                    </button>
+                    <hr style="border:none; border-top:1px solid #f1f5f9; margin:10px 0;">
+                    <button class="config-tab-btn" onclick="switchConfigTab('tarifas', event)" style="text-align:left; padding:12px 15px; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.85rem; background:transparent; color:#64748b; display:flex; align-items:center; gap:10px; transition:all 0.2s;">
+                        <i class="fas fa-receipt" style="width:20px;"></i> Tarifas de Multas
+                    </button>
+                    <button class="config-tab-btn" onclick="switchConfigTab('backup', event)" style="text-align:left; padding:12px 15px; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.85rem; background:transparent; color:#e11d48; display:flex; align-items:center; gap:10px; transition:all 0.2s;">
+                        <i class="fas fa-trash-can" style="width:20px;"></i> Mantenimiento
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div id="configContent" style="flex: 1; min-width: 350px;">
+                <div style="background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.04); padding: 50px 30px; text-align:center;">
+                    <i class="fas fa-spinner fa-spin" style="font-size:2.5rem; color:var(--police-navy); margin-bottom:15px;"></i>
+                    <h4 style="margin:0; font-family:'Montserrat',sans-serif;">Preparando Subsistema Seguro</h4>
+                    <p style="color:#64748b;">Validando credenciales de administrador...</p>
+                </div>
+            </div>
+
+        </div>
     </div>
-        `;
+    `;
 }
 
 
@@ -4504,9 +4563,9 @@ function renderPersonnelTable() {
                 <td>
                     <div class="acciones-pro">
                         <button class="btn-tbl bt-view" title="Ver Expediente" onclick="viewEmployeeDetails('${person.cuip || person.id}')"><i class="fas fa-eye"></i></button>
+                        <button class="btn-tbl bt-folder" title="Ver Documentos PDF (Drive)" onclick="viewExpedienteFolder('${person.cuip || person.id}', '${person.folder_link || ''}')" style="background:#10b981; color:white;"><i class="fas fa-folder-open"></i></button>
                         <button class="btn-tbl bt-edit" title="Editar Datos" onclick="editEmployee('${person.cuip || person.id}')"><i class="fas fa-pen"></i></button>
                         <button class="btn-tbl bt-cred" title="Emitir Credencial" onclick="generateEmployeeCredential('${person.cuip || person.id}')"><i class="fas fa-id-card"></i></button>
-                        <button class="btn-tbl bt-folder" title="Ver Carpeta Drive" onclick="viewExpedienteFolder('${person.cuip}', '${person.folder_link || ''}')"><i class="fas fa-folder-open"></i></button>
                         ${esAdmin ? `<button class="btn-tbl bt-del" title="Eliminar Registro" onclick="deletePersonnelRecord('${person.cuip || person.id}')"><i class="fas fa-trash"></i></button>` : ''}
                     </div>
                 </td>
@@ -4590,6 +4649,11 @@ function renderPersonnelCards() {
                     <button class="icon-btn" onclick="viewEmployeeDetails('${person.cuip}')" title="Ver">
                         <i class="fas fa-eye"></i>
                     </button>
+                    ${person.folder_link ? `
+                    <button class="icon-btn" onclick="viewExpedienteFolder('${person.cuip}', '${person.folder_link}')" title="Ver Documentos PDF" style="color:#10b981;">
+                        <i class="fas fa-folder-open"></i>
+                    </button>
+                    ` : ''}
                     ${tienePermiso('editar') ? `
                     <button class="icon-btn" onclick="editEmployee('${person.cuip}')" title="Editar">
                         <i class="fas fa-edit"></i>
@@ -7624,14 +7688,16 @@ function switchConfigTab(tab, eventOrig) {
         b.style.color = '#64748b';
     });
 
-    // Si viene de un evento
     const sourceEvent = eventOrig || window.event;
-    if (sourceEvent && sourceEvent.target && sourceEvent.target.classList) {
-        sourceEvent.target.classList.add('active');
-        sourceEvent.target.style.background = 'white';
-        sourceEvent.target.style.color = 'var(--police-navy)';
+    let target = null;
+    if (sourceEvent && sourceEvent.currentTarget) target = sourceEvent.currentTarget;
+    else if (sourceEvent && sourceEvent.target) target = sourceEvent.target.closest('.config-tab-btn');
+
+    if (target) {
+        target.classList.add('active');
+        target.style.background = 'white';
+        target.style.color = 'var(--police-navy)';
     } else {
-        // Seleccionamos el primero o el correspondiente por texto si no hay evento
         const fallbackBtn = Array.from(btns).find(b => b.textContent.toLowerCase().includes(tab.toLowerCase()));
         if (fallbackBtn) {
             fallbackBtn.classList.add('active');
@@ -7643,80 +7709,105 @@ function switchConfigTab(tab, eventOrig) {
     const container = document.getElementById('configContent');
     if (!container) return;
 
+    // Common card wrapper style (inline CSS for stability)
+    const cardStyle = `background:white; border-radius:20px; padding:35px; border:1px solid #f1f5f9; box-shadow:0 10px 40px rgba(0,0,0,0.03);`;
+    const titleStyle = `margin-top:0; margin-bottom:25px; font-family:'Montserrat',sans-serif; font-weight:800; color:var(--police-navy); display:flex; align-items:center; gap:12px;`;
+    const inputGroupStyle = `margin-bottom:20px;`;
+    const labelStyle = `display:block; font-size:0.75rem; font-weight:800; color:#94a3b8; text-transform:uppercase; margin-bottom:8px;`;
+
     if (tab === 'general') {
         container.innerHTML = `
-            <div class="config-card" style="background: white; border-radius: 15px; padding: 30px; border: 1px solid #e2e8f0;">
-                <h3 style="margin-top: 0; color: #0a192f;"><i class="fas fa-cogs"></i> Configuración General</h3>
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
-                    <div class="form-group"><label>Nombre Municipio</label><input type="text" id="configMunicipio" value="Tzompantepec" class="form-control"></div>
-                    <div class="form-group"><label>Estado</label><input type="text" value="Tlaxcala" class="form-control"></div>
+            <div class="config-card" style="${cardStyle}">
+                <h3 style="${titleStyle}"><i class="fas fa-city" style="color:#c5a059;"></i> Identidad Municipal</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div style="${inputGroupStyle}">
+                        <label style="${labelStyle}">Nombre del Municipio</label>
+                        <input type="text" id="configMunicipio" value="Tzompantepec" class="form-control" style="border-radius:10px; padding:12px;">
+                    </div>
+                    <div style="${inputGroupStyle}">
+                        <label style="${labelStyle}">Estado / Entidad</label>
+                        <input type="text" value="Tlaxcala" class="form-control" style="border-radius:10px; padding:12px;">
+                    </div>
+                </div>
+                <div style="${inputGroupStyle} margin-top:10px;">
+                    <label style="${labelStyle}">Lema Institucional</label>
+                    <input type="text" value="Seguridad y Progreso para Todos" class="form-control" style="border-radius:10px; padding:12px;">
+                </div>
+                <div style="margin-top:25px; pt:20px; border-top:1px solid #f1f5f9; text-align:right;">
+                    <button class="action-btn" onclick="saveGeneralConfig()"><i class="fas fa-save"></i> Guardar Cambios</button>
                 </div>
             </div>`;
     } else if (tab === 'sheets') {
-        const sheetId = typeof SPREADSHEET_ID_CONFIG !== 'undefined' ? SPREADSHEET_ID_CONFIG : 'ID-NO-CONFIGURADO';
+        const sheetId = typeof SPREADSHEET_ID_CONFIG !== 'undefined' ? SPREADSHEET_ID_CONFIG : '---';
         container.innerHTML = `
-            <div class="config-card" style="background: white; border-radius: 15px; padding: 30px; border: 1px solid #e2e8f0;">
-                <h3 style="margin-top: 0; color: #0a192f;"><i class="fas fa-database"></i> Conexión Google Sheets</h3>
-                <div class="form-group">
-                    <label>Script WebApp URL</label>
-                    <input type="text" id="configGasUrl" value="${typeof GAS_WEBAPP_URL !== 'undefined' ? GAS_WEBAPP_URL : ''}" class="form-control" style="width:100%; margin-bottom:15px;">
+            <div class="config-card" style="${cardStyle}">
+                <h3 style="${titleStyle}"><i class="fas fa-database" style="color:#0ea5e9;"></i> Motor de Datos (Sheets)</h3>
+                <p style="color:#64748b; font-size:0.9rem; margin-bottom:25px;">SIBIM utiliza Google Sheets como base de datos persistente mediante la API REST de AppScript.</p>
+                
+                <div style="${inputGroupStyle}">
+                    <label style="${labelStyle}">Spreadsheet ID (Hoja de Cálculo)</label>
+                    <input type="text" id="configSheetId" value="${sheetId}" class="form-control" style="border-radius:10px; font-family:monospace; font-size:0.85rem;">
                 </div>
-                <div class="form-group">
-                    <label>ID Hoja de Cálculo (SpreadsheetID)</label>
-                    <input type="text" id="configSheetId" value="${sheetId}" class="form-control" style="width:100%;">
+                
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:15px; padding:20px; display:flex; gap:15px; align-items:center;">
+                    <i class="fas fa-link" style="color:#64748b; font-size:1.5rem;"></i>
+                    <div style="flex:1;">
+                        <div style="font-weight:700; color:var(--police-navy); font-size:0.85rem;">Vinculación Activa</div>
+                        <div style="font-size:0.8rem; color:#64748b;">La conexión se valida cada 30 min automáticamente.</div>
+                    </div>
+                    <button class="action-btn secondary small" onclick="testConnection()">Test</button>
                 </div>
-                <div style="margin-top:20px; padding:15px; background:#f0f9ff; border-radius:10px; border:1px solid #bae6fd; display:flex; gap:15px; align-items:center;">
-                    <i class="fas fa-cloud-check" style="font-size:2rem; color:#0369a1;"></i>
-                    <p style="margin:0; font-size:0.85rem; color:#0369a1;"><i class="fas fa-info-circle"></i> Esta URL permite sincronizar bases de datos de personal y equipo en tiempo real desde los servidores de Google.</p>
-                </div>
-                <div style="margin-top:20px; display:flex; gap:10px;">
-                    <button class="action-btn" onclick="saveGasConfig()"><i class="fas fa-sync"></i> Re-vincular</button>
-                    <button class="action-btn secondary" onclick="testConnection()"><i class="fas fa-vial"></i> Test</button>
+
+                <div style="margin-top:25px; text-align:right;">
+                    <button class="action-btn" onclick="saveSheetConfig()"><i class="fas fa-sync"></i> Re-vincular Base</button>
                 </div>
             </div>`;
     } else if (tab === 'drive') {
         container.innerHTML = `
-            <div class="config-card" style="background: white; border-radius: 15px; padding: 30px; border: 1px solid #e2e8f0;">
-                <h3 style="margin-top: 0; color: #0a192f;"><i class="fab fa-google-drive"></i> Conexión Google Drive</h3>
-                <div style="margin-top:20px; padding:15px; background:#f0fdf4; border-radius:10px; border:1px solid #bbf7d0; display:flex; gap:15px; align-items:center;" id="driveStatusBanner">
-                    <i class="fas fa-check-circle" style="font-size:2rem; color:#16a34a;"></i>
-                    <div>
-                        <h4 style="margin:0; color:#166534;">API de Drive Conectada</h4>
-                        <p style="margin:0; font-size:0.85rem; color:#15803d;">Los expedientes y fotos se están guardando correctamente en la nube.</p>
+            <div class="config-card" style="${cardStyle}">
+                <h3 style="${titleStyle}"><i class="fab fa-google-drive" style="color:#10b981;"></i> Archivos y Expedientes (Drive)</h3>
+                
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                    <div style="background:#f0FDF4; border:1px solid #DCFCE7; border-radius:15px; padding:20px; text-align:center;">
+                        <i class="fas fa-folder-tree fa-2x" style="color:#16a34a; margin-bottom:10px;"></i>
+                        <div style="font-weight:800; font-size:0.8rem; color:#166534;">FOLDER EXPEDIENTES</div>
+                        <div style="font-family:monospace; font-size:0.75rem; color:#15803d; margin:10px 0;">1W5...9pM</div>
+                        <button class="action-btn secondary xsmall" style="width:100%; border-radius:8px;">Cambiar</button>
+                    </div>
+                    <div style="background:#f0FDF4; border:1px solid #DCFCE7; border-radius:15px; padding:20px; text-align:center;">
+                        <i class="fas fa-image fa-2x" style="color:#16a34a; margin-bottom:10px;"></i>
+                        <div style="font-weight:800; font-size:0.8rem; color:#166534;">FOLDER FOTOGRAFÍAS</div>
+                        <div style="font-family:monospace; font-size:0.75rem; color:#15803d; margin:10px 0;">1B8...Xz4</div>
+                        <button class="action-btn secondary xsmall" style="width:100%; border-radius:8px;">Cambiar</button>
                     </div>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top:25px;">
-                    <div style="padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px; text-align:center;">
-                        <i class="fas fa-folder-open fa-3x" style="color: #c5a059;"></i>
-                        <h4 style="margin: 15px 0 5px;">Raíz de Expedientes</h4>
-                        <p style="font-size:0.8rem; color:#64748b; margin-bottom:15px;">Carpeta principal donde se almacenan todos los PDF.</p>
-                        <button class="action-btn secondary small" onclick="window.open('https://drive.google.com/', '_blank')"><i class="fas fa-external-link-alt"></i> Abrir Carpeta</button>
-                    </div>
-                    <div style="padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px; text-align:center;">
-                        <i class="fas fa-images fa-3x" style="color: #0ea5e9;"></i>
-                        <h4 style="margin: 15px 0 5px;">Carpeta de Fotografías</h4>
-                        <p style="font-size:0.8rem; color:#64748b; margin-bottom:15px;">Imágenes de personal y resguardos.</p>
-                        <button class="action-btn secondary small" onclick="window.open('https://drive.google.com/', '_blank')"><i class="fas fa-external-link-alt"></i> Abrir Carpeta</button>
-                    </div>
-                </div>
-                <div style="margin-top:25px; display:flex; gap:10px; justify-content: flex-end;">
-                    <button class="action-btn secondary" onclick="testDriveConnection()"><i class="fas fa-sync"></i> Verificar Estado</button>
+
+                <div style="margin-top:25px; padding:15px; background:#fefce8; border:1px solid #fef08a; border-radius:12px; font-size:0.85rem; color:#854d0e; display:flex; gap:10px;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Asegúrese que la cuenta de servicio de Google tenga permisos de 'Editor' en estas carpetas.</span>
                 </div>
             </div>`;
     } else if (tab === 'apps_script') {
         container.innerHTML = `
-            <div class="config-card" style="background: white; border-radius: 15px; padding: 30px; border: 1px solid #e2e8f0;">
-                <h3 style="margin-top: 0; color: #0a192f;"><i class="fas fa-code"></i> Consola de Google Apps Script</h3>
-                <div style="margin-top:20px; padding:15px; background:#f0fdf4; border-radius:10px; border:1px solid #bbf7d0; display:flex; gap:15px; align-items:center;">
-                    <i class="fas fa-check-circle" style="font-size:2rem; color:#16a34a;"></i>
-                    <div>
-                        <h4 style="margin:0; color:#166534;">Backend Operativo</h4>
-                        <p style="margin:0; font-size:0.85rem; color:#15803d;">Todas las funciones en Code.gs están listas y operando.</p>
-                    </div>
+            <div class="config-card" style="${cardStyle}">
+                <h3 style="${titleStyle}"><i class="fas fa-code" style="color:#4f46e5;"></i> Backend Apps Script</h3>
+                <div style="${inputGroupStyle}">
+                    <label style="${labelStyle}">Webhook URL (WebApp Deployment)</label>
+                    <input type="password" id="configGasUrl" value="${typeof GAS_WEBAPP_URL !== 'undefined' ? GAS_WEBAPP_URL : ''}" class="form-control" style="border-radius:10px;">
+                    <p style="font-size:0.75rem; color:#94a3b8; margin-top:5px;">Esta URL es sensible. No la comparta con personal no autorizado.</p>
                 </div>
-                <div style="margin-top:25px; display:flex; gap:10px; justify-content: flex-end;">
-                    <button class="action-btn secondary" onclick="window.open('https://script.google.com/', '_blank')"><i class="fas fa-external-link-alt"></i> Abrir Editor Apps Script</button>
-                    <button class="action-btn primary" onclick="alert('Funciones sincronizadas correctamente.')"><i class="fas fa-sync"></i> Sincronizar Funciones</button>
+                
+                <div style="display:flex; justify-content:space-between; align-items:center; background:#EEF2FF; border:1px solid #E0E7FF; border-radius:15px; padding:15px;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <i class="fas fa-microchip" style="color:#4f46e5;"></i>
+                        <span style="font-weight:700; color:#3730a3; font-size:0.85rem;">Instancia de Ejecución</span>
+                    </div>
+                    <span style="background:#4f46e5; color:white; padding:4px 10px; border-radius:20px; font-size:0.7rem; font-weight:800;">Google V8 Engine</span>
+                </div>
+
+                <div style="margin-top:25px; display:flex; gap:10px; justify-content:flex-end;">
+                    <button class="action-btn secondary" onclick="window.open('https://script.google.com/', '_blank')"><i class="fas fa-external-link-alt"></i> Abrir Editor</button>
+                    <button class="action-btn" onclick="saveGasConfig()"><i class="fas fa-sync"></i> Actualizar Enlace</button>
                 </div>
             </div>`;
     } else if (tab === 'tarifas') {
@@ -7724,64 +7815,61 @@ function switchConfigTab(tab, eventOrig) {
             { id: 1, concepto: 'Exceso de Velocidad', monto: 800 },
             { id: 2, concepto: 'Falta de Licencia', monto: 550 },
             { id: 3, concepto: 'Pasarse el Alto', monto: 950 },
-            { id: 4, concepto: 'Cinturón de Seguridad', monto: 450 },
-            { id: 5, concepto: 'Estacionarse en Lugar Prohibido', monto: 600 },
-            { id: 6, concepto: 'Conducir sin Seguro', monto: 700 }
+            { id: 4, concepto: 'Cinturón de Seguridad', monto: 450 }
         ];
-        localStorage.setItem('sibim_tarifas', JSON.stringify(savedTarifas));
-        window.tarifasList = savedTarifas;
-
+        
         const rowsHtml = savedTarifas.map(t => `
-            <tr id="tarifa-row-${t.id}">
-                <td style="padding:12px 10px;">${t.id}</td>
-                <td style="padding:12px 10px;">
-                    <input id="tarifa-concepto-${t.id}" type="text" value="${t.concepto}" style="width:100%;padding:6px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:0.9rem;">
+            <tr style="border-bottom:1px solid #f1f5f9;">
+                <td style="padding:15px 10px; font-weight:700; color:var(--police-navy); font-size:0.85rem;">#${t.id}</td>
+                <td style="padding:15px 10px;">
+                    <input type="text" value="${t.concepto}" style="width:100%; border:none; background:#f8fafc; padding:8px 12px; border-radius:8px; font-size:0.85rem; font-weight:600;">
                 </td>
-                <td style="padding:12px 10px;">
-                    <input id="tarifa-monto-${t.id}" type="number" value="${t.monto}" style="width:100%;padding:6px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:0.9rem;font-weight:700;">
-                </td>
-                <td style="padding:12px 10px;">
-                    <div style="display:flex;gap:6px;">
-                        <button onclick="saveTarifa(${t.id})" style="padding:6px 12px;background:#10b981;color:white;border:none;border-radius:6px;cursor:pointer;font-size:0.8rem;font-weight:700;"><i class='fas fa-save'></i></button>
-                        <button onclick="deleteTarifa(${t.id})" style="padding:6px 12px;background:#ef4444;color:white;border:none;border-radius:6px;cursor:pointer;font-size:0.8rem;"><i class='fas fa-trash'></i></button>
+                <td style="padding:15px 10px;">
+                    <div style="display:flex; align-items:center; background:#f8fafc; border-radius:8px; padding-left:10px;">
+                        <span style="color:#94a3b8; font-weight:800;">$</span>
+                        <input type="number" value="${t.monto}" style="width:80px; border:none; background:transparent; padding:8px; font-size:0.85rem; font-weight:800; color:var(--police-navy);">
                     </div>
+                </td>
+                <td style="padding:15px 10px; text-align:right;">
+                    <button onclick="saveTarifa(${t.id})" style="width:32px; height:32px; border-radius:8px; border:none; background:#ecfdf5; color:#059669; cursor:pointer;"><i class="fas fa-save"></i></button>
                 </td>
             </tr>`).join('');
 
         container.innerHTML = `
-            <div class="config-card" style="background:white;border-radius:15px;padding:30px;border:1px solid #e2e8f0;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;">
-                    <h3 style="margin:0;color:#0a192f;"><i class="fas fa-receipt" style="color:#c5a059;"></i> Tarifas de Multas de Tr&aacute;nsito</h3>
-                    <button onclick="addTarifa()" style="padding:10px 20px;background:var(--police-navy);color:white;border:none;border-radius:10px;cursor:pointer;font-weight:700;">
-                        <i class="fas fa-plus"></i> Nueva Tarifa
-                    </button>
+            <div class="config-card" style="${cardStyle}">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
+                    <h3 style="margin:0; font-family:'Montserrat',sans-serif; font-weight:800; color:var(--police-navy);"><i class="fas fa-receipt" style="color:#c5a059;"></i> Catálogo de Tarifas</h3>
+                    <button class="action-btn small" onclick="addTarifa()"><i class="fas fa-plus"></i> Nuevo</button>
                 </div>
-                <table style="width:100%;border-collapse:collapse;">
+                <table style="width:100%; border-collapse:collapse;">
                     <thead>
-                        <tr style="background:#f1f5f9;">
-                            <th style="padding:12px 10px;text-align:left;font-size:0.8rem;text-transform:uppercase;color:#64748b;width:40px;">#</th>
-                            <th style="padding:12px 10px;text-align:left;font-size:0.8rem;text-transform:uppercase;color:#64748b;">Concepto de Infracci&oacute;n</th>
-                            <th style="padding:12px 10px;text-align:left;font-size:0.8rem;text-transform:uppercase;color:#64748b;width:130px;">Monto ($)</th>
-                            <th style="padding:12px 10px;text-align:left;font-size:0.8rem;text-transform:uppercase;color:#64748b;width:100px;">Acci&oacute;n</th>
+                        <tr style="text-align:left;">
+                            <th style="${labelStyle} padding:10px;">ID</th>
+                            <th style="${labelStyle} padding:10px;">CONCEPTO DE INFRACCIÓN</th>
+                            <th style="${labelStyle} padding:10px;">MONTO</th>
+                            <th style="${labelStyle} padding:10px; text-align:right;">ACCIONES</th>
                         </tr>
                     </thead>
-                    <tbody id="tarifasTableBody">${rowsHtml}</tbody>
+                    <tbody>${rowsHtml}</tbody>
                 </table>
-                <div style="margin-top:20px;padding:12px 15px;background:#f0f9ff;border-radius:10px;border:1px solid #bae6fd;font-size:0.85rem;color:#0369a1;">
-                    <i class="fas fa-info-circle"></i> Las tarifas se aplican autom&aacute;ticamente al seleccionar el motivo de infracci&oacute;n en el m&oacute;dulo de Multas.
-                </div>
             </div>`;
-    } else if (tab === 'backup' || tab === 'mantenimiento') {
+    } else if (tab === 'backup') {
         container.innerHTML = `
-            <div class="config-card" style="background: white; border-radius: 15px; padding: 30px; border: 1px solid #e2e8f0;">
-                <h3 style="margin-top: 0; color: #ef4444;"><i class="fas fa-hammer"></i> Mantenimiento del Sistema</h3>
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-top:20px;">
-                    <button class="action-btn small danger" onclick="clearLogs()" style="background:#ef4444;">Vaciar Auditoría Logs</button>
-                    <button class="action-btn small secondary" onclick="checkUpdates()">Buscar Actualizaciones</button>
-                    <button class="action-btn small secondary" onclick="backupSystem()">Generar Respaldo Local</button>
+            <div class="config-card" style="${cardStyle} border:1px solid #FECACA; background:#FFF1F1;">
+                <h3 style="${titleStyle} color:#B91C1C;"><i class="fas fa-triangle-exclamation"></i> Zona Peligrosa</h3>
+                <p style="color:#7F1D1D; font-size:0.9rem; margin-bottom:25px;">Estas acciones son definitivas y afectan la auditoría y persistencia local del sistema.</p>
+                
+                <div style="display:grid; grid-template-columns: 1fr; gap:15px;">
+                    <button class="action-btn danger" style="justify-content:center;" onclick="clearLogs()">
+                        <i class="fas fa-eraser"></i> PURGAR LOGS DE AUDITORÍA
+                    </button>
+                    <button class="action-btn secondary" style="justify-content:center; border-color:#B91C1C; color:#B91C1C;" onclick="resetLocalStorage()">
+                        <i class="fas fa-undo"></i> REINICIAR CACHÉ DEL NAVEGADOR
+                    </button>
                 </div>
-                <div style="margin-top:30px; font-size:0.8rem; color:#94a3b8; border-top:1px solid #f1f5f9; padding-top:15px;">
-                    SPT Framework v2.6.4-GOLD • Build 2026.03.04
+
+                <div style="margin-top:40px; text-align:center; color:#B91C1C; font-size:0.75rem; font-weight:700; opacity:0.6;">
+                    SIBIM FRAMEWORK CORE v4.0.0-EMERALD
                 </div>
             </div>`;
     }

@@ -639,13 +639,13 @@ function printMunicipalReport(reportType) {
                 <table>
                     <thead>
                         <tr>
-                            ${config.columnas.map(col => `<th>${col}</th>`).join('')}
+                            ${(config.columnas || []).map(col => `<th>${col}</th>`).join('')}
                         </tr>
                     </thead>
                     <tbody>
-                        ${report.data.map(row => `
+                        ${(report.data || []).map(row => `
                             <tr>
-                                ${config.columnas.map(col => {
+                                ${(config.columnas || []).map(col => {
         // Mapeo inteligente de keys
         const key = col.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
         return `<td>${row[key] || row[col.toLowerCase()] || row[col] || '---'}</td>`;
@@ -696,12 +696,90 @@ function printMunicipalReport(reportType) {
  * Exportar reporte a PDF (Simulado vía Impresión)
  */
 function exportReportToPDF(report) {
-    if (!report) {
-        showNotification('No hay datos para exportar', 'error');
+    if (!report || !report.data || !Array.isArray(report.data)) {
+        showNotification('No hay datos válidos para exportar a PDF', 'error');
         return;
     }
-    // Usar la misma lógica de impresión oficial
-    printMunicipalReport(report.reportType || 'personal_activo');
+
+    // Try to use html2pdf if available, otherwise fallback to print
+    if (typeof html2pdf !== 'undefined') {
+        showNotification('Generando PDF oficial...', 'info');
+        
+        // Generate a temporary hidden container with the report HTML
+        const tempContainer = document.createElement('div');
+        tempContainer.style.position = 'absolute';
+        tempContainer.style.left = '-9999px';
+        tempContainer.style.top = '-9999px';
+        
+        // Use the same logic as the print functionality to build the HTML
+        const params = reportConfig[report.reportType || 'personal_activo'];
+        const title = report.title || params?.title || 'Reporte';
+        const columns = report.columns || params?.columns || [];
+        const hoy = new Date();
+        const numReporte = 'REP-' + hoy.getFullYear() + String(hoy.getMonth()+1).padStart(2,'0') + String(hoy.getDate()).padStart(2,'0') + '-' + Math.floor(Math.random()*1000);
+        
+        // Simple HTML structure specific for html2pdf
+        tempContainer.innerHTML = `
+            <div style="padding: 20px; font-family: 'Inter', sans-serif; color: #0f172a; width: 1000px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #1e293b; padding-bottom: 10px; margin-bottom: 20px;">
+                    <div>
+                        <h1 style="color: #0f172a; margin: 0; font-family: 'Montserrat', sans-serif; font-size: 24px;">DIRECCIÓN DE SEGURIDAD PÚBLICA</h1>
+                        <h2 style="color: #475569; margin: 5px 0 0; font-size: 16px;">SISTEMA INTEGRAL BLINDADO DE INFORMACIÓN (SIBIM)</h2>
+                        <h3 style="color: #94a3b8; margin: 5px 0 0; font-size: 14px;">H. AYUNTAMIENTO DE TZOMPANTEPEC</h3>
+                    </div>
+                </div>
+                
+                <h2 style="text-align: center; color: #1e293b; font-family: 'Montserrat', sans-serif; margin-bottom: 20px;">${title}</h2>
+                <div style="font-size: 10px; color: #64748b; margin-bottom: 15px;">Fecha de emisión: ${hoy.toLocaleString('es-MX')} | Folio: ${numReporte}</div>
+                
+                <table style="width: 100%; border-collapse: collapse; font-size: 10px; text-align: left; margin-bottom: 30px;">
+                    <thead>
+                        <tr style="background-color: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
+                            <th style="padding: 8px; border-bottom: 2px solid #94a3b8;">NO.</th>
+                            ${columns.map(col => `<th style="padding: 8px; border-bottom: 2px solid #94a3b8;">${col}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${report.data.map((row, idx) => `
+                            <tr style="border-bottom: 1px solid #e2e8f0; ${idx % 2 === 0 ? 'background-color: #fff;' : 'background-color: #f8fafc;'}">
+                                <td style="padding: 8px;">${idx + 1}</td>
+                                ${columns.map(col => {
+                                    const key = col.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
+                                    return '<td style="padding: 8px;">' + (row[key] || row[col.toLowerCase()] || row[col] || '---') + '</td>';
+                                }).join('')}
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+        
+        document.body.appendChild(tempContainer);
+
+        const safeTitle = title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        
+        const opt = {
+            margin:       10,
+            filename:     `${safeTitle}_${numReporte}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true },
+            jsPDF:        { unit: 'mm', format: 'legal', orientation: 'landscape' }
+        };
+
+        html2pdf().set(opt).from(tempContainer).save().then(() => {
+            document.body.removeChild(tempContainer);
+            showNotification('PDF descargado exitosamente', 'success');
+        }).catch(err => {
+            console.error("Error generando PDF:", err);
+            document.body.removeChild(tempContainer);
+            showNotification('Error visualizando el PDF, intentando modo de impresión', 'warning');
+            printMunicipalReport(report.reportType || 'personal_activo');
+        });
+    } else {
+        // Fallback robusto a la impresión nativa si la librería no está
+        console.warn('html2pdf no detectado. Utilizando fallback printMunicipalReport.');
+        printMunicipalReport(report.reportType || 'personal_activo');
+    }
 }
 
 // Hacer funciones globales

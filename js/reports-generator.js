@@ -420,12 +420,16 @@ function exportReportToPDF(report) {
 // Exportar reporte a Excel (CSV)
 function exportReportToExcel(report) {
     if (!report || !report.data || report.data.length === 0) {
-        alert('No hay datos para exportar');
+        showNotification('No hay datos para exportar', 'warning');
         return;
     }
 
-    const config = reportConfig[report.type] || { columnas: Object.keys(report.data[0]) };
-    const headers = config.columnas;
+    // Seguridad ante configuraci\u00f3n faltante
+    const config = (typeof reportConfig !== 'undefined' ? reportConfig[report.type] : null) || 
+                   (typeof extendedReportConfig !== 'undefined' ? extendedReportConfig[report.type] : null) || 
+                   { columnas: Object.keys(report.data[0]), titulo: 'Reporte SIBIM' };
+                   
+    const headers = config.columnas || Object.keys(report.data[0]);
 
     // Crear contenido CSV con BOM para Excel (UTF-8 con BOM)
     let csvContent = '\uFEFF';
@@ -441,7 +445,6 @@ function exportReportToExcel(report) {
             // Buscar valor por key normalizada o por exact match del header
             let value = row[key];
             if (value === undefined) {
-                // Intento alternativo: buscar key que contenga la palabra o coincide ignorando mayúsculas
                 const foundKey = Object.keys(row).find(k => k.toLowerCase() === header.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
                 value = foundKey ? row[foundKey] : (row[header] || '');
             }
@@ -457,16 +460,27 @@ function exportReportToExcel(report) {
         csvContent += values.join(',') + '\n';
     });
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `REPORTE_${report.type.toUpperCase()}_FT_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    logAction(ACTION_TYPES.EXPORT, `Exportó reporte ${report.type} a Excel (Robust)`);
+    try {
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        const fileName = `Reporte_${(report.type || 'SIBIM').toUpperCase()}_${new Date().toISOString().slice(0,10)}.csv`;
+        link.setAttribute('href', url);
+        link.setAttribute('download', fileName);
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        showNotification('Reporte Excel generado correctamente', 'success');
+        if (typeof logAction === 'function') {
+            logAction(ACTION_TYPES.EXPORT, `Export\u00f3 reporte ${report.type} a Excel (${fileName})`);
+        }
+    } catch (err) {
+        console.error('Error in exportReportToExcel:', err);
+        showNotification('Error técnico al descargar el archivo', 'error');
+    }
 }
 
 // Función principal para exportar reportes (unificada para botones de la UI)
@@ -535,11 +549,15 @@ async function exportarReporte(reportType, formato) {
 
 // Función para imprimir reporte con formato oficial
 function printMunicipalReport(reportType) {
-    const config = reportConfig[reportType];
-    const report = window.currentReport; // Asumimos que hay un reporte global cargado
+    // Buscar configuración en ambos objetos posibles
+    const config = (typeof reportConfig !== 'undefined' ? reportConfig[reportType] : null) || 
+                   (typeof extendedReportConfig !== 'undefined' ? extendedReportConfig[reportType] : null) || 
+                   { titulo: 'Reporte SIBIM', descripcion: 'Sistema de Información Municipal' };
+                   
+    const report = window.currentReport; 
 
     if (!report) {
-        alert('Primero genere un reporte para imprimir');
+        showNotification('Primero genere un reporte para imprimir', 'warning');
         return;
     }
 

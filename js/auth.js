@@ -2486,16 +2486,17 @@ function uploadToExpediente(cuip) {
 }
 
 function viewExpedienteFolder(cuip, folderLink) {
+    console.log('Opening folder for:', cuip, 'URL:', folderLink);
     let finalFolderLink = folderLink;
-    if (!finalFolderLink || finalFolderLink === 'undefined') {
-        const employee = (currentPersonnelData || []).find(e => e.cuip === cuip || e.id === cuip);
+    if (!finalFolderLink || finalFolderLink === 'undefined' || finalFolderLink === 'null') {
+        const employee = (window.currentPersonnelData || window.localPersonnel || []).find(e => e.cuip === cuip || e.id === cuip);
         if (employee && employee.folder_link) {
             finalFolderLink = employee.folder_link;
         }
     }
 
-    if (!finalFolderLink || finalFolderLink === '' || finalFolderLink === 'undefined') {
-        showNotification('No se encontró el enlace de la carpeta. Creando acceso...', 'warning');
+    if (!finalFolderLink || finalFolderLink === '' || finalFolderLink === 'undefined' || finalFolderLink === 'null') {
+        showNotification('La ficha no cuenta con carpeta Drive vinculada. Consultando servidor...', 'info');
         window.open(GAS_WEBAPP_URL + '?action=openFolder&folderId=' + cuip, '_blank');
         return;
     }
@@ -2509,29 +2510,37 @@ function viewExpedienteFolder(cuip, folderLink) {
         }
     }
 
+    const modalId = 'modal-drive-' + Date.now();
     const modal = document.createElement('div');
+    modal.id = modalId;
     modal.className = 'modal custom-scrollbar fade-in';
     modal.style.display = 'flex';
     modal.innerHTML = `
-        <div class="modal-content" style="width: 90%; max-width: 1200px; height: 85vh; display: flex; flex-direction: column; padding: 25px;">
-            <div class="modal-header" style="flex: 0 0 auto;">
-                <h3><i class="fas fa-folder-open" style="color:#0ea5e9;"></i> Expediente Digital en Nube (Acceso Restringido)</h3>
-                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+        <div class="modal-content" style="width: 92%; max-width: 1200px; height: 90vh; display: flex; flex-direction: column; padding: 0; background:white; overflow:hidden; border-radius:15px; border:1px solid #0ea5e9;">
+            <div class="modal-header" style="flex: 0 0 auto; background: linear-gradient(135deg, #0a192f, #1a3a6e); padding:15px 25px; border-radius:15px 15px 0 0; color:white; display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="margin:0; color:white; font-size:1.1rem;"><i class="fas fa-folder-open" style="color:#c5a059; margin-right:10px;"></i> Expediente Digital - Seguridad P\u00fablica</h3>
+                <button class="close-btn" onclick="document.getElementById('${modalId}').remove()" style="color:white; font-size:1.6rem; opacity:0.8;">&times;</button>
             </div>
             
-            <div class="modal-body" style="flex: 1 1 auto; padding: 15px 0; display: flex; flex-direction: column;">
-                <div style="background:#e0f2fe; color:#0369a1; padding:12px 18px; border-radius:10px; margin-bottom:15px; font-weight:600; font-size:0.9rem; border-left:4px solid #0ea5e9;">
-                    <i class="fas fa-shield-alt" style="margin-right:8px;"></i>
-                    Acceso autorizado. Visualizando documentos sin descarga temporal.
+            <div class="modal-body" style="flex: 1 1 auto; padding: 20px; display: flex; flex-direction: column; background:#f8fafc;">
+                <div style="background:#e0f2fe; color:#0369a1; padding:10px 15px; border-radius:8px; margin-bottom:15px; font-weight:600; font-size:0.85rem; border-left:4px solid #0ea5e9; display:flex; align-items:center; gap:10px;">
+                    <i class="fas fa-shield-halved" style="font-size:1.2rem;"></i>
+                    Visualizando contenido oficial desde Google Drive &reg;. El acceso es confidencial.
                 </div>
-                <div style="flex: 1; border: 2px solid #e2e8f0; border-radius: 12px; overflow: hidden; position: relative;">
-                    <iframe src="${embedSrc}" width="100%" height="100%" frameborder="0" style="background: white;" allowfullscreen></iframe>
+                
+                <div style="flex: 1; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; position: relative; background:white; box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);">
+                    <iframe src="${embedSrc}" width="100%" height="100%" frameborder="0" style="background: white;" 
+                            allow="autoplay; camera; microphone; fullscreen; picture-in-picture; encrypted-media;" allowfullscreen></iframe>
                 </div>
+                
                 <div style="display:flex; justify-content: space-between; align-items: center; margin-top: 15px;">
-                    <span style="font-size: 0.8rem; color: #64748b;"><i class="fas fa-info-circle"></i> Sincronización en tiempo real con Google Drive Seguro</span>
-                    <button class="btn" onclick="window.open('${finalFolderLink}', '_blank')" style="background:var(--police-navy); color:white; padding:8px 15px; border-radius:8px; border:none; cursor:pointer;">
-                        <i class="fas fa-external-link-alt"></i> Abrir en Nueva Pestaña
-                    </button>
+                    <span style="font-size: 0.75rem; color: #64748b;"><i class="fas fa-lock"></i> Conexi\u00f3n Encriptada TLS 1.3 | SIBIM Monitor</span>
+                    <div style="display:flex; gap:10px;">
+                        <button class="action-btn secondary" onclick="document.getElementById('${modalId}').remove()">Cerrar</button>
+                        <button class="action-btn" onclick="window.open('${finalFolderLink}', '_blank')" style="background:#0ea5e9; color:white;">
+                            <i class="fas fa-external-link-alt"></i> Ver en Drive
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -3221,12 +3230,13 @@ function getConfiguracionSection() {
         <div class="config-container fade-in" >
 
 
-        <div class="config-nav-tabs" style="display: flex; gap: 10px; margin-bottom: 30px; background: #f1f5f9; padding: 10px; border-radius: 15px;">
-            <button class="config-tab-btn active" onclick="switchConfigTab('general', event)" style="flex:1; padding:15px; border:none; border-radius:10px; cursor:pointer; font-weight:700; background:white; color:var(--police-navy); box-shadow:0 4px 6px rgba(0,0,0,0.05); transition:all 0.3s;">GENERAL</button>
-            <button class="config-tab-btn" onclick="switchConfigTab('sheets', event)" style="flex:1; padding:15px; border:none; border-radius:10px; cursor:pointer; font-weight:700; background:transparent; color:#64748b; transition:all 0.3s;">GOOGLE SHEETS</button>
-            <button class="config-tab-btn" onclick="switchConfigTab('drive', event)" style="flex:1; padding:15px; border:none; border-radius:10px; cursor:pointer; font-weight:700; background:transparent; color:#64748b; transition:all 0.3s;">GOOGLE DRIVE</button>
-            <button class="config-tab-btn" onclick="switchConfigTab('apps_script', event)" style="flex:1; padding:15px; border:none; border-radius:10px; cursor:pointer; font-weight:700; background:transparent; color:#64748b; transition:all 0.3s;">APPS SCRIPT</button>
-            <button class="config-tab-btn" onclick="switchConfigTab('backup', event)" style="flex:1; padding:15px; border:none; border-radius:10px; cursor:pointer; font-weight:700; background:transparent; color:#64748b; transition:all 0.3s;">MANTENIMIENTO</button>
+        <div class="config-nav-tabs" style="display: flex; gap: 8px; margin-bottom: 30px; background: #f1f5f9; padding: 10px; border-radius: 15px; flex-wrap:wrap;">
+            <button class="config-tab-btn active" onclick="switchConfigTab('general', event)" style="flex:1; min-width:100px; padding:12px 10px; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.8rem; background:white; color:var(--police-navy); box-shadow:0 4px 6px rgba(0,0,0,0.05); transition:all 0.3s;">GENERAL</button>
+            <button class="config-tab-btn" onclick="switchConfigTab('sheets', event)" style="flex:1; min-width:100px; padding:12px 10px; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.8rem; background:transparent; color:#64748b; transition:all 0.3s;">GOOGLE SHEETS</button>
+            <button class="config-tab-btn" onclick="switchConfigTab('drive', event)" style="flex:1; min-width:100px; padding:12px 10px; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.8rem; background:transparent; color:#64748b; transition:all 0.3s;">GOOGLE DRIVE</button>
+            <button class="config-tab-btn" onclick="switchConfigTab('apps_script', event)" style="flex:1; min-width:100px; padding:12px 10px; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.8rem; background:transparent; color:#64748b; transition:all 0.3s;">APPS SCRIPT</button>
+            <button class="config-tab-btn" onclick="switchConfigTab('tarifas', event)" style="flex:1; min-width:110px; padding:12px 10px; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.8rem; background:transparent; color:#64748b; transition:all 0.3s;">TARIFAS MULTAS</button>
+            <button class="config-tab-btn" onclick="switchConfigTab('backup', event)" style="flex:1; min-width:100px; padding:12px 10px; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.8rem; background:transparent; color:#64748b; transition:all 0.3s;">MANTENIMIENTO</button>
         </div>
 
         <div id="configContent" class="glass-card" style="padding: 35px; border-radius: 25px; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
@@ -3320,21 +3330,21 @@ function getMultasSection() {
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
                         <div class="form-group">
                             <label>Folio Detenido</label>
-                            <input type="text" name="folio" placeholder="V-2026-XXX" required style="width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0;">
+                            <input type="text" id="fineFollio" name="folio" placeholder="V-2026-XXX" style="width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0;">
                         </div>
                         <div class="form-group">
                             <label>Fecha</label>
-                            <input type="date" name="fecha" value="${new Date().toISOString().split('T')[0]}" required style="width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0;">
+                            <input type="date" id="fineFecha" name="fecha" style="width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0;">
                         </div>
                     </div>
                     <div class="form-group" style="margin-top:15px;">
                         <label>Nombre del Infractor</label>
-                        <input type="text" name="infractor" placeholder="Nombre completo" required style="width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0;">
+                        <input type="text" id="fineInfractor" name="infractor" placeholder="Nombre completo" required style="width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0;">
                     </div>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:15px;">
                         <div class="form-group">
                             <label>Placa del Vehículo</label>
-                            <input type="text" name="placa" placeholder="XXX-00-00" required style="width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0;">
+                            <input type="text" id="finePlate" name="placa" placeholder="XXX-00-00" style="width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0;">
                         </div>
                         <div class="form-group">
                             <label>Motivo de Infracción</label>
@@ -3345,15 +3355,21 @@ function getMultasSection() {
                                 <option value="Pasarse el Alto" data-price="950">Pasarse el Alto ($950)</option>
                                 <option value="Cinturón de Seguridad" data-price="450">Cinturón de Seguridad ($450)</option>
                                 <option value="Estacionarse en Lugar Prohibido" data-price="600">Lugar Prohibido ($600)</option>
+                                <option value="Conducir sin Seguro" data-price="700">Sin Seguro Vigente ($700)</option>
+                                <option value="Otro" data-price="0">Otro (especifique monto)</option>
                             </select>
                         </div>
                     </div>
                     <div class="form-group" style="margin-top:15px;">
                         <label>Monto de la Multa ($)</label>
-                        <input type="number" id="fineAmountInput" name="monto" required style="width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0; font-weight:700; font-size:1.2rem; color:var(--police-navy);">
+                        <input type="number" id="fineAmountInput" name="monto" placeholder="0.00" required style="width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0; font-weight:700; font-size:1.2rem; color:var(--police-navy);">
+                    </div>
+                    <div class="form-group" style="margin-top:15px;">
+                        <label>Observaciones</label>
+                        <textarea id="fineObservaciones" name="observaciones" rows="2" placeholder="Notas adicionales..." style="width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0; resize:none;"></textarea>
                     </div>
                     <div class="form-actions" style="margin-top:25px; display:flex; gap:12px; justify-content:flex-end;">
-                        <button type="submit" class="action-btn" style="background:var(--police-navy);">GUARDAR INFRACCIÓN</button>
+                        <button type="submit" class="action-btn" style="background:var(--police-navy);"><i class="fas fa-save"></i> REGISTRAR INFRACCIÓN</button>
                         <button type="button" class="action-btn secondary" onclick="closeFineModal()">CANCELAR</button>
                     </div>
                 </form>
@@ -4743,142 +4759,194 @@ function updatePagination() {
 
 // Ver detalles del empleado
 function viewEmployeeDetails(employeeId) {
-    // Buscar por ID, CUIP o Nombre
     const employee = currentPersonnelData.find(e => String(e.id) === String(employeeId) || e.cuip === employeeId || e.nombre === employeeId);
-    if (!employee) return;
+    if (!employee) { showNotification('Elemento no encontrado', 'error'); return; }
 
-    // Lógica de Foto con fallback
-    let photoSrc = employee.foto;
-    if (!photoSrc || photoSrc === '' || photoSrc === 'foto') {
-        const cuipLimpio = employee.cuip ? employee.cuip.trim() : '';
-        if (cuipLimpio) {
-            photoSrc = `assets / FOTOGRAFIAS PERSONAL / ${cuipLimpio}.png`;
-        }
+    // Foto con fallback inteligente
+    let photoSrc = employee.foto || '';
+    if (!photoSrc || photoSrc === 'foto') {
+        const cuipLimpio = (employee.cuip || '').trim();
+        photoSrc = cuipLimpio
+            ? `assets/FOTOGRAFIAS PERSONAL/${cuipLimpio}.png`
+            : `https://ui-avatars.com/api/?name=${encodeURIComponent((employee.nombre||'N')+' '+(employee.apellidos||'N'))}&background=0a192f&color=c5a059&size=200&bold=true`;
     }
 
+    const estadoClass = (employee.estado || 'activo').toLowerCase().replace(/\s+/g, '-');
+    const diasRestantes = calculateDaysLeft(employee.vigencia);
+
+    // Documentos Drive
+    const docLinks = [];
+    if (employee.ine_link)         docLinks.push({ label: 'INE', url: employee.ine_link });
+    if (employee.curp_link)        docLinks.push({ label: 'CURP', url: employee.curp_link });
+    if (employee.cuip_doc_link)    docLinks.push({ label: 'CUIP Doc.', url: employee.cuip_doc_link });
+    if (employee.comprobante_link) docLinks.push({ label: 'Comprobante', url: employee.comprobante_link });
+    if (employee.acta_nac_link)    docLinks.push({ label: 'Acta Nac.', url: employee.acta_nac_link });
+    if (employee.licencia_link)    docLinks.push({ label: 'Licencia', url: employee.licencia_link });
+
+    const docsHTML = docLinks.length > 0
+        ? docLinks.map(d => `<a href="${d.url}" target="_blank" style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;color:#0369a1;font-weight:600;font-size:0.85rem;text-decoration:none;transition:all 0.2s;"><i class="fas fa-file-pdf" style="color:#ef4444;"></i>${d.label}<i class="fas fa-external-link-alt" style="margin-left:auto;font-size:0.7rem;opacity:0.5;"></i></a>`).join('')
+        : '<p style="color:#94a3b8;font-style:italic;margin:0;">No hay documentos registrados en Drive.</p>';
+
+    const folderLink = employee.folder_link || '';
 
     const modal = document.createElement('div');
-    modal.className = 'modal';
+    modal.className = 'modal fade-in';
+    modal.style.display = 'flex';
     modal.innerHTML = `
-        <div class="modal-content modal-lg" >
-            <div class="modal-header">
-                <h3><i class="fas fa-user"></i> Detalles del Personal</h3>
-                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div style="display: grid; grid-template-columns: 200px 1fr; gap: 20px; align-items: start;">
-                    <div style="text-align: center;">
-                        <div style="width: 150px; height: 180px; margin: 0 auto 15px; border: 3px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #f8fafc; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-                            <img src="${photoSrc}" 
-                                 onerror="this.src=(this.src.includes('assets/') ? 'https://ui-avatars.com/api/?name=${encodeURIComponent(employee.nombre)}&background=0a192f&color=fff' : 'assets/FOTOGRAFIAS PERSONAL/${employee.cuip ? employee.cuip.trim() : 'NONE'}.png')"
-                                 style="width: 100%; height: 100%; object-fit: cover;">
-                        </div>
-                        <span class="status-badge ${employee.estado ? employee.estado.toLowerCase().replace(' ', '-') : 'activo'}" style="width: 100%; text-align: center; display: block; padding: 8px;">
-                            ${employee.estado || 'Activo'}
-                        </span>
+        <div class="modal-content modal-lg" style="max-width:950px; width:96%; border-radius:20px; border:1px solid rgba(197, 160, 89, 0.3);">
+            <div class="modal-header" style="background:linear-gradient(135deg,#0a192f,#1a3a6e);color:white;border-radius:20px 20px 0 0;padding:25px 30px;">
+                <div style="display:flex; align-items:center; gap:15px;">
+                    <div style="width:45px; height:45px; background:rgba(197, 160, 89, 0.2); border-radius:12px; display:flex; align-items:center; justify-content:center;">
+                        <i class="fas fa-user-shield" style="color:#c5a059; font-size:1.5rem;"></i>
                     </div>
-                    
-                    <div class="employee-details">
-                        <div class="details-section" style="margin-top: 0;">
-
-                    <div class="details-section" style="margin-top: 0;">
-
-                        <h4>Información Personal</h4>
-                        <div class="details-grid">
-                            <div><strong>Nombre:</strong> ${employee.nombre}</div>
-                            <div><strong>Cargo:</strong> ${employee.cargo || employee.puesto || 'N/A'}</div>
-                            <div><strong>CUIP:</strong> ${employee.cuip}</div>
-                            <div><strong>CURP:</strong> ${employee.curp}</div>
-                            <div><strong>CUP:</strong> ${employee.cup || '<span style="color:#94a3b8">No registrado</span>'}</div>
-                            <div><strong>Teléfono:</strong> ${employee.telefono || 'N/A'}</div>
-                            <div><strong>Email:</strong> ${employee.email || 'N/A'}</div>
-                            <div><strong>Fecha Ingreso:</strong> ${employee.fechaIngreso || 'N/A'}</div>
-                            <div><strong>Estado:</strong> <span class="status-badge ${employee.estado ? employee.estado.toLowerCase().replace(' ', '-') : 'activo'}">${employee.estado || 'Activo'}</span></div>
-                        </div>
-                    </div>
-                    
-                    ${(employee.emergencia1 || employee.emergencia2) ? `
-                    <div class="details-section" style="margin-top:12px;">
-                        <h4><i class="fas fa-phone-alt" style="color:var(--police-gold);margin-right:6px;"></i>Números de Emergencia Personal</h4>
-                        <div class="details-grid">
-                            ${employee.emergencia1 ? `<div><strong>Contacto 1:</strong> ${employee.emergencia1}</div>` : ''}
-                            ${employee.emergencia2 ? `<div><strong>Contacto 2:</strong> ${employee.emergencia2}</div>` : ''}
-                        </div>
-                    </div>` : ''}
-                    
-                    <div class="details-section">
-                        <h4>Vigencia y Credenciales</h4>
-                        <div class="details-grid">
-                            <div><strong>Vigencia:</strong> ${employee.vigencia || 'N/A'}</div>
-                            <div><strong>Días restantes:</strong> ${calculateDaysLeft(employee.vigencia)}</div>
-                            <div><strong>Credencial activa:</strong> ${employee.credenciales?.some(c => c.activa) ? 'Sí' : 'No'}</div>
-                            <div><strong>Total credenciales:</strong> ${employee.credenciales?.length || 0}</div>
-                        </div>
-                    </div>
-                    
-                    <div class="details-section">
-                        <h4>Documentos</h4>
-                        <div class="document-list">
-                            ${employee.documentos ? Object.entries(employee.documentos).map(([tipo, archivo]) => `
-                                <div class="document-item">
-                                    <i class="fas fa-file-pdf"></i>
-                                    <span>${tipo}: ${archivo}</span>
-                                    <button class="icon-btn" onclick="downloadDocument('${archivo}')">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </div>
-                            `).join('') : 'No hay documentos registrados'}
-                        </div>
-                    </div>
-                    
-                    <div class="details-section">
-                        <h4>Historial de Credenciales</h4>
-                        <table class="mini-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Fecha Emisión</th>
-                                    <th>Vigencia</th>
-                                    <th>Estado</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${employee.credenciales?.map(c => `
-                                    <tr>
-                                        <td>${c.id}</td>
-                                        <td>${c.fechaEmision}</td>
-                                        <td>${c.vigencia}</td>
-                                        <td>${c.activa ? 'Activa' : 'Inactiva'}</td>
-                                    </tr>
-                                `).join('') || '<tr><td colspan="4">Sin historial</td></tr>'}
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <div class="details-section">
-                        <h4>Observaciones</h4>
-                        <p>${employee.observaciones || 'Sin observaciones'}</p>
+                    <div>
+                        <h3 style="margin:0;color:white;font-size:1.4rem;">Expediente de Personal</h3>
+                        <p style="margin:0; font-size:0.85rem; opacity:0.8;">Unidad de Seguridad Blanca y M\u00f3vil (SIBIM)</p>
                     </div>
                 </div>
+                <button class="close-btn" onclick="this.closest('.modal').remove()" style="color:white;font-size:2rem;background:none;border:none;cursor:pointer;line-height:1;">&times;</button>
             </div>
-            <div class="modal-footer">
-                <button class="action-btn" onclick="editEmployee('${employee.cuip || employee.id}')">
-                    <i class="fas fa-edit"></i> Editar
-                </button>
-                <button class="action-btn" style="background:var(--police-gold); color:var(--police-navy);" onclick="generateEmployeeCredential('${employee.cuip || employee.id}')">
-                    <i class="fas fa-id-card"></i> Generar Credencial
-                </button>
+            <div class="modal-body" style="padding:30px;overflow-y:auto;max-height:78vh;background:#fcfdfe;">
 
-                <button class="action-btn secondary" onclick="this.closest('.modal').remove()">
-                    Cerrar
-                </button>
+                <div style="display:grid; grid-template-columns: 220px 1fr; gap:35px; margin-bottom:30px;">
+                    <div style="text-align:center;">
+                        <div style="width:200px; height:250px; margin:0 auto 15px; border:4px solid #0a192f; border-radius:18px; overflow:hidden; background:#f8fafc; box-shadow:0 15px 35px rgba(0,0,0,0.15); position:relative;">
+                            <img src="${photoSrc}"
+                                 onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=${encodeURIComponent((employee.nombre||'N')+' '+(employee.apellidos||'N'))}&background=0a192f&color=c5a059&size=200&bold=true'"
+                                 style="width:100%; height:100%; object-fit:cover; object-position:center top;">
+                            <div style="position:absolute; bottom:0; left:0; right:0; background:rgba(10, 25, 47, 0.82); padding:6px; color:#c5a059; font-weight:800; font-size:0.75rem; letter-spacing:1px;">
+                                FOTOGRAF\u00cdA OFICIAL
+                            </div>
+                        </div>
+                        <div class="status-badge ${estadoClass}" style="display:inline-block; padding:10px 20px; font-size:1rem; font-weight:700; border-radius:50px; box-shadow:0 5px 15px rgba(0,0,0,0.1); width:100%; box-sizing:border-box;">
+                            ${employee.estado || 'Activo'}
+                        </div>
+                        
+                        <div style="margin-top:20px; display:flex; flex-direction:column; gap:10px;">
+                            ${folderLink ? `
+                            <button onclick="viewExpedienteFolder('${employee.cuip}','${folderLink}')" style="width:100%; padding:12px; background:#0ea5e9; color:white; border:none; border-radius:12px; cursor:pointer; font-size:0.9rem; font-weight:700; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 12px rgba(14, 165, 233, 0.3);">
+                                <i class='fas fa-folder-open'></i> Carperta Digital
+                            </button>` : ''}
+                            <button onclick="generateEmployeeCredential('${employee.cuip}')" style="width:100%; padding:12px; background:#c5a059; color:#0a192f; border:none; border-radius:12px; cursor:pointer; font-size:0.9rem; font-weight:700; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 12px rgba(197, 160, 89, 0.3);">
+                                <i class='fas fa-id-card'></i> Emitir Credencial
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; flex-direction:column; gap:20px;">
+                        <h2 style="margin:0; color:#0a192f; font-size:1.8rem; font-weight:900; letter-spacing:-0.5px;">${employee.nombre||''} ${employee.apellidos||''}</h2>
+                        
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+                            <div style="background:#f8fafc; border-radius:15px; padding:18px; border:1px solid #e2e8f0; border-left:5px solid #0a192f;">
+                                <h4 style="margin:0 0 15px; color:#0a192f; font-size:0.9rem; text-transform:uppercase; display:flex; align-items:center; gap:8px;"><i class="fas fa-address-card" style="color:#c5a059;"></i>Identificaci\u00f3n</h4>
+                                <div style="display:flex; flex-direction:column; gap:10px; font-size:0.92rem;">
+                                    <div><strong style="color:#64748b;">CUIP:</strong> <span style="font-family:monospace; font-weight:700; color:#0369a1; background:#e0f2fe; padding:2px 6px; border-radius:4px;">${employee.cuip||'PENDIENTE'}</span></div>
+                                    <div><strong style="color:#64748b;">CURP:</strong> <span style="font-weight:600;">${employee.curp||'---'}</span></div>
+                                    <div><strong style="color:#64748b;">RFC:</strong> <span style="font-weight:600;">${employee.rfc||'---'}</span></div>
+                                    <div><strong style="color:#64748b;">CARGO:</strong> <span style="font-weight:600;">${employee.cargo||employee.puesto||'---'}</span></div>
+                                </div>
+                            </div>
+
+                            <div style="background:#f8fafc; border-radius:15px; padding:18px; border:1px solid #e2e8f0; border-left:5px solid #c5a059;">
+                                <h4 style="margin:0 0 15px; color:#0a192f; font-size:0.9rem; text-transform:uppercase; display:flex; align-items:center; gap:8px;"><i class="fas fa-info-circle" style="color:#c5a059;"></i>Informaci\u00f3n General</h4>
+                                <div style="display:flex; flex-direction:column; gap:10px; font-size:0.92rem;">
+                                    <div><strong style="color:#64748b;">F. Ingreso:</strong> <span style="font-weight:600;">${employee.fechaIngreso||'---'}</span></div>
+                                    <div><strong style="color:#64748b;">T. Sangre:</strong> <span style="font-weight:700; color:#ef4444;">${employee.tipoSangre||'---'}</span></div>
+                                    <div><strong style="color:#64748b;">NSS:</strong> <span style="font-weight:600;">${employee.nss||'---'}</span></div>
+                                    <div><strong style="color:#64748b;">Vigencia:</strong> <span style="font-weight:800; color:${diasRestantes==='Vencida'||Number(diasRestantes)<0?'#ef4444':Number(diasRestantes)<30?'#f59e0b':'#10b981'};">${employee.vigencia||'NO DEFINIDA'}</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="background:#f0fdf4; border-radius:15px; padding:20px; border:1px solid #dcfce7; display:flex; align-items:center; gap:20px;">
+                            <div style="background:#10b981; color:white; width:45px; height:45px; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div>
+                                <h4 style="margin:0; color:#166534; font-size:0.85rem; text-transform:uppercase;">Estado de Certificaci\u00f3n / Vigencia</h4>
+                                <p style="margin:5px 0 0; font-size:1.1rem; font-weight:800; color:#14532d;">
+                                    ${diasRestantes === 'Vencida' ? 'CREDENCAL VENCIDA' : `LE RESTAN ${diasRestantes} D\u00cdAS DE VIGENCIA`}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secciones Adicionales -->
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:25px;">
+                    <!-- Contacto -->
+                    <div style="background:white; border-radius:18px; padding:22px; border:1px solid #e2e8f0; box-shadow:0 4px 12px rgba(0,0,0,0.03);">
+                        <h4 style="margin:0 0 18px; color:#0a192f; font-size:1rem; border-bottom:2px solid #f1f5f9; padding-bottom:10px; display:flex; align-items:center; gap:10px;">
+                            <i class="fas fa-phone-alt" style="color:#0ea5e9;"></i> Contacto y Emergencia
+                        </h4>
+                        <div style="display:flex; flex-direction:column; gap:12px; font-size:0.9rem;">
+                            <div><strong style="color:#64748b;">Tel\u00e9fono Personal:</strong> ${employee.telefono||'---'}</div>
+                            <div><strong style="color:#64748b;">Email:</strong> ${employee.email||'---'}</div>
+                            <div style="margin-top:5px; padding-top:10px; border-top:1px dashed #e2e8f0;">
+                                <div><strong style="color:#64748b;">Contacto Emergencia:</strong> ${employee.contacto_emergencia||'---'}</div>
+                                <div><strong style="color:#64748b;">Tel. Emergencia:</strong> <span style="color:#0369a1; font-weight:700;">${employee.tel_emergencia||'---'}</span></div>
+                                <div><strong style="color:#64748b;">Parentesco:</strong> ${employee.parentesco||'---'}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Equipamiento -->
+                    <div style="background:white; border-radius:18px; padding:22px; border:1px solid #e2e8f0; box-shadow:0 4px 12px rgba(0,0,0,0.03);">
+                        <h4 style="margin:0 0 18px; color:#0a192f; font-size:1rem; border-bottom:2px solid #f1f5f9; padding-bottom:10px; display:flex; align-items:center; gap:10px;">
+                            <i class="fas fa-shield-alt" style="color:#7c3aed;"></i> Equipo y Veh\u00edculo
+                        </h4>
+                        <div style="display:flex; flex-direction:column; gap:12px; font-size:0.9rem;">
+                            <div><strong style="color:#64748b;">Arma Asignada:</strong> ${employee.numArma ? `${employee.tipoArma} (${employee.numArma})` : 'NINGUNA'}</div>
+                            <div><strong style="color:#64748b;">Portaci\u00f3n (CUA):</strong> ${employee.cua_link ? 'VINCULADA' : 'NO DISPONIBLE'}</div>
+                            <div><strong style="color:#64748b;">Veh\u00edculo / Unidad:</strong> ${employee.vehiculo || 'PESTRULLA NO ASIGNADA'}</div>
+                            <div><strong style="color:#64748b;">Radio:</strong> ${employee.radio || '---'}</div>
+                            <div><strong style="color:#64748b;">Chaleco:</strong> ${employee.chaleco || '---'}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Documentos -->
+                <div style="margin-top:25px; background:white; border-radius:18px; padding:22px; border:1px solid #e2e8f0; box-shadow:0 4px 12px rgba(0,0,0,0.03);">
+                    <h4 style="margin:0 0 18px; color:#0a192f; font-size:1rem; border-bottom:2px solid #f1f5f9; padding-bottom:10px; display:flex; align-items:center; gap:10px;">
+                        <i class="fas fa-file-invoice" style="color:#0ea5e9;"></i> Documentaci\u00f3n Resguardada
+                    </h4>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:15px;">
+                        ${docsHTML}
+                    </div>
+                </div>
+
+                <!-- Observaciones -->
+                <div style="margin-top:25px; background:#fffbeb; border-radius:18px; padding:22px; border:1px solid #fef3c7;">
+                    <h4 style="margin:0 0 12px; color:#92400e; font-size:1rem; display:flex; align-items:center; gap:10px;">
+                        <i class="fas fa-comment-medical"></i> Observaciones y Notas M\u00e9dicas
+                    </h4>
+                    <p style="margin:0; color:#451a03; line-height:1.6; font-size:0.95rem;">
+                        ${employee.observaciones || 'No se han registrado observaciones o incidencias para este elemento hasta la fecha actual.'}
+                    </p>
+                </div>
+            </div>
+            
+            <div class="modal-footer" style="padding:20px 30px; background:#f8fafc; border-radius:0 0 20px 20px; display:flex; justify-content:space-between; align-items:center; border-top:1px solid #e2e8f0;">
+                <span style="font-size:0.8rem; color:#94a3b8;"><i class="fas fa-fingerprint"></i> ID de Seguridad: ${employee.id}</span>
+                <div style="display:flex; gap:12px;">
+                    ${tienePermiso('editar') ? `
+                    <button class="action-btn" onclick="editEmployee('${employee.cuip||employee.id}')" style="background:#0a192f; color:white; border-radius:12px; padding:10px 25px; border:none; cursor:pointer; font-weight:700; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-user-edit"></i> Editar Ficha
+                    </button>
+                    ` : ''}
+                    <button class="action-btn secondary" onclick="this.closest('.modal').remove()" style="background:white; color:#64748b; border:1px solid #e2e8f0; border-radius:12px; padding:10px 25px; cursor:pointer; font-weight:700;">
+                        <i class="fas fa-times"></i> Cerrar
+                    </button>
+                </div>
             </div>
         </div>
-`;
+    `;
 
     document.body.appendChild(modal);
-    logAction(ACTION_TYPES.VIEW, `Vio detalles de empleado: ${employee.nombre} `);
+    logAction(ACTION_TYPES.VIEW, `Consult\u00f3 expediente completo de: ${employee.nombre} `);
 }
+
+
 
 // Editar empleado
 // La función anterior fue eliminada para consolidar con la versión robusta al final del archivo.
@@ -5553,13 +5621,19 @@ function downloadFile(content, filename, type) {
     URL.revokeObjectURL(link.href);
 }
 
+// Stub seguro – evita ReferenceError si no hay audio configurado
+function playSirenSound() {
+    // Reservado para integración futura con Web Audio API
+}
+window.playSirenSound = playSirenSound;
+
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
 
-    // Alerta sonora para avisos importantes
-    if (type === 'error' || type === 'warning' || message.toLowerCase().includes('urgente') || message.toLowerCase().includes('alerta')) {
-        playSirenSound();
+    // Alerta sonora (stub seguro)
+    if (type === 'error' || type === 'warning') {
+        try { playSirenSound(); } catch(e) {}
     }
 
     notification.innerHTML = `
@@ -6344,22 +6418,37 @@ window.printSingleCredential = printSingleCredential;
 async function initMultasSection() {
     await loadFinesRepo();
 
-    // Poblar select de oficiales
-    const officers = await loadGoogleSheetsData();
+    // Poblar select de oficiales desde personal activo
+    const officers = (window.currentPersonnelData || window.localPersonnel || []);
     const officerSelect = document.getElementById('fineOfficer');
     if (officerSelect) {
         officerSelect.innerHTML = '<option value="">Seleccione Oficial...</option>' +
             officers.map(o => `<option value="${o.nombre} ${o.apellidos}">${o.nombre} ${o.apellidos}</option>`).join('');
     }
 
-    // Lógica de cambio de precio según motivo
+    // Poblar catálogo de motivos desde localStorage (sibim_tarifas)
     const reasonSelect = document.getElementById('fineReasonSelect');
     const amountInput = document.getElementById('fineAmountInput');
-    if (reasonSelect && amountInput) {
+    
+    if (reasonSelect) {
+        const savedTarifas = JSON.parse(localStorage.getItem('sibim_tarifas') || '[]');
+        if (savedTarifas.length > 0) {
+            reasonSelect.innerHTML = '<option value="">Seleccione Motivo...</option>' + 
+                savedTarifas.map(t => `<option value="${t.motivo}" data-price="${t.costo}">${t.motivo} ($${t.costo})</option>`).join('');
+        } else {
+            // Valores por defecto si no hay catálogo
+            reasonSelect.innerHTML = `
+                <option value="">Seleccione Motivo...</option>
+                <option value="Exceso de Velocidad" data-price="850">Exceso de Velocidad ($850)</option>
+                <option value="Falta de Licencia" data-price="600">Falta de Licencia ($600)</option>
+                <option value="Pasarse el Alto" data-price="450">Pasarse el Alto ($450)</option>
+            `;
+        }
+
         reasonSelect.addEventListener('change', function () {
             const selected = this.options[this.selectedIndex];
             const price = selected.getAttribute('data-price');
-            if (price) amountInput.value = price;
+            if (price && amountInput) amountInput.value = price;
         });
     }
 
@@ -6367,27 +6456,46 @@ async function initMultasSection() {
     if (form) {
         form.onsubmit = async (e) => {
             e.preventDefault();
-            showNotification('Generando folio de infracción...', 'info');
-            setTimeout(() => {
-                const newFine = {
-                    folio: 'V-2026-' + String(window.finesList.length + 1).padStart(3, '0'),
-                    fecha: new Date().toISOString().split('T')[0],
-                    infractor: document.getElementById('fineInfractor').value || 'Anónimo',
-                    placa: document.getElementById('finePlate').value || 'S/N',
-                    motivo: document.getElementById('fineReasonSelect').value,
-                    monto: parseFloat(document.getElementById('fineAmountInput').value) || 0,
-                    estado: 'Pendiente'
-                };
-                window.finesList.push(newFine);
-                localStorage.setItem('sibim_fines', JSON.stringify(window.finesList));
+            const infractorVal = (document.getElementById('fineInfractor')?.value || '').trim();
+            const plateVal     = (document.getElementById('finePlate')?.value || '').trim();
+            const reasonVal    = (document.getElementById('fineReasonSelect')?.value || '');
+            const montoVal     = parseFloat(document.getElementById('fineAmountInput')?.value) || 0;
+            const officerVal   = document.getElementById('fineOfficer')?.value || 'Sistema';
+            const obsVal       = (document.getElementById('fineObservaciones')?.value || '');
+            const fechaVal     = document.getElementById('fineFecha')?.value || new Date().toISOString().split('T')[0];
 
-                showNotification('Multa registrada correctamente', 'success');
-                closeFineModal();
-                loadFinesRepo();
-            }, 1000);
+            if (!infractorVal) { showNotification('Ingrese el nombre del infractor', 'warning'); return; }
+            if (!reasonVal)    { showNotification('Seleccione un motivo de infracci\u00f3n', 'warning'); return; }
+            if (montoVal <= 0) { showNotification('Ingrese un monto v\u00e1lido', 'warning'); return; }
+
+            showNotification('Registrando infracci\u00f3n...', 'info');
+            
+            if (!window.finesList) window.finesList = JSON.parse(localStorage.getItem('sibim_fines') || '[]');
+            
+            const newFine = {
+                folio: 'V-' + new Date().getFullYear() + '-' + String(window.finesList.length + 1).padStart(3, '0'),
+                fecha: fechaVal,
+                infractor: infractorVal,
+                placa: plateVal || 'S/N',
+                motivo: reasonVal,
+                monto: montoVal,
+                oficial: officerVal,
+                observaciones: obsVal,
+                estado: 'Pendiente'
+            };
+            
+            window.finesList.push(newFine);
+            localStorage.setItem('sibim_fines', JSON.stringify(window.finesList));
+            
+            showNotification(`Infracci\u00f3n ${newFine.folio} registrada correctamente`, 'success');
+            closeFineModal();
+            loadFinesRepo();
+            
+            logAction(ACTION_TYPES.GENERATE, `Registr\u00f3 multa ${newFine.folio} para ${newFine.infractor}`);
         };
     }
 }
+
 
 async function loadFinesRepo() {
     const container = document.getElementById('finesTableBody');
@@ -7612,6 +7720,58 @@ function switchConfigTab(tab, eventOrig) {
                     <button class="action-btn primary" onclick="alert('Funciones sincronizadas correctamente.')"><i class="fas fa-sync"></i> Sincronizar Funciones</button>
                 </div>
             </div>`;
+    } else if (tab === 'tarifas') {
+        const savedTarifas = JSON.parse(localStorage.getItem('sibim_tarifas') || 'null') || [
+            { id: 1, concepto: 'Exceso de Velocidad', monto: 800 },
+            { id: 2, concepto: 'Falta de Licencia', monto: 550 },
+            { id: 3, concepto: 'Pasarse el Alto', monto: 950 },
+            { id: 4, concepto: 'Cinturón de Seguridad', monto: 450 },
+            { id: 5, concepto: 'Estacionarse en Lugar Prohibido', monto: 600 },
+            { id: 6, concepto: 'Conducir sin Seguro', monto: 700 }
+        ];
+        localStorage.setItem('sibim_tarifas', JSON.stringify(savedTarifas));
+        window.tarifasList = savedTarifas;
+
+        const rowsHtml = savedTarifas.map(t => `
+            <tr id="tarifa-row-${t.id}">
+                <td style="padding:12px 10px;">${t.id}</td>
+                <td style="padding:12px 10px;">
+                    <input id="tarifa-concepto-${t.id}" type="text" value="${t.concepto}" style="width:100%;padding:6px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:0.9rem;">
+                </td>
+                <td style="padding:12px 10px;">
+                    <input id="tarifa-monto-${t.id}" type="number" value="${t.monto}" style="width:100%;padding:6px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:0.9rem;font-weight:700;">
+                </td>
+                <td style="padding:12px 10px;">
+                    <div style="display:flex;gap:6px;">
+                        <button onclick="saveTarifa(${t.id})" style="padding:6px 12px;background:#10b981;color:white;border:none;border-radius:6px;cursor:pointer;font-size:0.8rem;font-weight:700;"><i class='fas fa-save'></i></button>
+                        <button onclick="deleteTarifa(${t.id})" style="padding:6px 12px;background:#ef4444;color:white;border:none;border-radius:6px;cursor:pointer;font-size:0.8rem;"><i class='fas fa-trash'></i></button>
+                    </div>
+                </td>
+            </tr>`).join('');
+
+        container.innerHTML = `
+            <div class="config-card" style="background:white;border-radius:15px;padding:30px;border:1px solid #e2e8f0;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;">
+                    <h3 style="margin:0;color:#0a192f;"><i class="fas fa-receipt" style="color:#c5a059;"></i> Tarifas de Multas de Tr&aacute;nsito</h3>
+                    <button onclick="addTarifa()" style="padding:10px 20px;background:var(--police-navy);color:white;border:none;border-radius:10px;cursor:pointer;font-weight:700;">
+                        <i class="fas fa-plus"></i> Nueva Tarifa
+                    </button>
+                </div>
+                <table style="width:100%;border-collapse:collapse;">
+                    <thead>
+                        <tr style="background:#f1f5f9;">
+                            <th style="padding:12px 10px;text-align:left;font-size:0.8rem;text-transform:uppercase;color:#64748b;width:40px;">#</th>
+                            <th style="padding:12px 10px;text-align:left;font-size:0.8rem;text-transform:uppercase;color:#64748b;">Concepto de Infracci&oacute;n</th>
+                            <th style="padding:12px 10px;text-align:left;font-size:0.8rem;text-transform:uppercase;color:#64748b;width:130px;">Monto ($)</th>
+                            <th style="padding:12px 10px;text-align:left;font-size:0.8rem;text-transform:uppercase;color:#64748b;width:100px;">Acci&oacute;n</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tarifasTableBody">${rowsHtml}</tbody>
+                </table>
+                <div style="margin-top:20px;padding:12px 15px;background:#f0f9ff;border-radius:10px;border:1px solid #bae6fd;font-size:0.85rem;color:#0369a1;">
+                    <i class="fas fa-info-circle"></i> Las tarifas se aplican autom&aacute;ticamente al seleccionar el motivo de infracci&oacute;n en el m&oacute;dulo de Multas.
+                </div>
+            </div>`;
     } else if (tab === 'backup' || tab === 'mantenimiento') {
         container.innerHTML = `
             <div class="config-card" style="background: white; border-radius: 15px; padding: 30px; border: 1px solid #e2e8f0;">
@@ -7653,14 +7813,46 @@ async function deleteFine(folio) {
     }
 }
 
-function testDriveConnection() {
-    showNotification('Verificando conexión con Google Drive API...', 'info');
-    setTimeout(() => {
-        showNotification('Conexión con Drive establecida y permisos verificados', 'success');
-    }, 1500);
-}
-
 window.testDriveConnection = testDriveConnection;
+
+// --- CRUD DE TARIFAS DE MULTAS ---
+function saveTarifa(id) {
+    const concepto = document.getElementById(`tarifa-concepto-${id}`)?.value?.trim();
+    const monto = parseFloat(document.getElementById(`tarifa-monto-${id}`)?.value);
+    if (!concepto || isNaN(monto) || monto < 0) { 
+        showNotification('Datos inválidos. Por favor verifique el concepto y el monto.', 'warning'); 
+        return; 
+    }
+    if (!window.tarifasList) window.tarifasList = [];
+    const item = window.tarifasList.find(t => t.id === id);
+    if (item) { 
+        item.concepto = concepto; 
+        item.monto = monto; 
+    }
+    localStorage.setItem('sibim_tarifas', JSON.stringify(window.tarifasList));
+    showNotification(`Tarifa "${concepto}" guardada correctamente: $${monto}`, 'success');
+}
+window.saveTarifa = saveTarifa;
+
+function deleteTarifa(id) {
+    if (!confirm('¿Está seguro de eliminar esta tarifa?')) return;
+    if (!window.tarifasList) return;
+    window.tarifasList = window.tarifasList.filter(t => t.id !== id);
+    localStorage.setItem('sibim_tarifas', JSON.stringify(window.tarifasList));
+    showNotification('Tarifa eliminada del catálogo local', 'success');
+    switchConfigTab('tarifas'); // Refrescar vista
+}
+window.deleteTarifa = deleteTarifa;
+
+function addTarifa() {
+    if (!window.tarifasList) window.tarifasList = [];
+    const maxId = window.tarifasList.length > 0 ? Math.max(...window.tarifasList.map(t => t.id)) : 0;
+    const newId = maxId + 1;
+    window.tarifasList.push({ id: newId, concepto: 'Nueva Infracción', monto: 0 });
+    localStorage.setItem('sibim_tarifas', JSON.stringify(window.tarifasList));
+    switchConfigTab('tarifas'); // Refrescar vista
+}
+window.addTarifa = addTarifa;
 
 
 function editFineCost(reason, oldCost) {

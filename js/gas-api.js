@@ -7,12 +7,12 @@ const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzd_M0tZHkKipijb
 const SPREADSHEET_ID_CONFIG = '12_nohX3MHsU8WrvhDKLYbQYr0uoMFvlx30ICjjJsT2M';
 
 // Definiciones globales compartidas (Cargadas al inicio para evitar ReferenceErrors)
-const EMPLOYEE_STATUS = {
+var EMPLOYEE_STATUS = Object.assign(window.EMPLOYEE_STATUS || {}, {
     ACTIVO: 'Activo',
     BAJA: 'Baja',
     VACACIONES: 'Vacaciones',
     COMISION: 'De Comisión'
-};
+});
 window.EMPLOYEE_STATUS = EMPLOYEE_STATUS;
 
 // Placeholders para funciones definidas en auth.js que son accedidas por otros scripts

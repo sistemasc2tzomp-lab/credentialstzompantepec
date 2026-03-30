@@ -271,7 +271,6 @@ function showErrorMessage(message) {
 window.loadGoogleSheetsData = loadGoogleSheetsData;
 window.updatePersonnelTable = updatePersonnelTable;
 window.searchPersonnel = searchPersonnel;
-window.EMPLOYEE_STATUS = EMPLOYEE_STATUS;
 
 // Event listener para cuando se carga la sección
 document.addEventListener('sectionLoaded', function (e) {

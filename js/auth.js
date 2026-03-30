@@ -371,7 +371,7 @@ var REPORT_TYPES = {
 window.REPORT_TYPES = REPORT_TYPES;
 
 // Estados oficiales del personal
-const EMPLOYEE_STATUS = {
+var EMPLOYEE_STATUS = Object.assign(window.EMPLOYEE_STATUS || {}, {
     ACTIVO: 'Activo',
     FRANCO: 'Franco',
     BAJA: 'Baja',
@@ -379,7 +379,7 @@ const EMPLOYEE_STATUS = {
     COMISION: 'De Comisión',
     INCAPACIDAD: 'Incapacidad',
     SUSPENDIDO: 'Suspendido'
-};
+});
 window.EMPLOYEE_STATUS = EMPLOYEE_STATUS;
 
 // --- REPOSITORIOS TÁCTICOS DATA (Global State) ---
